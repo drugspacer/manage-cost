@@ -1,12 +1,10 @@
 import React, {
-  DOMAttributes,
   MouseEventHandler,
   ReactElement,
   useCallback,
   useEffect,
   useState,
 } from "react";
-import Button from "@mui/material/Button";
 import {
   deleteActivity,
   finishTrip,
@@ -33,6 +31,11 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import DialogWrapper from "../components/HOC/DialogWrapper";
+import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import { Tooltip } from "@mui/material";
+import { ButtonProp } from "../models/ui.model";
 
 enum MODAL_TYPE {
   EDIT_TRIP = "Редактировать поездку",
@@ -60,7 +63,7 @@ const Trip: React.FC = () => {
 
   const handleButton: (
     func: (id: string | undefined) => Promise<TripRs>
-  ) => DOMAttributes<HTMLButtonElement>["onClick"] = useCallback(
+  ) => () => void = useCallback(
     (func) => () => {
       setIsLoading(true);
       func(trip?.id).then((data) => {
@@ -146,7 +149,8 @@ const Trip: React.FC = () => {
   };
 
   let content = null;
-  const buttons = [];
+  const buttons: ButtonProp[] = [];
+  let mainButton: ButtonProp | undefined = undefined;
 
   if (!isLoading && trip !== undefined) {
     const cards = trip.activities.map((item) => (
@@ -194,36 +198,37 @@ const Trip: React.FC = () => {
 
     content = <ArchiveWrapper trip={trip}>{cards}</ArchiveWrapper>;
     if (trip.archive) {
-      buttons.push(
-        <Button
-          key="finish"
-          color="inherit"
-          onClick={handleButton(returnFromArchive)}
-        >
-          Вернуть из архива
-        </Button>
-      );
+      mainButton = {
+        text: "Вернуть из архива",
+        handler: handleButton(returnFromArchive),
+      };
     } else {
-      buttons.push(
-        <Button
-          key="edit"
-          color="inherit"
-          onClick={modalButtonHandler(MODAL_TYPE.EDIT_TRIP)}
-        >
-          {MODAL_TYPE.EDIT_TRIP}
-        </Button>,
-        <Button
-          key="create"
-          color="inherit"
-          onClick={modalButtonHandler(MODAL_TYPE.ADD_ACTION)}
-        >
-          {MODAL_TYPE.ADD_ACTION}
-        </Button>,
-        <Button key="finish" color="inherit" onClick={handleButton(finishTrip)}>
-          Завершить поездку
-        </Button>
-      );
+      buttons.push({
+        element: (
+          <Tooltip title={MODAL_TYPE.EDIT_TRIP}>
+            <IconButton
+              size="large"
+              key="edit"
+              color="inherit"
+              aria-label="edit"
+              sx={{ mr: 2 }}
+              onClick={modalButtonHandler(MODAL_TYPE.EDIT_TRIP)}
+            >
+              <EditOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+        ),
+        text: MODAL_TYPE.EDIT_TRIP,
+        handler: modalButtonHandler(MODAL_TYPE.EDIT_TRIP),
+      });
+      mainButton = {
+        text: "Завершить поездку",
+        handler: handleButton(finishTrip),
+      };
     }
+  }
+  if (isLoading) {
+    content = <CircularProgress />;
   }
 
   const breadcrumbs = [
@@ -232,7 +237,7 @@ const Trip: React.FC = () => {
   ];
 
   return (
-    <Page buttons={buttons} breadcrumbs={breadcrumbs}>
+    <Page buttons={buttons} mainButton={mainButton} breadcrumbs={breadcrumbs}>
       {content}
       <UIModal
         isOpen={!!modalType}

@@ -12,6 +12,7 @@ import IconButton from "@mui/material/IconButton";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CardHeader from "@mui/material/CardHeader";
+import Tooltip from "@mui/material/Tooltip";
 
 const ActivityCard: FC<{
   activity: Activity;
@@ -35,14 +36,18 @@ const ActivityCard: FC<{
   const buttons = (
     <>
       {!isArchive && (
-        <IconButton onClick={onEditAction}>
-          <EditOutlinedIcon />
-        </IconButton>
+        <Tooltip title="Редактировать">
+          <IconButton onClick={onEditAction}>
+            <EditOutlinedIcon />
+          </IconButton>
+        </Tooltip>
       )}
       {!isArchive && (
-        <IconButton onClick={onDelete}>
-          <DeleteOutlinedIcon />
-        </IconButton>
+        <Tooltip title="Удалить">
+          <IconButton onClick={onDelete}>
+            <DeleteOutlinedIcon />
+          </IconButton>
+        </Tooltip>
       )}
     </>
   );
