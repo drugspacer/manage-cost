@@ -1,8 +1,17 @@
-interface ITrip {
-  id: string;
+import Activity, { ActivityRs } from "./activity.model";
+import PersonTrip from "./personTrip.model";
+import { Id, Version } from "./model";
+
+interface Trip extends Id, Version {
   place: string;
-  participants: string[];
-  isArchive: boolean
+  name: string;
+  persons: PersonTrip[];
+  archive: boolean;
+  activities: Activity[];
 }
 
-export default ITrip;
+export type TripRs = Omit<Trip, "activities"> & {
+  activities: ActivityRs[];
+};
+
+export default Trip;

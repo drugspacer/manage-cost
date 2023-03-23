@@ -1,14 +1,13 @@
-import React, { FC } from "react";
+import React, { FC, PropsWithChildren } from "react";
 import AppBar from "@mui/material/AppBar";
-import Button from "@mui/material/Button";
 import Toolbar from "@mui/material/Toolbar";
 
-const AppBarHeader: FC = () => (
+const AppBarHeader: FC<PropsWithChildren> = ({ children }) => {
+  return (
     <AppBar position="static">
-      <Toolbar>
-        <Button color="inherit">Создать поездку</Button>
-      </Toolbar>
+      <Toolbar>{children}</Toolbar>
     </AppBar>
-);
+  );
+};
 
 export default AppBarHeader;
