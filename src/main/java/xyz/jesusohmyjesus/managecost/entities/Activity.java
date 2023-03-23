@@ -11,10 +11,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -27,10 +26,12 @@ import java.util.UUID;
 @Table
 @Getter
 @Setter
-public class Activity {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Activity implements Comparable<Activity> {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, columnDefinition = "uuid")
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @Version
@@ -52,8 +53,9 @@ public class Activity {
     @OneToMany(mappedBy = "primaryKey.activity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecordEntity> records = new ArrayList<>();
 
-    public void addRecord(RecordEntity record) {
-        record.setActivity(this);
-        records.add(record);
+    @Override
+    public int compareTo(Activity o) {
+        return this.getDate()
+                .compareTo(o.getDate());
     }
 }

@@ -3,7 +3,6 @@ package xyz.jesusohmyjesus.managecost.entities;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,12 +15,11 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.hibernate.collection.spi.PersistentSortedSet;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -56,7 +54,7 @@ public class Trip {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "trip_id", referencedColumnName = "id", nullable = false)
-    private List<Activity> activities;
+    private PersistentSortedSet<Activity> activities;
 
     @OneToMany(mappedBy = "primaryKey.trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PersonTrip> persons = new HashSet<>();

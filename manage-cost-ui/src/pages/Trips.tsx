@@ -1,10 +1,5 @@
 import Grid from "@mui/material/Grid";
-import React, {
-  MouseEventHandler,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import TripCard from "../components/TripCard";
 import Button from "@mui/material/Button";
 import SaveTrip from "../components/forms/SaveTrip";
@@ -15,8 +10,10 @@ import { deleteTrip, getTrips, saveTrip } from "../api/trips";
 import tripRsToTrip from "../functions/apiTransform";
 import { TripRq } from "../models/form.model";
 import DialogWrapper from "../components/HOC/DialogWrapper";
+import CircularProgress from "@mui/material/CircularProgress";
+import { ButtonProp } from "../models/ui.model";
 
-const Trips: React.FC = () => {
+const Trips: FC = () => {
   const [openModal, setOpenModal] = useState(false);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +45,9 @@ const Trips: React.FC = () => {
     []
   );
 
-  let content = null;
+  const openHandler = useCallback(() => setOpenModal(true), []);
+
+  let content;
 
   if (!isLoading) {
     content = (
@@ -62,12 +61,20 @@ const Trips: React.FC = () => {
         ))}
       </Grid>
     );
+  } else {
+    content = <CircularProgress />;
   }
 
-  const buttons = [
-    <Button key="create" color="inherit" onClick={() => setOpenModal(true)}>
-      Создать поездку
-    </Button>,
+  const buttons: ButtonProp[] = [
+    {
+      element: (
+        <Button key="create" color="inherit" onClick={openHandler}>
+          Создать поездку
+        </Button>
+      ),
+      text: "Создать поездку",
+      handler: openHandler,
+    },
   ];
 
   const breadcrumbs = [{ href: "/", label: "Поездки" }];

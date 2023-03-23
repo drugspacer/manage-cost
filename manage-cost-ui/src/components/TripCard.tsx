@@ -9,6 +9,7 @@ import CardActionArea from "@mui/material/CardActionArea";
 import { useNavigate } from "react-router";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
 const TripCard: FC<{
   trip: Omit<Trip, "isArchive">;
@@ -33,9 +34,11 @@ const TripCard: FC<{
           title={trip.name}
           sx={{ width: "100%" }}
           action={
-            <IconButton aria-label="delete" onClick={onDelete}>
-              <DeleteOutlinedIcon />
-            </IconButton>
+            <Tooltip title="Удалить поездку">
+              <IconButton aria-label="delete" onClick={onDelete}>
+                <DeleteOutlinedIcon />
+              </IconButton>
+            </Tooltip>
           }
         />
         <CardContent>

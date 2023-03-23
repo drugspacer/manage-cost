@@ -5,6 +5,7 @@ import React, {
   ReactElement,
   useCallback,
   ChangeEventHandler,
+  useEffect,
 } from "react";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -43,7 +44,7 @@ import { InputBaseProps } from "@mui/material/InputBase/InputBase";
 import { Checkbox } from "@mui/material";
 import { CheckboxProps } from "@mui/material/Checkbox/Checkbox";
 import Activity from "../../models/activity.model";
-import { Id, Version } from "../../models/model";
+import Typography from "@mui/material/Typography";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -54,7 +55,6 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 const simpleValidationConfig: SimpleValidateConfig<ActivityForm> = {
   name: [required],
-  sum: [required],
   date: [requiredDate],
 };
 
@@ -105,11 +105,29 @@ const SaveAction: FC<{
     version: activity?.version,
     records: buildRecordsFormData(persons, activity),
   });
-  console.log(state);
   const [errorState, setErrorState] = useState<
     ErrorState<RecordItemForm & ActivityForm>
   >({});
   const [isOpenSnackbar, setIsOpenSnackbar] = useState<boolean>(false);
+
+  useEffect(() => {
+    const getSum = (
+      records: Omit<RecordItemForm, "person">[],
+      field: keyof Pick<RecordItemForm, "landMoney" | "borrowMoney">
+    ): number =>
+      records.reduce((acc, elem) => {
+        if (!elem[field] || !elem.isActive || isNaN(parseInt(elem[field]!))) {
+          return acc;
+        }
+        return acc + parseInt(elem[field]!);
+      }, 0);
+
+    const sum = Math.max(
+      getSum(state.records, "landMoney"),
+      getSum(state.records, "borrowMoney")
+    ).toString();
+    setState((prevState) => ({ ...prevState, sum }));
+  }, [state.records]);
 
   const handleCloseSnackbar = useCallback(
     (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -149,27 +167,20 @@ const SaveAction: FC<{
     onSubmit(data);
   };
 
-  const onTextChange: ChangeEventHandler<HTMLInputElement> = useCallback(
-    ({ target }) => {
-      const name = target.name as keyof Omit<
-        ActivityForm,
-        "date" | "records" | keyof Id | keyof Version
-      >;
-      setState((prevVal) => ({ ...prevVal, [name]: target.value }));
-      if (errorState[name]) {
-        setErrorState((prevState) => ({
-          ...prevState,
-          [name]: validateField(target.value, simpleValidationConfig[name]!),
-        }));
-      }
-    },
-    []
-  );
+  const onNameChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
+    setState((prevVal) => ({ ...prevVal, name: target.value }));
+    if (errorState.name) {
+      setErrorState((prevState) => ({
+        ...prevState,
+        name: validateField(target.value, simpleValidationConfig.name!),
+      }));
+    }
+  };
 
   const onTableCellChange: (index: number) => InputBaseProps["onChange"] =
     useCallback(
       (index) =>
-        ({ target }) =>
+        ({ target }) => {
           setState((prevValue) => {
             const records = [...prevValue.records];
             records[index] = {
@@ -180,7 +191,8 @@ const SaveAction: FC<{
                   : target.value,
             };
             return { ...prevValue, records };
-          }),
+          });
+        },
       []
     );
 
@@ -214,7 +226,7 @@ const SaveAction: FC<{
           name="name"
           error={!!errorState?.name}
           helperText={errorState?.name}
-          onChange={onTextChange}
+          onChange={onNameChange}
           value={state.name}
         />
         <Stack direction="row" spacing={2}>
@@ -226,16 +238,9 @@ const SaveAction: FC<{
             renderInput={datePickerInput}
             value={state.date}
           />
-          <TextField
-            id="sum"
-            label="Итоговая сумма *"
-            variant="outlined"
-            name="sum"
-            error={!!errorState?.sum}
-            helperText={errorState?.sum}
-            onChange={onTextChange}
-            value={state.sum}
-          />
+          <Typography sx={{ display: "flex", alignItems: "center" }}>
+            Итоговая сумма: {state.sum}
+          </Typography>
         </Stack>
         <Table sx={{ minWidth: 400 }} aria-label="simple table">
           <TableHead>
