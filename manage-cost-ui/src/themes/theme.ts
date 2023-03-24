@@ -5,6 +5,9 @@ import type {} from "@mui/x-date-pickers/themeAugmentation";
 // A custom theme for this app
 const theme = createTheme({
   palette: {
+    background: {
+      default: "#bdbdbd",
+    },
     primary: {
       main: "#556cd6",
     },
@@ -23,6 +26,17 @@ const theme = createTheme({
         },
       },
     },
+    /*MuiTable: {
+      variants: [
+        {
+          props: { variant: "modal" },
+          style: {
+            paddingRight: 1,
+            paddingLeft: 1,
+          },
+        },
+      ],
+    },*/
   },
 });
 

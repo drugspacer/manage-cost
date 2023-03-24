@@ -2,8 +2,6 @@ import React, {
   FC,
   PropsWithChildren,
   ReactElement,
-  useEffect,
-  useState,
   MouseEvent,
   useCallback,
 } from "react";
@@ -21,6 +19,9 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Theme from "../../themes/theme";
+import Footer from "../UI/Footer";
 
 const Page: FC<
   PropsWithChildren<{
@@ -29,17 +30,10 @@ const Page: FC<
     mainButton?: ButtonProp;
   }>
 > = ({ children, buttons, mainButton, breadcrumbs }) => {
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
-  useEffect(() => {
-    const handleResize = (): void => {
-      setScreenWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return (): void => window.removeEventListener("resize", handleResize);
-  }, []);
+  const matches = useMediaQuery((theme: typeof Theme) =>
+    theme.breakpoints.down("sm")
+  );
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
     setAnchorEl(event.currentTarget);
@@ -74,12 +68,12 @@ const Page: FC<
   });
 
   const toolbarContent: (ReactElement | null | undefined)[] = [
-    <Typography sx={{ flexGrow: 1 }}>
+    <Typography sx={{ flexGrow: 1 }} key="header">
       {breadcrumbs[breadcrumbs.length - 1].label}
     </Typography>,
   ];
 
-  if (screenWidth < 600) {
+  if (matches) {
     toolbarContent.unshift(
       <IconButton
         size="large"
@@ -88,6 +82,7 @@ const Page: FC<
         aria-label="menu"
         sx={{ mr: 2 }}
         onClick={handleClick}
+        key="menuIcon"
       >
         <MenuIcon />
       </IconButton>,
@@ -99,6 +94,7 @@ const Page: FC<
         MenuListProps={{
           "aria-labelledby": "basic-button",
         }}
+        key="menu"
       >
         {mainButton && (
           <MenuItem onClick={menuItemHandler(mainButton.handler)}>
@@ -116,7 +112,11 @@ const Page: FC<
     toolbarContent.unshift(...buttons.map(({ element }) => element));
     mainButton &&
       toolbarContent.push(
-        <Button color="inherit" onClick={mainButton.handler}>
+        <Button
+          color="inherit"
+          onClick={mainButton.handler}
+          key={mainButton.text}
+        >
           {mainButton.text}
         </Button>
       );
@@ -124,20 +124,11 @@ const Page: FC<
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ marginBottom: 1 }}>
         <Toolbar>{toolbarContent}</Toolbar>
       </AppBar>
-      <Container
-        sx={(theme) => ({
-          [theme.breakpoints.down("sm")]: {
-            paddingRight: 4,
-          },
-          [theme.breakpoints.up("sm")]: {
-            paddingRight: 5,
-          },
-        })}
-      >
-        <Stack spacing={2} alignItems="center">
+      <Container sx={{ flexGrow: 1 }}>
+        <Stack spacing={1} alignItems="center">
           <Breadcrumbs
             aria-label="breadcrumb"
             separator={<NavigateNextIcon fontSize="small" />}
@@ -147,6 +138,7 @@ const Page: FC<
           {children}
         </Stack>
       </Container>
+      <Footer />
     </>
   );
 };

@@ -12,7 +12,6 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -45,6 +44,7 @@ import { Checkbox } from "@mui/material";
 import { CheckboxProps } from "@mui/material/Checkbox/Checkbox";
 import Activity from "../../models/activity.model";
 import Typography from "@mui/material/Typography";
+import StyledTableCell from "../UI/styled/StyledTableCell";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -242,18 +242,23 @@ const SaveAction: FC<{
             Итоговая сумма: {state.sum}
           </Typography>
         </Stack>
-        <Table sx={{ minWidth: 400 }} aria-label="simple table">
+        <Table
+          sx={{ minWidth: 300, paddingLeft: 1, paddingRight: 1 }}
+          aria-label="simple table"
+          padding="normal"
+        >
           <TableHead>
             <TableRow>
-              <TableCell>
+              <StyledTableCell>
                 <Checkbox
                   onChange={allActiveHandler}
                   checked={state.records.every((item) => item.isActive)}
+                  sx={{ padding: 0 }}
                 />
-              </TableCell>
-              <TableCell>Имя</TableCell>
-              <TableCell>Потратил</TableCell>
-              <TableCell>Заплатил</TableCell>
+              </StyledTableCell>
+              <StyledTableCell>Имя</StyledTableCell>
+              <StyledTableCell>Потратил</StyledTableCell>
+              <StyledTableCell>Заплатил</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -262,17 +267,18 @@ const SaveAction: FC<{
                 key={index}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell>
+                <StyledTableCell>
                   <Checkbox
                     name="isActive"
                     onChange={onTableCellChange(index)}
                     checked={row.isActive}
+                    sx={{ padding: 0 }}
                   />
-                </TableCell>
-                <TableCell component="th" scope="row">
+                </StyledTableCell>
+                <StyledTableCell component="th" scope="row">
                   {row.person.name}
-                </TableCell>
-                <TableCell>
+                </StyledTableCell>
+                <StyledTableCell>
                   <OutlinedInput
                     id={`${index}-borrow`}
                     endAdornment={
@@ -285,8 +291,8 @@ const SaveAction: FC<{
                     onChange={onTableCellChange(index)}
                     value={row.borrowMoney}
                   />
-                </TableCell>
-                <TableCell>
+                </StyledTableCell>
+                <StyledTableCell>
                   <OutlinedInput
                     id={`${index}-lend`}
                     endAdornment={
@@ -299,7 +305,7 @@ const SaveAction: FC<{
                     inputProps={{ inputMode: "numeric", pattern: "\\d*" }}
                     value={row.landMoney}
                   />
-                </TableCell>
+                </StyledTableCell>
               </TableRow>
             ))}
           </TableBody>
