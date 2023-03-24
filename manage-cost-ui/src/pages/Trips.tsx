@@ -12,6 +12,7 @@ import { TripRq } from "../models/form.model";
 import DialogWrapper from "../components/HOC/DialogWrapper";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ButtonProp } from "../models/ui.model";
+import ContentGrid from "../components/UI/styled/ContentGrid";
 
 const Trips: FC = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -51,7 +52,7 @@ const Trips: FC = () => {
 
   if (!isLoading) {
     content = (
-      <Grid container spacing={2}>
+      <ContentGrid container spacing={2}>
         {trips.map((item) => (
           <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={item.id}>
             <DialogWrapper onDelete={deleteHandler(item.id)}>
@@ -59,7 +60,7 @@ const Trips: FC = () => {
             </DialogWrapper>
           </Grid>
         ))}
-      </Grid>
+      </ContentGrid>
     );
   } else {
     content = <CircularProgress />;
