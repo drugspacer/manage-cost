@@ -3,17 +3,16 @@ import React, {
   DOMAttributes,
   FC,
   useCallback,
-  useEffect,
   useState,
 } from "react";
-import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Stack from "@mui/material/Stack";
-import { getPersons } from "../../api/persons";
 import Person from "../../models/person.model";
 import { UseAutocompleteProps } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
-import { Input, TripForm, TripRq } from "../../models/form.model";
+import {
+  Input,
+  PersonAutocomplete,
+  TripForm,
+  TripRq,
+} from "../../models/form.model";
 import ErrorState from "../../models/error.model";
 import {
   required,
@@ -22,10 +21,9 @@ import {
   simpleFormValidation,
 } from "../../functions/validation";
 import { Id, Version } from "../../models/model";
-
-type PersonAutocomplete = Pick<Person, "name"> & { title: string };
-
-const filter = createFilterOptions<Person | PersonAutocomplete>();
+import FormWrapper from "../HOC/FormWrapper";
+import TextInput from "../input/TextInput";
+import PersonsInput from "../input/PersonsInput";
 
 const formConfig: SimpleValidateConfig<TripForm> = {
   place: [required],
@@ -44,18 +42,8 @@ const SaveTrip: FC<{
     persons: [],
   },
 }) => {
-  const [persons, setPersons] = useState<Person[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [state, setState] = useState<TripForm>(trip);
   const [errorState, setErrorState] = useState<ErrorState<TripForm>>({});
-
-  useEffect(() => {
-    setIsLoading(true);
-    getPersons().then((data) => {
-      setPersons(data);
-      setIsLoading(false);
-    });
-  }, []);
 
   const submitHandler: DOMAttributes<HTMLFormElement>["onSubmit"] = async (
     e
@@ -112,94 +100,31 @@ const SaveTrip: FC<{
     []
   );
 
-  const getOptionLabel: UseAutocompleteProps<
-    Person | PersonAutocomplete,
-    true,
-    false,
-    true
-  >["getOptionLabel"] = (option) => {
-    if (typeof option === "string") {
-      return option;
-    } else if ("title" in option) {
-      return option.title;
-    } else if ("name" in option) {
-      return option.name;
-    }
-    return option;
-  };
-
-  const filterOptions: UseAutocompleteProps<
-    Person | PersonAutocomplete,
-    true,
-    false,
-    true
-  >["filterOptions"] = (options, state) => {
-    const filtered = filter(options, state);
-    const { inputValue } = state;
-    // Suggest the creation of a new value
-    if (
-      inputValue !== "" &&
-      !options.some((option) => inputValue === option.name)
-    ) {
-      filtered.push({
-        name: inputValue,
-        title: `Добавить "${inputValue}"`,
-      });
-    }
-    return filtered;
-  };
-
   return (
-    <form onSubmit={submitHandler}>
-      <Stack spacing={3}>
-        <TextField
-          id="name"
-          label="Название *"
-          variant="outlined"
-          name="name"
-          error={!!errorState?.name}
-          helperText={errorState?.name}
-          onChange={onTextChange}
-          value={state.name}
-        />
-        <Autocomplete<Person | PersonAutocomplete, true, false, true>
-          id="persons"
-          multiple
-          onChange={onPersonChange}
-          filterOptions={filterOptions}
-          disableCloseOnSelect
-          freeSolo
-          handleHomeEndKeys
-          loading={isLoading}
-          getOptionLabel={getOptionLabel}
-          filterSelectedOptions
-          options={persons || []}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Участники *"
-              placeholder="Добавить ещё"
-              helperText={errorState?.persons}
-              error={!!errorState?.persons}
-            />
-          )}
-          value={state.persons}
-        />
-        <TextField
-          id="place"
-          label="Место *"
-          variant="outlined"
-          name="place"
-          error={!!errorState?.place}
-          helperText={errorState?.place}
-          onChange={onTextChange}
-          value={state.place}
-        />
-        <Button variant="contained" type="submit">
-          {state.id ? "Редактировать" : "Создать"}
-        </Button>
-      </Stack>
-    </form>
+    <FormWrapper
+      onSubmit={submitHandler}
+      submitText={state.id ? "Редактировать" : "Создать"}
+    >
+      <TextInput<TripForm>
+        name="name"
+        label="Название *"
+        state={state}
+        onChange={onTextChange}
+        errorState={errorState}
+      />
+      <PersonsInput
+        onChange={onPersonChange}
+        value={state.persons}
+        error={errorState?.persons}
+      />
+      <TextInput<TripForm>
+        name="place"
+        label="Место *"
+        errorState={errorState}
+        state={state}
+        onChange={onTextChange}
+      />
+    </FormWrapper>
   );
 };
 

@@ -1,19 +1,6 @@
 import Trip, { TripRs } from "../models/trip.model";
-import { ActivityForm, ActivityFormRq, TripRq } from "../models/form.model";
-
-const POSTOptions: RequestInit = {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-};
-
-const PUTOptions: RequestInit = {
-  method: "PUT",
-  headers: { "Content-Type": "application/json" },
-};
-
-const DELETEOptions: RequestInit = {
-  method: "DELETE",
-};
+import { ActivityFormRq, TripRq } from "../models/form.model";
+import { DELETEOptions, POSTOptions, PUTOptions } from "../constants/request";
 
 export const getTrips = async (): Promise<Trip[]> => {
   const response = await fetch("/trips");

@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import xyz.jesusohmyjesus.managecost.entities.Person;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 

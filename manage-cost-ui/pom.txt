@@ -1,3 +1,4 @@
+<!--
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -18,7 +19,7 @@
 
     <build>
         <finalName>${project.artifactId}</finalName>
-        <plugins>
+        &lt;!&ndash;<plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -58,14 +59,14 @@
                 <configuration>
                     <environmentVariables>
                         <CI>false</CI>
-                        <!-- The following parameters create an NPM sandbox for CI -->
+                        &lt;!&ndash; The following parameters create an NPM sandbox for CI &ndash;&gt;
                         <NPM_CONFIG_PREFIX>${basedir}/npm</NPM_CONFIG_PREFIX>
                         <NPM_CONFIG_CACHE>${NPM_CONFIG_PREFIX}/cache</NPM_CONFIG_CACHE>
                         <NPM_CONFIG_TMP>${project.build.directory}/npmtmp</NPM_CONFIG_TMP>
                     </environmentVariables>
                 </configuration>
             </plugin>
-        </plugins>
+        </plugins>&ndash;&gt;
     </build>
 
     <profiles>
@@ -108,4 +109,4 @@
             </build>
         </profile>
     </profiles>
-</project>
+</project>-->

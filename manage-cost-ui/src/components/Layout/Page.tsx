@@ -25,11 +25,11 @@ import Footer from "../UI/Footer";
 
 const Page: FC<
   PropsWithChildren<{
-    buttons: ButtonProp[];
     breadcrumbs: BreadcrumbData[];
+    buttons?: ButtonProp[];
     mainButton?: ButtonProp;
   }>
-> = ({ children, buttons, mainButton, breadcrumbs }) => {
+> = ({ children, buttons = [], mainButton, breadcrumbs }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const matches = useMediaQuery((theme: typeof Theme) =>
     theme.breakpoints.down("sm")

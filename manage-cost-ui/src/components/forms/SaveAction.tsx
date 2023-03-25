@@ -6,10 +6,10 @@ import React, {
   useCallback,
   ChangeEventHandler,
   useEffect,
+  forwardRef,
 } from "react";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableHead from "@mui/material/TableHead";
@@ -45,8 +45,10 @@ import { CheckboxProps } from "@mui/material/Checkbox/Checkbox";
 import Activity from "../../models/activity.model";
 import Typography from "@mui/material/Typography";
 import StyledTableCell from "../UI/styled/StyledTableCell";
+import FormWrapper from "../HOC/FormWrapper";
+import TextInput from "../input/TextInput";
 
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
   ref
 ) {
@@ -217,103 +219,96 @@ const SaveAction: FC<{
   };
 
   return (
-    <form onSubmit={submitHandler}>
-      <Stack spacing={3}>
-        <TextField
-          id="name"
-          label="Название мероприятия *"
-          variant="outlined"
-          name="name"
-          error={!!errorState?.name}
-          helperText={errorState?.name}
-          onChange={onNameChange}
-          value={state.name}
+    <FormWrapper
+      onSubmit={submitHandler}
+      submitText={activity?.id ? "Изменить" : "Создать"}
+    >
+      <TextInput<ActivityForm, RecordItemForm & ActivityForm>
+        name="name"
+        label="Название мероприятия *"
+        errorState={errorState}
+        state={state}
+        onChange={onNameChange}
+      />
+      <Stack direction="row" spacing={2}>
+        <DatePicker
+          label="Дата *"
+          onChange={(date) => setState((prevState) => ({ ...prevState, date }))}
+          renderInput={datePickerInput}
+          value={state.date}
         />
-        <Stack direction="row" spacing={2}>
-          <DatePicker
-            label="Дата *"
-            onChange={(date) =>
-              setState((prevState) => ({ ...prevState, date }))
-            }
-            renderInput={datePickerInput}
-            value={state.date}
-          />
-          <Typography sx={{ display: "flex", alignItems: "center" }}>
-            Итоговая сумма: {state.sum}
-          </Typography>
-        </Stack>
-        <Table
-          sx={{ minWidth: 300, paddingLeft: 1, paddingRight: 1 }}
-          aria-label="simple table"
-          padding="normal"
-        >
-          <TableHead>
-            <TableRow>
+        <Typography sx={{ display: "flex", alignItems: "center" }}>
+          Итоговая сумма: {state.sum}
+        </Typography>
+      </Stack>
+      <Table
+        sx={{ minWidth: 300, paddingLeft: 1, paddingRight: 1 }}
+        aria-label="simple table"
+        padding="normal"
+      >
+        <TableHead>
+          <TableRow>
+            <StyledTableCell>
+              <Checkbox
+                onChange={allActiveHandler}
+                checked={state.records.every((item) => item.isActive)}
+                sx={{ padding: 0 }}
+              />
+            </StyledTableCell>
+            <StyledTableCell>Имя</StyledTableCell>
+            <StyledTableCell>Потратил</StyledTableCell>
+            <StyledTableCell>Заплатил</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {state.records.map((row, index) => (
+            <TableRow
+              key={index}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
               <StyledTableCell>
                 <Checkbox
-                  onChange={allActiveHandler}
-                  checked={state.records.every((item) => item.isActive)}
+                  name="isActive"
+                  onChange={onTableCellChange(index)}
+                  checked={row.isActive}
                   sx={{ padding: 0 }}
                 />
               </StyledTableCell>
-              <StyledTableCell>Имя</StyledTableCell>
-              <StyledTableCell>Потратил</StyledTableCell>
-              <StyledTableCell>Заплатил</StyledTableCell>
+              <StyledTableCell component="th" scope="row">
+                {row.person.name}
+              </StyledTableCell>
+              <StyledTableCell>
+                <OutlinedInput
+                  id={`${index}-borrow`}
+                  endAdornment={
+                    <InputAdornment position="end">Р</InputAdornment>
+                  }
+                  aria-describedby="outlined-weight-helper-text"
+                  inputProps={{ inputMode: "numeric", pattern: "\\d*" }}
+                  error={row.isActive && !!errorState?.borrowMoney}
+                  name="borrowMoney"
+                  onChange={onTableCellChange(index)}
+                  value={row.borrowMoney}
+                />
+              </StyledTableCell>
+              <StyledTableCell>
+                <OutlinedInput
+                  id={`${index}-lend`}
+                  endAdornment={
+                    <InputAdornment position="end">Р</InputAdornment>
+                  }
+                  aria-describedby="outlined-weight-helper-text"
+                  name="landMoney"
+                  onChange={onTableCellChange(index)}
+                  error={row.isActive && !!errorState?.landMoney}
+                  inputProps={{ inputMode: "numeric", pattern: "\\d*" }}
+                  value={row.landMoney}
+                />
+              </StyledTableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {state.records.map((row, index) => (
-              <TableRow
-                key={index}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <StyledTableCell>
-                  <Checkbox
-                    name="isActive"
-                    onChange={onTableCellChange(index)}
-                    checked={row.isActive}
-                    sx={{ padding: 0 }}
-                  />
-                </StyledTableCell>
-                <StyledTableCell component="th" scope="row">
-                  {row.person.name}
-                </StyledTableCell>
-                <StyledTableCell>
-                  <OutlinedInput
-                    id={`${index}-borrow`}
-                    endAdornment={
-                      <InputAdornment position="end">Р</InputAdornment>
-                    }
-                    aria-describedby="outlined-weight-helper-text"
-                    inputProps={{ inputMode: "numeric", pattern: "\\d*" }}
-                    error={row.isActive && !!errorState?.borrowMoney}
-                    name="borrowMoney"
-                    onChange={onTableCellChange(index)}
-                    value={row.borrowMoney}
-                  />
-                </StyledTableCell>
-                <StyledTableCell>
-                  <OutlinedInput
-                    id={`${index}-lend`}
-                    endAdornment={
-                      <InputAdornment position="end">Р</InputAdornment>
-                    }
-                    aria-describedby="outlined-weight-helper-text"
-                    name="landMoney"
-                    onChange={onTableCellChange(index)}
-                    error={row.isActive && !!errorState?.landMoney}
-                    inputProps={{ inputMode: "numeric", pattern: "\\d*" }}
-                    value={row.landMoney}
-                  />
-                </StyledTableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <Button variant="contained" type="submit">
-          {activity?.id ? "Изменить" : "Создать"}
-        </Button>
-      </Stack>
+          ))}
+        </TableBody>
+      </Table>
       {(errorState?.borrowMoney ||
         errorState?.landMoney ||
         errorState?.isActive) && (
@@ -335,7 +330,7 @@ const SaveAction: FC<{
           </Alert>
         </Snackbar>
       )}
-    </form>
+    </FormWrapper>
   );
 };
 
