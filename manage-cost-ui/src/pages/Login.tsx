@@ -17,9 +17,9 @@ import {
 } from "../functions/validation";
 import LoginModel from "../models/login.model";
 import { login } from "../api/login";
-import { useNavigate } from "react-router";
 import TextInput from "../components/input/TextInput";
 import Password from "../components/input/Password";
+import Link from "@mui/material/Link";
 
 const simpleValidationConfig: SimpleValidateConfig<LoginModel> = {
   login: [required],
@@ -33,7 +33,6 @@ const Login: FC = () => {
     rememberMe: true,
   });
   const [errorState, setErrorState] = useState<ErrorState<LoginModel>>({});
-  const navigate = useNavigate();
 
   const submitHandler: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
@@ -55,17 +54,19 @@ const Login: FC = () => {
     []
   );
 
-  const button = {
-    text: "Зарегистрироваться",
-    handler: () => navigate(`/register`),
-  };
+  const linkToRegistration = (
+    <>
+      Не зарегистрированы? <Link href="/register">Зарегистрироваться</Link>
+    </>
+  );
 
   return (
-    <Page
-      breadcrumbs={[{ label: "Логин", href: "/login" }]}
-      mainButton={button}
-    >
-      <FormWrapper onSubmit={submitHandler} submitText="Войти">
+    <Page breadcrumbs={[{ label: "Логин", href: "/login" }]}>
+      <FormWrapper
+        onSubmit={submitHandler}
+        submitText="Войти"
+        additionalNode={linkToRegistration}
+      >
         <TextInput
           name="login"
           label="Логин *"

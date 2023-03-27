@@ -1,3 +1,17 @@
+CREATE TABLE IF NOT EXISTS public.user
+(
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    username character varying(20) NOT NULL,
+    password varchar NOT NULL,
+    CONSTRAINT user_pk PRIMARY KEY (id),
+    CONSTRAINT username_pk UNIQUE (username)
+    )
+
+    TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.user
+    OWNER to managecost;
+
 CREATE TABLE IF NOT EXISTS public.trip
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),

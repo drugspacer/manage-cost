@@ -28,6 +28,7 @@ import PersonsInput from "../components/input/PersonsInput";
 import { UseAutocompleteProps } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
 import Person from "../models/person.model";
 import { PersonAutocomplete } from "../models/form.model";
+import Link from "@mui/material/Link";
 
 const simpleValidationConfig: SimpleValidateConfig<RegisterModel> = {
   login: [required],
@@ -87,9 +88,15 @@ const Register: FC = () => {
     }
   };
 
+  const linkOnLogin = <Link href="/login">Назад на страницу логина</Link>;
+
   return (
     <Page breadcrumbs={[{ label: "Регистрация", href: "/register" }]}>
-      <FormWrapper onSubmit={submitHandler} submitText="Зарегистрироваться">
+      <FormWrapper
+        onSubmit={submitHandler}
+        submitText="Зарегистрироваться"
+        additionalNode={linkOnLogin}
+      >
         <TextInput
           name="login"
           label="Логин *"

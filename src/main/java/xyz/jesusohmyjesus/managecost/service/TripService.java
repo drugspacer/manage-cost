@@ -7,7 +7,7 @@ import xyz.jesusohmyjesus.managecost.entities.Person;
 import xyz.jesusohmyjesus.managecost.entities.PersonTrip;
 import xyz.jesusohmyjesus.managecost.entities.RecordEntity;
 import xyz.jesusohmyjesus.managecost.entities.Trip;
-import xyz.jesusohmyjesus.managecost.input.NewTrip;
+import xyz.jesusohmyjesus.managecost.request.NewTrip;
 import xyz.jesusohmyjesus.managecost.repository.ActivityRepository;
 import xyz.jesusohmyjesus.managecost.repository.TripRepository;
 import xyz.jesusohmyjesus.managecost.repository.PersonRepository;

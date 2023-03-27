@@ -1,4 +1,4 @@
-package xyz.jesusohmyjesus.managecost.input;
+package xyz.jesusohmyjesus.managecost.request;
 
 import lombok.Getter;
 import lombok.Setter;
