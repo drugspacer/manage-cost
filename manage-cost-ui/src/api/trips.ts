@@ -1,80 +1,49 @@
 import Trip, { TripRs } from "../models/trip.model";
-import { ActivityForm, ActivityFormRq, TripRq } from "../models/form.model";
+import { ActivityFormRq, TripRq } from "../models/form.model";
+import axiosApi from "./axios";
 
-const POSTOptions: RequestInit = {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-};
+export const getTrips = () => axiosApi<Trip[]>({ url: "/trips" });
 
-const PUTOptions: RequestInit = {
-  method: "PUT",
-  headers: { "Content-Type": "application/json" },
-};
+export const saveTrip = (data: TripRq) =>
+  axiosApi<TripRs, TripRq>({ url: "/trips", method: "POST", data });
 
-const DELETEOptions: RequestInit = {
-  method: "DELETE",
-};
+export const getTrip = (id?: string) =>
+  axiosApi<TripRs>({ url: `/trips/${id}` });
 
-export const getTrips = async (): Promise<Trip[]> => {
-  const response = await fetch("/trips");
-  return response.json();
-};
+export const updateTrip = (data: TripRq) =>
+  axiosApi<TripRs, TripRq>({ url: "/trips", method: "PUT", data });
 
-export const saveTrip = async (data: TripRq): Promise<TripRs> => {
-  POSTOptions.body = JSON.stringify(data);
-  const response = await fetch(`/trips`, POSTOptions);
-  return response.json();
-};
+export const deleteTrip = (id: string) =>
+  axiosApi({ url: `/trips/${id}`, method: "DELETE" });
 
-export const getTrip = async (id?: string): Promise<TripRs> => {
-  const response = await fetch(`/trips/${id}`);
-  return response.json();
-};
+export const saveActivity = (data: ActivityFormRq, id?: string) =>
+  axiosApi<TripRs, ActivityFormRq>({
+    url: `/trips/${id}`,
+    method: "POST",
+    data,
+  });
 
-export const updateTrip = async (data: TripRq): Promise<TripRs> => {
-  PUTOptions.body = JSON.stringify(data);
-  const response = await fetch(`/trips`, PUTOptions);
-  return response.json();
-};
+export const updateActivity = (data: ActivityFormRq, id?: string) =>
+  axiosApi<TripRs, ActivityFormRq>({
+    url: `/trips/${id}`,
+    method: "PUT",
+    data,
+  });
 
-export const deleteTrip = async (id: string): Promise<Response> =>
-  await fetch(`/trips/${id}`, DELETEOptions);
+export const deleteActivity = (tripId: string, activityId: string) =>
+  axiosApi<TripRs>({
+    url: `/trips/${tripId}/activity/${activityId}`,
+    method: "DELETE",
+  });
 
-export const saveActivity = async (
-  data: ActivityFormRq,
-  id?: string
-): Promise<TripRs> => {
-  POSTOptions.body = JSON.stringify(data);
-  const response = await fetch(`/trips/${id}`, POSTOptions);
-  return response.json();
-};
+export const finishTrip = (id?: string) =>
+  axiosApi<TripRs>({
+    url: `/trips/${id}/finish`,
+    method: "POST",
+  });
 
-export const updateActivity = async (
-  data: ActivityFormRq,
-  id?: string
-): Promise<TripRs> => {
-  PUTOptions.body = JSON.stringify(data);
-  const response = await fetch(`/trips/${id}`, PUTOptions);
-  return response.json();
-};
-
-export const deleteActivity = async (
-  tripId: string,
-  activityId: string
-): Promise<TripRs> => {
-  const response = await fetch(
-    `/trips/${tripId}/activity/${activityId}`,
-    DELETEOptions
-  );
-  return response.json();
-};
-
-export const finishTrip = async (id?: string): Promise<TripRs> => {
-  const response = await fetch(`/trips/${id}/finish`, POSTOptions);
-  return response.json();
-};
-
-export const returnFromArchive = async (id?: string): Promise<TripRs> => {
-  const response = await fetch(`/trips/${id}/return`, POSTOptions);
-  return response.json();
-};
+export const returnFromArchive = (id?: string) =>
+  axiosApi<TripRs>({
+    url: `/trips/${id}/return`,
+    method: "POST",
+  });

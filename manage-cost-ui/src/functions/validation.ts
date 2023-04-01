@@ -1,13 +1,14 @@
 import ErrorState, { ERRORS } from "../models/error.model";
 import { ActivityForm } from "../models/form.model";
+import { Register } from "../models/login.model";
 
-type ValidateFunc<T = unknown> = (data: T) => ERRORS | undefined;
+type ValidateFunc<T = unknown> = (data: T) => string | undefined;
 
 export type SimpleValidateConfig<T> = {
   [K in keyof T]?: ValidateFunc<T[K]>[];
 };
 
-export type ComplexValidateConfig<T, F> = {
+export type ComplexValidateConfig<T, F = T> = {
   [K in keyof T]?: ValidateFunc<F>[];
 };
 
@@ -17,9 +18,28 @@ export const required: ValidateFunc<{ length: number }> = ({ length }) => {
   }
 };
 
+export const minLength: (
+  minLength: number
+) => ValidateFunc<{ length: number }> =
+  (minLength) =>
+  ({ length }) => {
+    if (length < minLength) {
+      return `${ERRORS.MIN_LENGTH} - ${minLength}`;
+    }
+  };
+
 export const requiredDate: ValidateFunc<Date | null> = (data) => {
   if (data === null) {
     return ERRORS.REQUIRED;
+  }
+};
+
+export const confirmPassword: ValidateFunc<Register> = ({
+  password,
+  confirmPassword,
+}) => {
+  if (confirmPassword !== password) {
+    return ERRORS.CONFIRM_PASSWORD;
   }
 };
 
@@ -71,7 +91,7 @@ export const landEqualsSum: ValidateFunc<ActivityForm> = ({ sum, records }) => {
 export function validateField<T>(
   data: T,
   functions: ValidateFunc<T>[]
-): ERRORS | undefined {
+): string | undefined {
   for (const validate of functions) {
     const res = validate(data);
     if (!!res) {
@@ -83,8 +103,8 @@ export function validateField<T>(
 function validateForm<T>(
   form: T,
   functions: ValidateFunc<T>[]
-): ERRORS[] | undefined {
-  const resArr = functions.reduce<ERRORS[]>((resArr, func) => {
+): string[] | undefined {
+  const resArr = functions.reduce<string[]>((resArr, func) => {
     const result = func(form);
     if (result === undefined) {
       return resArr;
@@ -131,3 +151,12 @@ export function complexFormValidation<T extends Object, F extends Object>(
     ? validationResult
     : undefined;
 }
+
+export const getFirstError = (
+  errors: string | string[] | undefined
+): string | undefined => {
+  if (Array.isArray(errors)) {
+    return errors[0];
+  }
+  return errors;
+};

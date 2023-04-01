@@ -1,6 +1,4 @@
 import Person from "../models/person.model";
+import axiosApi from "./axios";
 
-export const getPersons = async (): Promise<Person[]> => {
-  const response = await fetch("/persons");
-  return response.json();
-};
+export const getPersons = () => axiosApi<Person[]>({ url: "/persons" });

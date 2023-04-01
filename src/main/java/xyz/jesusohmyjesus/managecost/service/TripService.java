@@ -2,12 +2,14 @@ package xyz.jesusohmyjesus.managecost.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import xyz.jesusohmyjesus.managecost.controller.EndpointMessages;
 import xyz.jesusohmyjesus.managecost.entities.Activity;
 import xyz.jesusohmyjesus.managecost.entities.Person;
 import xyz.jesusohmyjesus.managecost.entities.PersonTrip;
 import xyz.jesusohmyjesus.managecost.entities.RecordEntity;
 import xyz.jesusohmyjesus.managecost.entities.Trip;
-import xyz.jesusohmyjesus.managecost.input.NewTrip;
+import xyz.jesusohmyjesus.managecost.exception.ApiForbiddenException;
+import xyz.jesusohmyjesus.managecost.request.NewTrip;
 import xyz.jesusohmyjesus.managecost.repository.ActivityRepository;
 import xyz.jesusohmyjesus.managecost.repository.TripRepository;
 import xyz.jesusohmyjesus.managecost.repository.PersonRepository;
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +36,10 @@ public class TripService {
     @Autowired
     private ActivityRepository activityRepository;
 
-    public Trip createNewTrip(NewTrip data) {
+    @Autowired
+    private UserService userService;
+
+    public Trip createNewTrip(NewTrip data, String username) {
         Trip newTrip = new Trip(data.getName(), data.getPlace());
         data.getPersons()
                 .stream()
@@ -41,11 +47,13 @@ public class TripService {
                 .forEach(item -> personRepository.save(item));
         data.getPersons()
                 .forEach(newTrip::addPerson);
+        newTrip.setUser(userService.findByUsername(username));
         return tripRepository.save(newTrip);
     }
 
     public Trip createNewActivity(UUID id, Activity data) {
-        Trip trip = tripRepository.findById(id).orElseThrow();
+        Trip trip = tripRepository.findById(id)
+                .orElseThrow(throwNoTripFound(id));
         data.getRecords().forEach(record -> record.setActivity(data));
         trip.getActivities().add(data);
         activityRepository.save(data);
@@ -54,7 +62,7 @@ public class TripService {
 
     public Trip updateTrip(NewTrip data) {
         Trip trip = tripRepository.findById(data.getId())
-                .orElseThrow();
+                .orElseThrow(throwNoTripFound(data.getId()));
         trip.setName(data.getName());
         trip.setPlace(data.getPlace());
         data.getPersons()
@@ -77,7 +85,7 @@ public class TripService {
 
     public Trip updateActivity(UUID tripId, Activity data) {
         Trip trip = tripRepository.findById(tripId)
-                .orElseThrow();
+                .orElseThrow(throwNoTripFound(tripId));
         data.getRecords()
                 .forEach(record -> record.setActivity(data));
         activityRepository.save(data);
@@ -86,7 +94,8 @@ public class TripService {
 
     public Trip deleteActivity(UUID tripId, UUID activityId) {
         activityRepository.deleteById(activityId);
-        return tripRepository.findById(tripId).orElseThrow();
+        return tripRepository.findById(tripId)
+                .orElseThrow(throwNoTripFound(tripId));
     }
 
     public void deleteTrip(UUID id) {
@@ -95,7 +104,7 @@ public class TripService {
 
     public Trip finishTrip(UUID id) {
         Trip trip = tripRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(throwNoTripFound(id));
         Map<Person, PersonTrip> personsMap = trip.getPersons()
                 .stream()
                 .collect(Collectors.toMap(PersonTrip::getPerson, Function.identity()));
@@ -126,7 +135,7 @@ public class TripService {
 
     public Trip returnFromArchive(UUID id) {
         Trip trip = tripRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(throwNoTripFound(id));
         trip.getPersons()
                 .forEach(person -> person.setSum(BigDecimal.valueOf(0)));
         trip.setArchive(false);
@@ -135,12 +144,16 @@ public class TripService {
 
     public Trip getById(UUID id) {
         Trip trip = tripRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(throwNoTripFound(id));
         trip.getActivities();
         return trip;
     }
 
-    public Iterable<Trip> getAll() {
-        return tripRepository.findAll();
+    public Iterable<Trip> getAll(String username) {
+        return tripRepository.findAllByUser(userService.findByUsername(username));
+    }
+
+    private Supplier<ApiForbiddenException> throwNoTripFound(UUID id) {
+        return () -> new ApiForbiddenException(String.format(EndpointMessages.NO_TRIP_FOUND.getLabel(), id));
     }
 }

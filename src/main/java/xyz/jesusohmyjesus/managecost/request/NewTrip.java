@@ -1,15 +1,12 @@
-package xyz.jesusohmyjesus.managecost.input;
+package xyz.jesusohmyjesus.managecost.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import xyz.jesusohmyjesus.managecost.entities.Person;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-@Setter
-@Getter
+@Data
 public class NewTrip {
     private UUID id;
     private String name;

@@ -39,3 +39,5 @@ export type ActivityForm = Pick<Activity, "name"> & {
 export type ActivityFormRq = Omit<ActivityForm, "records"> & {
   records: RecordItemFormRq[];
 };
+
+export type PersonAutocomplete = Pick<Person, "name"> & { title: string };

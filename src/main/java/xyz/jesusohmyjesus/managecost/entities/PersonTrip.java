@@ -32,7 +32,7 @@ public class PersonTrip {
     @Transient
     public Person getPerson() {
         return primaryKey.getPerson();
-    };
+    }
 
     public void setPerson(Person person) {
         primaryKey.setPerson(person);

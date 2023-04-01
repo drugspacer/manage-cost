@@ -1,11 +1,11 @@
 package xyz.jesusohmyjesus.managecost.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.stereotype.Repository;
 import xyz.jesusohmyjesus.managecost.entities.Activity;
 
 import java.util.UUID;
 
-@RepositoryRestResource
+@Repository
 public interface ActivityRepository extends CrudRepository<Activity, UUID> {
 }

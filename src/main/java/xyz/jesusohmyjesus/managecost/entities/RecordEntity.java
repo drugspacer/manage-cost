@@ -27,12 +27,12 @@ import java.math.BigDecimal;
 public class RecordEntity {
     @EmbeddedId
     @EqualsAndHashCode.Include
-    private RecordId primaryKey = new RecordId();
+    private final RecordId primaryKey = new RecordId();
 
     @Transient
     public Person getPerson() {
         return primaryKey.getPerson();
-    };
+    }
 
     public void setPerson(Person person) {
         primaryKey.setPerson(person);

@@ -23,7 +23,7 @@ import ActivityCard from "../components/ActivityCard";
 import SaveTrip from "../components/forms/SaveTrip";
 import Trip, { TripRs } from "../models/trip.model";
 import ArchiveWrapper from "../components/Layout/ArchiveWrapper";
-import tripRsToTrip from "../functions/apiTransform";
+import { tripRsToTrip } from "../functions/apiTransform";
 import Activity from "../models/activity.model";
 import CardActionArea from "@mui/material/CardActionArea";
 import Card from "@mui/material/Card";

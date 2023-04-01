@@ -26,14 +26,13 @@ const theme = createTheme({
         },
       },
     },
-    /*MuiTable: {
+    /*MuiPaper: {
       variants: [
         {
-          props: { variant: "modal" },
-          style: {
-            paddingRight: 1,
-            paddingLeft: 1,
-          },
+          props: { variant: "withPadding" },
+          style: ({ theme }) => ({
+            padding: `${theme.spacing(3)} ${theme.spacing(5)}`,
+          }),
         },
       ],
     },*/
