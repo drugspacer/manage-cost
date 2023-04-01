@@ -1,48 +1,82 @@
 package xyz.jesusohmyjesus.managecost.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.jesusohmyjesus.managecost.entities.User;
-import xyz.jesusohmyjesus.managecost.security.TokenService;
+import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
+import xyz.jesusohmyjesus.managecost.security.SecurityUtils;
 import xyz.jesusohmyjesus.managecost.service.AuthService;
 
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
+
 @RestController
+@RequestMapping(Endpoints.AUTH)
 public class AuthController {
-    private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
+    @Autowired
+    private SecurityUtils securityUtils;
 
     @Autowired
-    TokenService tokenService;
+    private AuthService authService;
 
-    @Autowired
-    AuthService authService;
-
-    @GetMapping(value = "/login")
-    public void getLogin() {}
-
-    @GetMapping(value = "/register")
-    public void getRegister() {}
-
-    @PostMapping(value = "/login")
-    public void login(@RequestBody User user) {
-        authService.login(user);
+    @Operation(description = "Registration new user endpoint")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "token and refresh token created, user created"),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "user already exists",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+            )
+    })
+    @PostMapping(Endpoints.REGISTER)
+    public ResponseEntity<String> register(@RequestBody User user) {
+        String token = authService.register(user);
+        return ResponseEntity.ok()
+                .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(SecurityContextHolder.getContext()
+                                .getAuthentication()
+                        ).toString()
+                ).body(token);
     }
 
-    @PostMapping(value = "/register")
-    public void register(@RequestBody User user) {
-        authService.login(user);
+    @Operation(description = "Get JWT from username and password")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "token and refresh token created")})
+    @PostMapping(Endpoints.TOKEN)
+    public ResponseEntity<String> token(UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
+        return ResponseEntity.ok()
+                .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(usernamePasswordAuthenticationToken)
+                        .toString()
+                ).body(authService.createToken(usernamePasswordAuthenticationToken));
     }
 
-    @PostMapping("/token")
-    public String token(Authentication authentication) {
-        LOG.debug("Token requested for user: '{}'", authentication.getName());
-        String token = tokenService.generateToken(authentication);
-        LOG.debug("Token granted {}", token);
-        return token;
+    @Operation(description = "Deletes a JWT by removing the refresh_token cookie. This will force a client to log back in.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "refresh cookie was deleted")})
+    @DeleteMapping(Endpoints.TOKEN)
+    public ResponseEntity<Void> deleteToken() {
+        return ResponseEntity.ok()
+                .header(SET_COOKIE, securityUtils.deleteRefreshTokenCookie()
+                        .toString()
+                ).build();
+    }
+
+    @Operation(description = "Get JWT from refresh token")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "token and refresh token created")})
+    @PostMapping(Endpoints.REFRESH_TOKEN)
+    public ResponseEntity<String> refreshToken(JwtAuthenticationToken jwtAuthenticationToken) {
+        return ResponseEntity.ok()
+                .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(jwtAuthenticationToken)
+                        .toString()
+                ).body(authService.createToken(jwtAuthenticationToken));
     }
 }

@@ -26,7 +26,9 @@ const Password: FC<
 
   return (
     <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
-      <InputLabel htmlFor={name}>{label}</InputLabel>
+      <InputLabel htmlFor={name} error={!!helperText}>
+        {label}
+      </InputLabel>
       <OutlinedInput
         {...rest}
         id={name}
@@ -44,8 +46,11 @@ const Password: FC<
             </IconButton>
           </InputAdornment>
         }
+        label={label}
       />
-      <FormHelperText id="component-error-text">{helperText}</FormHelperText>
+      <FormHelperText id="component-error-text" error={true}>
+        {helperText}
+      </FormHelperText>
     </FormControl>
   );
 };

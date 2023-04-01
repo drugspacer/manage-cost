@@ -1,9 +1,18 @@
+import Person from "./person.model";
+import { Input } from "./form.model";
+
 type Login = {
-  login: string;
+  username: string;
   password: string;
-  rememberMe: boolean;
 };
 
-export type Register = Login & { confirmPassword: string; persons: string[] };
+export type Register = Login & {
+  confirmPassword: string;
+  persons: (string | Person)[];
+};
+
+export type RegisterRq = Omit<Register, "confirmPassword" | "persons"> & {
+  persons: Input<Person>[];
+};
 
 export default Login;

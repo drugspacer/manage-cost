@@ -7,12 +7,7 @@ import React, {
 } from "react";
 import Person from "../../models/person.model";
 import { UseAutocompleteProps } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
-import {
-  Input,
-  PersonAutocomplete,
-  TripForm,
-  TripRq,
-} from "../../models/form.model";
+import { PersonAutocomplete, TripForm, TripRq } from "../../models/form.model";
 import ErrorState from "../../models/error.model";
 import {
   required,
@@ -24,6 +19,7 @@ import { Id, Version } from "../../models/model";
 import FormWrapper from "../HOC/FormWrapper";
 import TextInput from "../input/TextInput";
 import PersonsInput from "../input/PersonsInput";
+import { personsToDataRq } from "../../functions/apiTransform";
 
 const formConfig: SimpleValidateConfig<TripForm> = {
   place: [required],
@@ -54,10 +50,7 @@ const SaveTrip: FC<{
       setErrorState(errors);
       return;
     }
-    const persons = state.persons.map<Input<Person>>((item) =>
-      typeof item === "string" ? { name: item } : item
-    );
-    onSubmit({ ...state, persons });
+    onSubmit({ ...state, persons: personsToDataRq(state.persons) });
   };
 
   const onPersonChange: UseAutocompleteProps<

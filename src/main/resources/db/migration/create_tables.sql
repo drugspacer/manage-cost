@@ -1,15 +1,43 @@
-CREATE TABLE IF NOT EXISTS public.user
+CREATE TABLE IF NOT EXISTS public.user_table
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     username character varying(20) NOT NULL,
-    password varchar NOT NULL,
+    password character varying(64) NOT NULL,
     CONSTRAINT user_pk PRIMARY KEY (id),
     CONSTRAINT username_pk UNIQUE (username)
     )
 
     TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.user
+ALTER TABLE IF EXISTS public.user_table
+    OWNER to managecost;
+
+CREATE TABLE IF NOT EXISTS public.role
+(
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name character varying(10) NOT NULL,
+    CONSTRAINT role_pk PRIMARY KEY (id),
+    CONSTRAINT name_pk UNIQUE (name)
+)
+
+    TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.role
+    OWNER to managecost;
+
+CREATE TABLE IF NOT EXISTS public.user_role
+(
+    user_id uuid NOT NULL,
+    role_id uuid NOT NULL,
+    CONSTRAINT user_fk FOREIGN KEY (user_id)
+        REFERENCES public.user_table (id) MATCH SIMPLE,
+    CONSTRAINT role_fk FOREIGN KEY (role_id)
+        REFERENCES public.role (id) MATCH SIMPLE
+)
+
+    TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.user_role
     OWNER to managecost;
 
 CREATE TABLE IF NOT EXISTS public.trip
@@ -19,7 +47,10 @@ CREATE TABLE IF NOT EXISTS public.trip
     name character varying(32) COLLATE pg_catalog."default" NOT NULL,
     place character varying(32) COLLATE pg_catalog."default" NOT NULL,
     sum money NOT NULL DEFAULT 0.00,
-    CONSTRAINT trip_pk PRIMARY KEY (id)
+    user_id uuid NOT NULL,
+    CONSTRAINT trip_pk PRIMARY KEY (id),
+    CONSTRAINT user_fk FOREIGN KEY (user_id)
+        REFERENCES public.user_table (id) MATCH SIMPLE
     )
 
     TABLESPACE pg_default;
@@ -107,3 +138,6 @@ ALTER TABLE IF EXISTS public.record
 -- DROP TABLE IF EXISTS public.person_trip;
 -- DROP TABLE IF EXISTS public.trip;
 -- DROP TABLE IF EXISTS public.person;
+-- DROP TABLE IF EXISTS public.user_table;
+-- DROP TABLE IF EXISTS public.role;
+-- DROP TABLE IF EXISTS public.user_role;

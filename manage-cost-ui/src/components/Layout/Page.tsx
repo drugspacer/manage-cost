@@ -25,11 +25,12 @@ import Footer from "../UI/Footer";
 
 const Page: FC<
   PropsWithChildren<{
-    breadcrumbs: BreadcrumbData[];
+    breadcrumbs?: BreadcrumbData[];
     buttons?: ButtonProp[];
     mainButton?: ButtonProp;
+    header?: string;
   }>
-> = ({ children, buttons = [], mainButton, breadcrumbs }) => {
+> = ({ children, buttons = [], mainButton, breadcrumbs = [], header }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const matches = useMediaQuery((theme: typeof Theme) =>
     theme.breakpoints.down("sm")
@@ -69,7 +70,7 @@ const Page: FC<
 
   const toolbarContent: (ReactElement | null | undefined)[] = [
     <Typography sx={{ flexGrow: 1 }} key="header">
-      {breadcrumbs[breadcrumbs.length - 1].label}
+      {breadcrumbs.length ? breadcrumbs[breadcrumbs.length - 1].label : header}
     </Typography>,
   ];
 

@@ -3,12 +3,11 @@ import React, {
   FC,
   FormEventHandler,
   useCallback,
+  useContext,
   useState,
 } from "react";
 import Page from "../components/Layout/Page";
 import FormWrapper from "../components/HOC/FormWrapper";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import ErrorState from "../models/error.model";
 import {
   required,
@@ -16,82 +15,77 @@ import {
   SimpleValidateConfig,
 } from "../functions/validation";
 import LoginModel from "../models/login.model";
-import { login } from "../api/login";
 import TextInput from "../components/input/TextInput";
 import Password from "../components/input/Password";
 import Link from "@mui/material/Link";
+import { AuthContext } from "../context/Auth";
+import { useNavigate } from "react-router";
+import StyledPaper from "../components/UI/styled/StyledPaper";
+import Typography from "@mui/material/Typography";
 
 const simpleValidationConfig: SimpleValidateConfig<LoginModel> = {
-  login: [required],
+  username: [required],
   password: [required],
 };
 
 const Login: FC = () => {
   const [state, setState] = useState<LoginModel>({
-    login: "",
+    username: "",
     password: "",
-    rememberMe: true,
   });
   const [errorState, setErrorState] = useState<ErrorState<LoginModel>>({});
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const submitHandler: FormEventHandler<HTMLFormElement> = (event) => {
+  const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
     const errors = simpleFormValidation(state, simpleValidationConfig);
     if (!!errors) {
       setErrorState(errors);
       return;
     }
-    login(state);
+    await login(state);
+    navigate("/");
   };
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
     ({ target }) =>
       setState((prevState) => ({
         ...prevState,
-        [target.name]:
-          target.name === "rememberMe" ? target.checked : target.value,
+        [target.name]: target.value,
       })),
     []
   );
 
   const linkToRegistration = (
-    <>
-      Не зарегистрированы? <Link href="/register">Зарегистрироваться</Link>
-    </>
+    <Link sx={{ textAlign: "center" }} href="/register">
+      <Typography variant="body2">Зарегистрироваться</Typography>
+    </Link>
   );
 
   return (
-    <Page breadcrumbs={[{ label: "Логин", href: "/login" }]}>
-      <FormWrapper
-        onSubmit={submitHandler}
-        submitText="Войти"
-        additionalNode={linkToRegistration}
-      >
-        <TextInput
-          name="login"
-          label="Логин *"
-          errorState={errorState}
-          state={state}
-          onChange={changeHandler}
-        />
-        <Password
-          value={state.password}
-          onChange={changeHandler}
-          error={!!errorState.password}
-          helperText={errorState.password}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              id="rememberMe"
-              onChange={changeHandler}
-              name="rememberMe"
-              checked={state.rememberMe}
-            />
-          }
-          label="Запомнить меня"
-        />
-      </FormWrapper>
+    <Page header="Логин">
+      <StyledPaper elevation={6}>
+        <FormWrapper
+          onSubmit={submitHandler}
+          submitText="Войти"
+          additionalNode={linkToRegistration}
+        >
+          <TextInput
+            name="username"
+            label="Логин *"
+            errorState={errorState}
+            state={state}
+            onChange={changeHandler}
+          />
+          <Password
+            value={state.password}
+            onChange={changeHandler}
+            error={!!errorState.password}
+            helperText={errorState.password}
+          />
+        </FormWrapper>
+      </StyledPaper>
     </Page>
   );
 };

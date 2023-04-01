@@ -7,7 +7,7 @@ import Page from "../components/Layout/Page";
 import UIModal from "../components/UI/UIModal";
 import Trip from "../models/trip.model";
 import { deleteTrip, getTrips, saveTrip } from "../api/trips";
-import tripRsToTrip from "../functions/apiTransform";
+import { tripRsToTrip } from "../functions/apiTransform";
 import { TripRq } from "../models/form.model";
 import DialogWrapper from "../components/HOC/DialogWrapper";
 import CircularProgress from "@mui/material/CircularProgress";

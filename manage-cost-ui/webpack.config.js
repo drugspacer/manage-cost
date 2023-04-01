@@ -30,11 +30,15 @@ module.exports = {
   devServer: {
     port: 3000,
     open: true,
+    historyApiFallback: true,
+    static: {
+      directory: path.join(__dirname, "public"),
+    },
     proxy: {
-      "/**": {
+      "/api/**": {
         target: "http://localhost:3000",
         router: () => "http://localhost:8080",
-        logLevel: "debug" /*optional*/,
+        logLevel: "debug", //optional//,
       },
     },
   },
