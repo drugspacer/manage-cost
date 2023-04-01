@@ -34,6 +34,15 @@ module.exports = {
     static: {
       directory: path.join(__dirname, "public"),
     },
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "X-Requested-With, content-type, Authorization",
+      "Content-Security-Policy":
+        "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "X-Content-Type-Options": "nosniff",
+    },
     proxy: {
       "/api/**": {
         target: "http://localhost:3000",

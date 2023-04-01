@@ -9,10 +9,18 @@ export const tripRsToTrip = (data: TripRs): Trip => {
   const { activities, ...rest } = data;
   return {
     ...rest,
-    activities: activities?.map<Activity>(({ date, ...rest }) => ({
-      ...rest,
-      date: parse(date.substring(0, 10), "y-M-d", new Date()),
-    })),
+    activities: activities?.map<Activity>(({ date, ...rest }) => {
+      let parsedDate: Date;
+      if (typeof date === "number") {
+        parsedDate = new Date(date);
+      } else {
+        parsedDate = parse(date.substring(0, 10), "y-M-d", new Date());
+      }
+      return {
+        ...rest,
+        date: parsedDate,
+      };
+    }),
   };
 };
 

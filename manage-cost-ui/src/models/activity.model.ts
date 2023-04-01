@@ -9,7 +9,7 @@ interface Activity extends Id, Version {
 }
 
 export type ActivityRs = Omit<Activity, "date"> & {
-  date: string;
+  date: string | number;
 };
 
 export default Activity;

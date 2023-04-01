@@ -51,7 +51,6 @@ const Trip: React.FC = () => {
   const [selectedActivity, setSelectedActivity] = useState<
     Activity | undefined
   >(undefined);
-  console.log(trip);
 
   useEffect(() => {
     setIsLoading(true);
@@ -205,10 +204,9 @@ const Trip: React.FC = () => {
     } else {
       buttons.push({
         element: (
-          <Tooltip title={MODAL_TYPE.EDIT_TRIP}>
+          <Tooltip title={MODAL_TYPE.EDIT_TRIP} key="edit">
             <IconButton
               size="large"
-              key="edit"
               color="inherit"
               aria-label="edit"
               sx={{ mr: 2 }}
