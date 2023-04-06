@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage;
 import xyz.jesusohmyjesus.managecost.entities.Activity;
 import xyz.jesusohmyjesus.managecost.entities.Trip;
 import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
 import xyz.jesusohmyjesus.managecost.request.NewTrip;
+import xyz.jesusohmyjesus.managecost.response.MessageResponse;
 import xyz.jesusohmyjesus.managecost.service.TripService;
 
 import java.util.UUID;
@@ -35,8 +37,11 @@ public class TripController {
     @Operation(description = "Create a new trip")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "get created trip")})
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Trip createNewTrip(JwtAuthenticationToken jwtAuthenticationToken, @RequestBody NewTrip data) {
-        return tripService.createNewTrip(data, jwtAuthenticationToken.getName());
+    public MessageResponse<Trip> createNewTrip(JwtAuthenticationToken jwtAuthenticationToken, @RequestBody NewTrip data) {
+        return new MessageResponse<>(
+                SuccessMessage.CREATED.getLabel(),
+                tripService.createNewTrip(data, jwtAuthenticationToken.getName())
+        );
     }
 
     @Operation(description = "Create a new activity")
@@ -49,8 +54,8 @@ public class TripController {
             )
     })
     @PostMapping(value = Endpoints.ID, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Trip createNewActivity(@PathVariable UUID id, @RequestBody Activity data) {
-        return tripService.createNewActivity(id, data);
+    public MessageResponse<Trip> createNewActivity(@PathVariable UUID id, @RequestBody Activity data) {
+        return new MessageResponse<>(SuccessMessage.CREATED.getLabel(), tripService.createNewActivity(id, data));
     }
 
     @Operation(description = "An endpoint for total calculating")
@@ -63,8 +68,8 @@ public class TripController {
             )
     })
     @PostMapping(Endpoints.FINISH)
-    public Trip finishTrip(@PathVariable UUID id) {
-        return tripService.finishTrip(id);
+    public MessageResponse<Trip> finishTrip(@PathVariable UUID id) {
+        return new MessageResponse<>(SuccessMessage.TRIP_ARCHIVED.getLabel(), tripService.finishTrip(id));
     }
 
     @Operation(description = "Return a trip from an archive to next editing")
@@ -77,8 +82,8 @@ public class TripController {
             )
     })
     @PostMapping(Endpoints.RETURN)
-    public Trip returnFromArchive(@PathVariable UUID id) {
-        return tripService.returnFromArchive(id);
+    public MessageResponse<Trip> returnFromArchive(@PathVariable UUID id) {
+        return new MessageResponse<>(tripService.returnFromArchive(id));
     }
 
     @Operation(description = "Update trip")
@@ -91,8 +96,8 @@ public class TripController {
             )
     })
     @PutMapping
-    public Trip updateTrip(@RequestBody NewTrip data) {
-        return tripService.updateTrip(data);
+    public MessageResponse<Trip> updateTrip(@RequestBody NewTrip data) {
+        return new MessageResponse<>(SuccessMessage.UPDATED.getLabel(), tripService.updateTrip(data));
     }
 
     @Operation(description = "Update an activity for a specific trip")
@@ -105,15 +110,15 @@ public class TripController {
             )
     })
     @PutMapping(Endpoints.ID)
-    public Trip updateActivity(@PathVariable UUID id, @RequestBody Activity data) {
-        return tripService.updateActivity(id, data);
+    public MessageResponse<Trip> updateActivity(@PathVariable UUID id, @RequestBody Activity data) {
+        return new MessageResponse<>(SuccessMessage.UPDATED.getLabel(), tripService.updateActivity(id, data));
     }
 
     @Operation(description = "Get all trips for current user")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "get trips")})
     @GetMapping
-    public Iterable<Trip> getAll(JwtAuthenticationToken jwtAuthenticationToken) {
-        return tripService.getAll(jwtAuthenticationToken.getName());
+    public MessageResponse<Iterable<Trip>> getAll(JwtAuthenticationToken jwtAuthenticationToken) {
+        return new MessageResponse<>(tripService.getAll(jwtAuthenticationToken.getName()));
     }
 
     @Operation(description = "Get a specific trip by id")
@@ -126,8 +131,8 @@ public class TripController {
             )
     })
     @GetMapping(Endpoints.ID)
-    public Trip getById(@PathVariable UUID id) {
-        return tripService.getById(id);
+    public MessageResponse<Trip> getById(@PathVariable UUID id) {
+        return new MessageResponse<>(tripService.getById(id));
     }
 
     @Operation(description = "Delete an activity of a specific trip")
@@ -140,14 +145,17 @@ public class TripController {
             )
     })
     @DeleteMapping(Endpoints.DELETE_ACTIVITY)
-    public Trip deleteActivity(@PathVariable UUID tripId, @PathVariable UUID activityId) {
-        return tripService.deleteActivity(tripId, activityId);
+    public MessageResponse<Trip> deleteActivity(@PathVariable UUID tripId, @PathVariable UUID activityId) {
+        return new MessageResponse<>(SuccessMessage.DELETED.getLabel(), tripService.deleteActivity(tripId, activityId));
     }
 
     @Operation(description = "Delete a trip by id")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "return nothing")})
     @DeleteMapping(Endpoints.ID)
-    public void deleteTrip(@PathVariable UUID id) {
+    public MessageResponse<Void> deleteTrip(@PathVariable UUID id) {
         tripService.deleteTrip(id);
+        MessageResponse<Void> response = new MessageResponse<>();
+        response.setMessage(SuccessMessage.DELETED.getLabel());
+        return response;
     }
 }

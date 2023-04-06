@@ -18,7 +18,7 @@ import xyz.jesusohmyjesus.managecost.security.TokenService;
 
 import java.util.Collections;
 
-import static xyz.jesusohmyjesus.managecost.controller.EndpointMessages.NO_ROLE_FOUND;
+import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.NO_ROLE_FOUND;
 
 @Service
 public class AuthService {

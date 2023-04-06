@@ -1,10 +1,12 @@
 import Person from "../../models/person.model";
 import TextField from "@mui/material/TextField";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
-import React, { FC, useEffect, useState } from "react";
-import { getPersons } from "../../api/persons";
+import React, { memo, ReactNode, useContext } from "react";
 import { UseAutocompleteProps } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
 import { PersonAutocomplete } from "../../models/form.model";
+import { AuthContext } from "../../context/Auth";
+import Box from "@mui/material/Box";
+import { TextFieldProps } from "@mui/material/TextField/TextField";
 
 type PersonInputProps = {
   value: (string | Person)[];
@@ -15,29 +17,22 @@ type PersonInputProps = {
     false,
     true
   >["onChange"];
-  fetch?: boolean;
+  readonly?: boolean;
+  button?: ReactNode;
+  margin?: TextFieldProps["margin"];
 };
 
 const filter = createFilterOptions<Person | PersonAutocomplete>();
 
-const PersonsInput: FC<PersonInputProps> = ({
+const PersonsInput = ({
   value,
   error,
   onChange,
-  fetch = true,
-}) => {
-  const [persons, setPersons] = useState<Person[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (fetch) {
-      setIsLoading(true);
-      getPersons().then((data) => {
-        setPersons(data);
-        setIsLoading(false);
-      });
-    }
-  }, []);
+  readonly = false,
+  button,
+  margin = "normal",
+}: PersonInputProps) => {
+  const { user } = useContext(AuthContext);
 
   const filterOptions: UseAutocompleteProps<
     Person | PersonAutocomplete,
@@ -77,7 +72,7 @@ const PersonsInput: FC<PersonInputProps> = ({
   };
 
   return (
-    <Autocomplete<Person | PersonAutocomplete, true, false, true>
+    <Autocomplete<Person | PersonAutocomplete, true, true, true>
       id="persons"
       multiple
       onChange={onChange}
@@ -85,22 +80,29 @@ const PersonsInput: FC<PersonInputProps> = ({
       disableCloseOnSelect
       freeSolo
       handleHomeEndKeys
-      loading={isLoading}
+      disableClearable
       getOptionLabel={getOptionLabel}
       filterSelectedOptions
-      options={persons}
+      options={user?.persons ?? []}
+      readOnly={readonly}
       renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Участники *"
-          placeholder="Добавить ещё"
-          helperText={error}
-          error={!!error}
-        />
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <TextField
+            {...params}
+            label="Участники *"
+            placeholder={readonly ? "" : "Добавить ещё"}
+            helperText={error}
+            error={!!error}
+            margin={margin}
+          />
+          {button}
+        </Box>
       )}
       value={value}
     />
   );
 };
 
-export default PersonsInput;
+PersonsInput.muiName = "Autocomplete";
+
+export default memo(PersonsInput);

@@ -2,12 +2,13 @@ package xyz.jesusohmyjesus.managecost.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import xyz.jesusohmyjesus.managecost.controller.EndpointMessages;
+import xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages;
 import xyz.jesusohmyjesus.managecost.entities.Activity;
 import xyz.jesusohmyjesus.managecost.entities.Person;
 import xyz.jesusohmyjesus.managecost.entities.PersonTrip;
 import xyz.jesusohmyjesus.managecost.entities.RecordEntity;
 import xyz.jesusohmyjesus.managecost.entities.Trip;
+import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiForbiddenException;
 import xyz.jesusohmyjesus.managecost.request.NewTrip;
 import xyz.jesusohmyjesus.managecost.repository.ActivityRepository;
@@ -41,13 +42,17 @@ public class TripService {
 
     public Trip createNewTrip(NewTrip data, String username) {
         Trip newTrip = new Trip(data.getName(), data.getPlace());
+        User user = userService.findByUsername(username);
         data.getPersons()
                 .stream()
                 .filter(item -> item.getId() == null)
-                .forEach(item -> personRepository.save(item));
+                .forEach(item -> {
+                    item.setUser(user);
+                    personRepository.save(item);
+                });
         data.getPersons()
                 .forEach(newTrip::addPerson);
-        newTrip.setUser(userService.findByUsername(username));
+        newTrip.setUser(user);
         return tripRepository.save(newTrip);
     }
 
@@ -68,7 +73,10 @@ public class TripService {
         data.getPersons()
                 .stream()
                 .filter(item -> item.getId() == null)
-                .forEach(item -> personRepository.save(item));
+                .forEach(item -> {
+                    personRepository.save(item);
+                    item.setUser(trip.getUser());
+                });
         Set<Person> oldPersons = trip.getPersons()
                 .stream()
                 .map(PersonTrip::getPerson)
@@ -154,6 +162,6 @@ public class TripService {
     }
 
     private Supplier<ApiForbiddenException> throwNoTripFound(UUID id) {
-        return () -> new ApiForbiddenException(String.format(EndpointMessages.NO_TRIP_FOUND.getLabel(), id));
+        return () -> new ApiForbiddenException(String.format(ErrorMessages.NO_TRIP_FOUND.getLabel(), id));
     }
 }

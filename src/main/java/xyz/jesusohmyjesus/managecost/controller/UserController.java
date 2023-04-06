@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage;
 import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
+import xyz.jesusohmyjesus.managecost.request.PasswordRq;
+import xyz.jesusohmyjesus.managecost.response.MessageResponse;
 import xyz.jesusohmyjesus.managecost.service.UserService;
 
 import java.util.UUID;
@@ -41,14 +44,31 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
             )
     })
-    public User currentUser(JwtAuthenticationToken jwtAuthenticationToken) {
-        return userService.findByUsername(jwtAuthenticationToken.getName());
+    public MessageResponse<User> currentUser(JwtAuthenticationToken jwtAuthenticationToken) {
+        return new MessageResponse<>(userService.findByUsername(jwtAuthenticationToken.getName()));
     }
 
     @Operation(description = "Find all users")
     @GetMapping
-    public Iterable<User> findAll() {
-        return userService.findAll();
+    public MessageResponse<Iterable<User>> findAll() {
+        return new MessageResponse<>(userService.findAll());
+    }
+
+    @Operation(description = "Delete current user")
+    @DeleteMapping(Endpoints.CURRENT_USER)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "user deleted"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "current user not found",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+            )
+    })
+    public MessageResponse<Void> deleteCurrentUser(JwtAuthenticationToken jwtAuthenticationToken) {
+        userService.delete(jwtAuthenticationToken.getName());
+        MessageResponse<Void> response = new MessageResponse<>();
+        response.setMessage(SuccessMessage.USER_DELETED.getLabel());
+        return response;
     }
 
     @Operation(description = "Create a new user")
@@ -62,8 +82,8 @@ public class UserController {
     })
     @PreAuthorize("hasAuthority('Admin')")
     @PostMapping
-    public User create(@RequestBody @Validated User newUser) {
-        return userService.create(newUser);
+    public MessageResponse<User> create(@RequestBody @Validated User newUser) {
+        return new MessageResponse<>(SuccessMessage.CREATED.getLabel(), userService.create(newUser));
     }
 
     @Operation(description = "Update an existing user")
@@ -75,10 +95,9 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
             )
     })
-    @PreAuthorize("hasAuthority('Admin')")
     @PutMapping
-    public User update(@RequestBody @Validated User newUser) {
-        return userService.update(newUser);
+    public MessageResponse<User> update(@RequestBody @Validated User newUser) {
+        return new MessageResponse<>(SuccessMessage.UPDATED.getLabel(), userService.update(newUser));
     }
 
     @Operation(description = "Delete an existing user")
@@ -92,7 +111,32 @@ public class UserController {
     })
     @PreAuthorize("hasAuthority('Admin')")
     @DeleteMapping(value = "/{id}")
-    public void delete(@PathVariable UUID id) {
+    public MessageResponse<Void> delete(@PathVariable UUID id) {
         userService.delete(id);
+        MessageResponse<Void> response = new MessageResponse<>();
+        response.setMessage(SuccessMessage.DELETED.getLabel());
+        return response;
+    }
+
+    @Operation(description = "Change password for current user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "password changed"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "user not found",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "incorrect old password provided",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+            )
+    })
+    @PostMapping(Endpoints.CHANGE_PASSWORD)
+    public MessageResponse<Void> changePassword(@RequestBody PasswordRq passwords, JwtAuthenticationToken jwtAuthenticationToken) {
+        userService.changePassword(jwtAuthenticationToken.getName(), passwords);
+        MessageResponse<Void> response = new MessageResponse<>();
+        response.setMessage(SuccessMessage.PASSWORD_CHANGED.getLabel());
+        return response;
     }
 }

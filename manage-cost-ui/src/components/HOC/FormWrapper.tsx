@@ -1,20 +1,41 @@
-import React, { DOMAttributes, FC, PropsWithChildren, ReactNode } from "react";
+import React, {
+  FormEventHandler,
+  PropsWithChildren,
+  ReactNode,
+  useState,
+} from "react";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 
-const FormWrapper: FC<
-  PropsWithChildren<
-    Pick<DOMAttributes<HTMLFormElement>, "onSubmit"> & {
-      submitText: string;
-      additionalNode?: ReactNode;
+type FromWrapperProps = PropsWithChildren<{
+  onSubmit: FormEventHandler<HTMLFormElement>;
+  submitText: string;
+  additionalNode?: ReactNode;
+}>;
+
+const FormWrapper = ({
+  children,
+  onSubmit,
+  submitText,
+  additionalNode,
+}: FromWrapperProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit(event);
+    } finally {
+      setIsSubmitting(false);
     }
-  >
-> = ({ children, onSubmit, submitText, additionalNode }) => {
+  };
+
+  console.log("FormWrapper render");
   return (
-    <form onSubmit={onSubmit}>
-      <Stack spacing={3}>
+    <form onSubmit={submitHandler}>
+      <Stack>
         {children}
-        <Button variant="contained" type="submit">
+        <Button variant="contained" type="submit" disabled={isSubmitting}>
           {submitText}
         </Button>
         {additionalNode}
@@ -22,5 +43,7 @@ const FormWrapper: FC<
     </form>
   );
 };
+
+FormWrapper.muiName = "Stack";
 
 export default FormWrapper;

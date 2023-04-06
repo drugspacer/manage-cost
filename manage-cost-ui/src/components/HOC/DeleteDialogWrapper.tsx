@@ -2,7 +2,6 @@ import React, {
   Children,
   cloneElement,
   FC,
-  memo,
   MouseEventHandler,
   PropsWithChildren,
   useCallback,
@@ -10,10 +9,9 @@ import React, {
 } from "react";
 import DeleteDialog from "../UI/DeleteDialog";
 
-const DialogWrapper: FC<PropsWithChildren<{ onDelete: () => void }>> = ({
-  children,
-  onDelete,
-}) => {
+const DeleteDialogWrapper: FC<
+  PropsWithChildren<{ onDelete: () => void; header?: string }>
+> = ({ children, onDelete, header }) => {
   const [open, setOpen] = useState(false);
 
   const handleClose = (value: boolean): void => {
@@ -31,6 +29,8 @@ const DialogWrapper: FC<PropsWithChildren<{ onDelete: () => void }>> = ({
     []
   );
 
+  console.log("DialogWrapper render");
+
   return (
     <>
       {Children.map(children, (child) => {
@@ -38,9 +38,9 @@ const DialogWrapper: FC<PropsWithChildren<{ onDelete: () => void }>> = ({
           ? cloneElement(child, { onDelete: deleteHandler })
           : child;
       })}
-      <DeleteDialog open={open} onClose={handleClose} />
+      <DeleteDialog open={open} onClose={handleClose} header={header} />
     </>
   );
 };
 
-export default memo(DialogWrapper);
+export default DeleteDialogWrapper;

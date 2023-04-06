@@ -1,12 +1,14 @@
-import React, { FC, PropsWithChildren } from "react";
+import React, { PropsWithChildren } from "react";
 import Grid from "@mui/material/Grid";
 import Result from "../Result";
 import Trip from "../../models/trip.model";
 import ContentGrid from "../UI/styled/ContentGrid";
 
-const ArchiveWrapper: FC<
-  PropsWithChildren<{ trip: Pick<Trip, "persons" | "archive"> }>
-> = ({ trip, children }) => {
+const ArchiveWrapper = ({
+  trip,
+  children,
+}: PropsWithChildren<{ trip: Pick<Trip, "persons" | "archive"> }>) => {
+  console.log("ArchiveWrapper render");
   return trip.archive ? (
     <ContentGrid
       container
@@ -30,5 +32,7 @@ const ArchiveWrapper: FC<
     </ContentGrid>
   );
 };
+
+ArchiveWrapper.muiName = "Grid";
 
 export default ArchiveWrapper;

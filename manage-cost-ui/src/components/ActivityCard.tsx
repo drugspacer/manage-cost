@@ -1,4 +1,4 @@
-import React, { FC, memo, MouseEventHandler } from "react";
+import React, { memo, MouseEventHandler } from "react";
 import Activity from "../models/activity.model";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
@@ -14,12 +14,19 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CardHeader from "@mui/material/CardHeader";
 import Tooltip from "@mui/material/Tooltip";
 
-const ActivityCard: FC<{
+type ActivityCardProp = {
   activity: Activity;
   isArchive: boolean;
   onEditAction: MouseEventHandler<HTMLButtonElement>;
   onDelete?: MouseEventHandler<HTMLButtonElement>;
-}> = ({ activity, isArchive, onEditAction, onDelete }) => {
+};
+
+const ActivityCard = ({
+  activity,
+  isArchive,
+  onEditAction,
+  onDelete,
+}: ActivityCardProp) => {
   const tableContent = activity.records.map((row, index) => (
     <TableRow
       key={index}
@@ -52,6 +59,8 @@ const ActivityCard: FC<{
     </>
   );
 
+  console.log("ActivityCard render");
+
   return (
     <Card sx={{ height: "100%" }}>
       <CardHeader title={activity.name} action={buttons} />
@@ -67,8 +76,8 @@ const ActivityCard: FC<{
             <TableHead>
               <TableRow>
                 <TableCell>Имя</TableCell>
-                <TableCell>Потратил</TableCell>
-                <TableCell>Заплатил</TableCell>
+                <TableCell>Потрачено</TableCell>
+                <TableCell>Заплачено</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>{tableContent}</TableBody>
@@ -78,5 +87,7 @@ const ActivityCard: FC<{
     </Card>
   );
 };
+
+ActivityCard.muiName = "Card";
 
 export default memo(ActivityCard);

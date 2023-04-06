@@ -4,10 +4,10 @@ import React, {
   ReactElement,
   MouseEvent,
   useCallback,
+  useContext,
 } from "react";
 import Stack from "@mui/material/Stack";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -22,6 +22,15 @@ import Button from "@mui/material/Button";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Theme from "../../themes/theme";
 import Footer from "../UI/Footer";
+import { AuthContext } from "../../context/Auth";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import { useNavigate } from "react-router";
+import Link from "@mui/material/Link";
+
+type MenuElement = {
+  basicMenu?: HTMLElement;
+  profile?: HTMLElement;
+};
 
 const Page: FC<
   PropsWithChildren<{
@@ -31,27 +40,39 @@ const Page: FC<
     header?: string;
   }>
 > = ({ children, buttons = [], mainButton, breadcrumbs = [], header }) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const matches = useMediaQuery((theme: typeof Theme) =>
+  const [anchorEl, setAnchorEl] = React.useState<MenuElement>({});
+  const isMobile = useMediaQuery((theme: typeof Theme) =>
     theme.breakpoints.down("sm")
   );
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
-    setAnchorEl(event.currentTarget);
+  const handleOpenClick = ({
+    currentTarget,
+  }: MouseEvent<HTMLButtonElement>): void => {
+    setAnchorEl((prevState) => ({
+      ...prevState,
+      [currentTarget.name]: currentTarget,
+    }));
   };
 
   const menuItemHandler = useCallback(
-    (handler: () => void): (() => void) =>
+    (handler: () => void, name: keyof MenuElement): (() => void) =>
       () => {
-        onCloseHandler();
+        onCloseHandler(name);
         handler();
       },
     []
   );
 
-  const onCloseHandler = () => setAnchorEl(null);
-
-  const open = Boolean(anchorEl);
+  const onCloseHandler = useCallback(
+    (name: keyof MenuElement) =>
+      setAnchorEl((prevState) => ({
+        ...prevState,
+        [name]: undefined,
+      })),
+    []
+  );
 
   const breadcrumbsContent = breadcrumbs.map((item, index, self) => {
     if (self.length === index + 1) {
@@ -62,7 +83,7 @@ const Page: FC<
       );
     }
     return (
-      <Link key={item.href} underline="hover" color="inherit" href={item.href}>
+      <Link key={item.href} color="inherit" href={item.href}>
         {item.label}
       </Link>
     );
@@ -74,36 +95,39 @@ const Page: FC<
     </Typography>,
   ];
 
-  if (matches) {
+  if (isMobile) {
     toolbarContent.unshift(
       <IconButton
         size="large"
         edge="start"
         color="inherit"
         aria-label="menu"
-        sx={{ mr: 2 }}
-        onClick={handleClick}
+        onClick={handleOpenClick}
+        name="basicMenu"
         key="menuIcon"
       >
         <MenuIcon />
       </IconButton>,
       <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={() => setAnchorEl(null)}
+        id="basicMenu"
+        anchorEl={anchorEl.basicMenu}
+        open={!!anchorEl.basicMenu}
+        onClose={() => onCloseHandler("basicMenu")}
         MenuListProps={{
           "aria-labelledby": "basic-button",
         }}
         key="menu"
       >
         {mainButton && (
-          <MenuItem onClick={menuItemHandler(mainButton.handler)}>
+          <MenuItem onClick={menuItemHandler(mainButton.handler, "basicMenu")}>
             {mainButton.text}
           </MenuItem>
         )}
         {buttons.map((item) => (
-          <MenuItem onClick={menuItemHandler(item.handler)} key={item.text}>
+          <MenuItem
+            onClick={menuItemHandler(item.handler, "basicMenu")}
+            key={item.text}
+          >
             {item.text}
           </MenuItem>
         ))}
@@ -122,6 +146,40 @@ const Page: FC<
         </Button>
       );
   }
+
+  if (user) {
+    toolbarContent.push(
+      <IconButton
+        size="large"
+        aria-label="account of current user"
+        aria-controls="menu-appbar"
+        aria-haspopup="true"
+        onClick={handleOpenClick}
+        color="inherit"
+        key="profile-icon"
+        name="profile"
+      >
+        <AccountCircle />
+      </IconButton>,
+      <Menu
+        id="profile"
+        anchorEl={anchorEl.profile}
+        keepMounted
+        open={!!anchorEl.profile}
+        onClose={() => onCloseHandler("profile")}
+        key="profile-menu"
+      >
+        <MenuItem
+          onClick={menuItemHandler(() => navigate(`/profile`), "profile")}
+        >
+          Профиль
+        </MenuItem>
+        <MenuItem onClick={menuItemHandler(logout, "profile")}>Выйти</MenuItem>
+      </Menu>
+    );
+  }
+
+  console.log("Page render");
 
   return (
     <>

@@ -6,42 +6,59 @@ import SaveTrip from "../components/forms/SaveTrip";
 import Page from "../components/Layout/Page";
 import UIModal from "../components/UI/UIModal";
 import Trip from "../models/trip.model";
-import { deleteTrip, getTrips, saveTrip } from "../api/trips";
 import { tripRsToTrip } from "../functions/apiTransform";
 import { TripRq } from "../models/form.model";
-import DialogWrapper from "../components/HOC/DialogWrapper";
+import DeleteDialogWrapper from "../components/HOC/DeleteDialogWrapper";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ButtonProp } from "../models/ui.model";
 import ContentGrid from "../components/UI/styled/ContentGrid";
+import { isTripRs } from "../functions/assertions";
+import TripApi from "../service/api/trip";
+
+type AssertIsTripArr = (trips?: Trip[]) => asserts trips is Trip[];
+
+const isTrips: AssertIsTripArr = (trips) => {
+  if (trips === undefined) {
+    throw new Error("trips is undefined");
+  }
+};
 
 const Trips: FC = () => {
   const [openModal, setOpenModal] = useState(false);
   const [trips, setTrips] = useState<Trip[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    getTrips().then((data) => {
-      setTrips(data);
-      setIsLoading(false);
-    });
+    TripApi.getTrips()
+      .then((data) => {
+        isTrips(data);
+        setTrips(data);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const submitHandler = async (request: TripRq) => {
     setIsLoading(true);
-    const data = await saveTrip(request);
-    setIsLoading(false);
-    setTrips((prevState) => [...prevState, tripRsToTrip(data)]);
-    setOpenModal(false);
+    try {
+      const data = await TripApi.saveTrip(request);
+      isTripRs(data);
+      setTrips((prevState) => [...prevState, tripRsToTrip(data)]);
+    } finally {
+      setIsLoading(false);
+      setOpenModal(false);
+    }
   };
 
   const deleteHandler = useCallback(
     (id: string): (() => void) =>
       async () => {
         setIsLoading(true);
-        await deleteTrip(id);
-        setTrips((prevState) => prevState.filter((item) => item.id !== id));
-        setIsLoading(false);
+        try {
+          await TripApi.deleteTrip(id);
+          setTrips((prevState) => prevState.filter((item) => item.id !== id));
+        } finally {
+          setIsLoading(false);
+        }
       },
     []
   );
@@ -55,9 +72,9 @@ const Trips: FC = () => {
       <ContentGrid container spacing={2}>
         {trips.map((item) => (
           <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={item.id}>
-            <DialogWrapper onDelete={deleteHandler(item.id)}>
+            <DeleteDialogWrapper onDelete={deleteHandler(item.id)}>
               <TripCard trip={item} />
-            </DialogWrapper>
+            </DeleteDialogWrapper>
           </Grid>
         ))}
       </ContentGrid>
@@ -79,6 +96,8 @@ const Trips: FC = () => {
   ];
 
   const breadcrumbs = [{ href: "/", label: "Поездки" }];
+
+  console.log("Trips render");
 
   return (
     <Page buttons={buttons} breadcrumbs={breadcrumbs}>

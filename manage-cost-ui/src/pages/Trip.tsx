@@ -5,15 +5,6 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import {
-  deleteActivity,
-  finishTrip,
-  getTrip,
-  returnFromArchive,
-  saveActivity,
-  updateActivity,
-  updateTrip,
-} from "../api/trips";
 import { useParams } from "react-router";
 import Grid from "@mui/material/Grid";
 import Page from "../components/Layout/Page";
@@ -30,12 +21,14 @@ import Card from "@mui/material/Card";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import DialogWrapper from "../components/HOC/DialogWrapper";
+import DeleteDialogWrapper from "../components/HOC/DeleteDialogWrapper";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Tooltip } from "@mui/material";
 import { ButtonProp } from "../models/ui.model";
+import { isTripRs } from "../functions/assertions";
+import TripApi from "../service/api/trip";
 
 enum MODAL_TYPE {
   EDIT_TRIP = "Редактировать поездку",
@@ -46,30 +39,33 @@ enum MODAL_TYPE {
 const Trip: React.FC = () => {
   const { id } = useParams();
   const [trip, setTrip] = useState<Trip | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [modalType, setModalType] = useState<MODAL_TYPE | undefined>();
   const [selectedActivity, setSelectedActivity] = useState<
     Activity | undefined
   >(undefined);
-  console.log(trip);
 
   useEffect(() => {
-    setIsLoading(true);
-    getTrip(id).then((data) => {
-      setTrip(tripRsToTrip(data));
-      setIsLoading(false);
-    });
+    TripApi.getTrip(id)
+      .then((data) => {
+        isTripRs(data);
+        setTrip(tripRsToTrip(data));
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const handleButton: (
-    func: (id: string | undefined) => Promise<TripRs>
+    func: (id: string | undefined) => Promise<TripRs | undefined>
   ) => () => void = useCallback(
-    (func) => () => {
+    (func) => async () => {
       setIsLoading(true);
-      func(trip?.id).then((data) => {
+      try {
+        const data = await func(trip?.id);
+        isTripRs(data);
         setTrip(tripRsToTrip(data));
+      } finally {
         setIsLoading(false);
-      });
+      }
     },
     [trip?.id]
   );
@@ -82,15 +78,19 @@ const Trip: React.FC = () => {
   const persons = trip ? trip.persons.map((item) => item.person) : [];
 
   const submitHandler: <T extends object>(
-    func: (request: T, id?: string) => Promise<TripRs>
+    func: (request: T, id?: string) => Promise<TripRs | undefined>
   ) => (data: T) => void = useCallback(
     (func) => async (data) => {
       setIsLoading(true);
-      const response = await func(data, trip?.id);
-      setModalType(undefined);
-      setSelectedActivity(undefined);
-      setTrip(tripRsToTrip(response));
-      setIsLoading(false);
+      try {
+        const response = await func(data, trip?.id);
+        isTripRs(response);
+        setTrip(tripRsToTrip(response));
+      } finally {
+        setModalType(undefined);
+        setSelectedActivity(undefined);
+        setIsLoading(false);
+      }
     },
     [trip?.id]
   );
@@ -99,9 +99,13 @@ const Trip: React.FC = () => {
     (tripId: string, activityId: string): (() => void) =>
       async () => {
         setIsLoading(true);
-        const data = await deleteActivity(tripId, activityId);
-        setTrip(tripRsToTrip(data));
-        setIsLoading(false);
+        try {
+          const data = await TripApi.deleteActivity(tripId, activityId);
+          isTripRs(data);
+          setTrip(tripRsToTrip(data));
+        } finally {
+          setIsLoading(false);
+        }
       },
     []
   );
@@ -122,7 +126,7 @@ const Trip: React.FC = () => {
       case MODAL_TYPE.ADD_ACTION: {
         return (
           <SaveAction
-            onSubmit={submitHandler(saveActivity)}
+            onSubmit={submitHandler(TripApi.saveActivity)}
             persons={persons}
           />
         );
@@ -131,7 +135,7 @@ const Trip: React.FC = () => {
         const { persons, ...rest } = trip!;
         return (
           <SaveTrip
-            onSubmit={submitHandler(updateTrip)}
+            onSubmit={submitHandler(TripApi.updateTrip)}
             trip={{ persons: persons.map(({ person }) => person), ...rest }}
           />
         );
@@ -139,7 +143,7 @@ const Trip: React.FC = () => {
       case MODAL_TYPE.EDIT_ACTION: {
         return (
           <SaveAction
-            onSubmit={submitHandler(updateActivity)}
+            onSubmit={submitHandler(TripApi.updateActivity)}
             persons={persons}
             activity={selectedActivity}
           />
@@ -155,13 +159,15 @@ const Trip: React.FC = () => {
   if (!isLoading && trip !== undefined) {
     const cards = trip.activities.map((item) => (
       <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={item.id}>
-        <DialogWrapper onDelete={deleteActivityHandler(trip.id!, item.id)}>
+        <DeleteDialogWrapper
+          onDelete={deleteActivityHandler(trip.id!, item.id)}
+        >
           <ActivityCard
             activity={item}
             isArchive={trip.archive}
             onEditAction={editActionHandler(item)}
           />
-        </DialogWrapper>
+        </DeleteDialogWrapper>
       </Grid>
     ));
 
@@ -200,15 +206,14 @@ const Trip: React.FC = () => {
     if (trip.archive) {
       mainButton = {
         text: "Вернуть из архива",
-        handler: handleButton(returnFromArchive),
+        handler: handleButton(TripApi.returnFromArchive),
       };
     } else {
       buttons.push({
         element: (
-          <Tooltip title={MODAL_TYPE.EDIT_TRIP}>
+          <Tooltip title={MODAL_TYPE.EDIT_TRIP} key="edit">
             <IconButton
               size="large"
-              key="edit"
               color="inherit"
               aria-label="edit"
               sx={{ mr: 2 }}
@@ -223,7 +228,7 @@ const Trip: React.FC = () => {
       });
       mainButton = {
         text: "Завершить поездку",
-        handler: handleButton(finishTrip),
+        handler: handleButton(TripApi.finishTrip),
       };
     }
   }
@@ -235,6 +240,7 @@ const Trip: React.FC = () => {
     { href: "/", label: "Поездки" },
     { href: `/trip/${id}`, label: trip?.name ?? "Поездка" },
   ];
+  console.log("Trip render");
 
   return (
     <Page buttons={buttons} mainButton={mainButton} breadcrumbs={breadcrumbs}>

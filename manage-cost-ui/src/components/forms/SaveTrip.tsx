@@ -1,7 +1,6 @@
 import React, {
   ChangeEventHandler,
   DOMAttributes,
-  FC,
   useCallback,
   useState,
 } from "react";
@@ -27,16 +26,16 @@ const formConfig: SimpleValidateConfig<TripForm> = {
   persons: [required],
 };
 
-const SaveTrip: FC<{
-  onSubmit: (data: TripRq) => void;
-  trip?: TripForm;
-}> = ({
+const SaveTrip = ({
   onSubmit,
   trip = {
     place: "",
     name: "",
     persons: [],
   },
+}: {
+  onSubmit: (data: TripRq) => void;
+  trip?: TripForm;
 }) => {
   const [state, setState] = useState<TripForm>(trip);
   const [errorState, setErrorState] = useState<ErrorState<TripForm>>({});
@@ -50,7 +49,7 @@ const SaveTrip: FC<{
       setErrorState(errors);
       return;
     }
-    onSubmit({ ...state, persons: personsToDataRq(state.persons) });
+    await onSubmit({ ...state, persons: personsToDataRq(state.persons) });
   };
 
   const onPersonChange: UseAutocompleteProps<
@@ -93,6 +92,8 @@ const SaveTrip: FC<{
     []
   );
 
+  console.log("SaveTrip render");
+
   return (
     <FormWrapper
       onSubmit={submitHandler}
@@ -120,5 +121,7 @@ const SaveTrip: FC<{
     </FormWrapper>
   );
 };
+
+SaveTrip.muiName = FormWrapper.muiName;
 
 export default SaveTrip;

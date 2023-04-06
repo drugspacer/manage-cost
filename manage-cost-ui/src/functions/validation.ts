@@ -1,6 +1,5 @@
 import ErrorState, { ERRORS } from "../models/error.model";
 import { ActivityForm } from "../models/form.model";
-import { Register } from "../models/login.model";
 
 type ValidateFunc<T = unknown> = (data: T) => string | undefined;
 
@@ -34,10 +33,10 @@ export const requiredDate: ValidateFunc<Date | null> = (data) => {
   }
 };
 
-export const confirmPassword: ValidateFunc<Register> = ({
-  password,
-  confirmPassword,
-}) => {
+export const confirmPassword: ValidateFunc<{
+  password: string;
+  confirmPassword: string;
+}> = ({ password, confirmPassword }) => {
   if (confirmPassword !== password) {
     return ERRORS.CONFIRM_PASSWORD;
   }
@@ -100,7 +99,7 @@ export function validateField<T>(
   }
 }
 
-function validateForm<T>(
+export function validateForm<T>(
   form: T,
   functions: ValidateFunc<T>[]
 ): string[] | undefined {

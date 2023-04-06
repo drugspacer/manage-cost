@@ -1,12 +1,11 @@
 import React, {
   DOMAttributes,
-  FC,
   useState,
   ReactElement,
   useCallback,
   ChangeEventHandler,
   useEffect,
-  forwardRef,
+  useContext,
 } from "react";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -16,8 +15,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import Person from "../../models/person.model";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
@@ -47,13 +44,9 @@ import Typography from "@mui/material/Typography";
 import StyledTableCell from "../UI/styled/StyledTableCell";
 import FormWrapper from "../HOC/FormWrapper";
 import TextInput from "../input/TextInput";
-
-const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
-  props,
-  ref
-) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
+import { SaveActionProps } from "../../models/ui.model";
+import { SnackbarContext } from "../../context/SnackbarContext";
+import theme from "../../themes/theme";
 
 const simpleValidationConfig: SimpleValidateConfig<ActivityForm> = {
   name: [required],
@@ -94,11 +87,7 @@ const buildRecordsFormData = (
       })
     : persons.map((person) => ({ person, isActive: true }));
 
-const SaveAction: FC<{
-  persons: Person[];
-  activity?: Activity;
-  onSubmit: (data: ActivityFormRq) => void;
-}> = ({ persons, onSubmit, activity }) => {
+const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
   const [state, setState] = useState<ActivityForm>({
     sum: activity ? "" + activity.sum : "",
     date: activity?.date ?? new Date(),
@@ -110,7 +99,7 @@ const SaveAction: FC<{
   const [errorState, setErrorState] = useState<
     ErrorState<RecordItemForm & ActivityForm>
   >({});
-  const [isOpenSnackbar, setIsOpenSnackbar] = useState<boolean>(false);
+  const { onShowMessage } = useContext(SnackbarContext);
 
   useEffect(() => {
     const getSum = (
@@ -131,22 +120,20 @@ const SaveAction: FC<{
     setState((prevState) => ({ ...prevState, sum }));
   }, [state.records]);
 
-  const handleCloseSnackbar = useCallback(
-    (event?: React.SyntheticEvent | Event, reason?: string) => {
-      if (reason === "clickaway") {
-        return;
-      }
-      setIsOpenSnackbar(false);
-    },
-    []
-  );
-
-  const submitHandler: DOMAttributes<HTMLFormElement>["onSubmit"] = (e) => {
+  const submitHandler: DOMAttributes<HTMLFormElement>["onSubmit"] = async (
+    e
+  ) => {
     e.preventDefault();
     const errors = simpleFormValidation(state, simpleValidationConfig);
     const tableErrors = complexFormValidation(state, complexValidationConfig);
     if (!!tableErrors) {
-      setIsOpenSnackbar(true);
+      onShowMessage(
+        [
+          ...((tableErrors?.borrowMoney as ERRORS[]) ?? []),
+          ...((tableErrors?.landMoney as ERRORS[]) ?? []),
+          ...((tableErrors?.isActive as ERRORS[]) ?? []),
+        ].join(", ")
+      );
     }
     if (!!errors || !!tableErrors) {
       setErrorState({ ...errors, ...tableErrors });
@@ -166,7 +153,7 @@ const SaveAction: FC<{
     };
 
     const data = activityFormToActivityFormRq(state);
-    onSubmit(data);
+    await onSubmit(data);
   };
 
   const onNameChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
@@ -218,6 +205,8 @@ const SaveAction: FC<{
     }));
   };
 
+  console.log("SaveAction render");
+
   return (
     <FormWrapper
       onSubmit={submitHandler}
@@ -230,7 +219,11 @@ const SaveAction: FC<{
         state={state}
         onChange={onNameChange}
       />
-      <Stack direction="row" spacing={2}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ marginTop: theme.spacing(2), marginBottom: theme.spacing(1) }}
+      >
         <DatePicker
           label="Дата *"
           onChange={(date) => setState((prevState) => ({ ...prevState, date }))}
@@ -309,29 +302,10 @@ const SaveAction: FC<{
           ))}
         </TableBody>
       </Table>
-      {(errorState?.borrowMoney ||
-        errorState?.landMoney ||
-        errorState?.isActive) && (
-        <Snackbar
-          open={isOpenSnackbar}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-        >
-          <Alert
-            onClose={handleCloseSnackbar}
-            severity="error"
-            sx={{ width: "100%" }}
-          >
-            {[
-              ...((errorState?.borrowMoney as ERRORS[]) ?? []),
-              ...((errorState?.landMoney as ERRORS[]) ?? []),
-              ...((errorState?.isActive as ERRORS[]) ?? []),
-            ].join(", ")}
-          </Alert>
-        </Snackbar>
-      )}
     </FormWrapper>
   );
 };
+
+SaveAction.muiName = FormWrapper.muiName;
 
 export default SaveAction;

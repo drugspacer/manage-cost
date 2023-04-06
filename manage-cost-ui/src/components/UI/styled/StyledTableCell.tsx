@@ -6,6 +6,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
   },
-}));
+})) as typeof TableCell;
 
 export default StyledTableCell;

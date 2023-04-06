@@ -2,6 +2,7 @@ import React, {
   ChangeEventHandler,
   FC,
   FormEventHandler,
+  memo,
   useCallback,
   useContext,
   useState,
@@ -26,12 +27,12 @@ import PersonsInput from "../components/input/PersonsInput";
 import { UseAutocompleteProps } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
 import Person from "../models/person.model";
 import { PersonAutocomplete } from "../models/form.model";
-import Link from "@mui/material/Link";
 import { useNavigate } from "react-router";
 import { AuthContext } from "../context/Auth";
 import StyledPaper from "../components/UI/styled/StyledPaper";
 import Typography from "@mui/material/Typography";
 import { registerToUserRq } from "../functions/apiTransform";
+import Link from "@mui/material/Link";
 
 const simpleValidationConfig: SimpleValidateConfig<RegisterModel> = {
   username: [required],
@@ -68,11 +69,19 @@ const Register: FC = () => {
   };
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
-    ({ target }) =>
+    ({ target }) => {
+      const name = target.name as keyof Omit<RegisterModel, "persons">;
       setState((prevState) => ({
         ...prevState,
-        [target.name]: target.value,
-      })),
+        [name]: target.value,
+      }));
+      if (errorState[name]) {
+        setErrorState((prevState) => ({
+          ...prevState,
+          [name]: validateField(target.value, simpleValidationConfig[name]!),
+        }));
+      }
+    },
     []
   );
 
@@ -100,10 +109,12 @@ const Register: FC = () => {
   };
 
   const linkOnLogin = (
-    <Link sx={{ textAlign: "center" }} href="/login">
-      <Typography variant="body2">Назад на страницу логина</Typography>
-    </Link>
+    <Typography sx={{ textAlign: "center" }} variant="body2">
+      <Link href="/login">Назад на страницу логина</Link>
+    </Typography>
   );
+
+  console.log("Register render");
 
   return (
     <Page header="Регистрация">
@@ -125,6 +136,7 @@ const Register: FC = () => {
             onChange={changeHandler}
             error={!!errorState.password}
             helperText={errorState.password}
+            autoComplete="new-password"
           />
           <Password
             value={state.confirmPassword}
@@ -138,7 +150,6 @@ const Register: FC = () => {
             value={state.persons}
             onChange={onPersonChange}
             error={errorState.persons}
-            fetch={false}
           />
         </FormWrapper>
       </StyledPaper>
@@ -146,4 +157,4 @@ const Register: FC = () => {
   );
 };
 
-export default Register;
+export default memo(Register);

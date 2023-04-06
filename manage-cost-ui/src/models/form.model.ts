@@ -2,6 +2,7 @@ import Trip from "./trip.model";
 import Person from "./person.model";
 import Activity from "./activity.model";
 import RecordItem from "./record.model";
+import { User } from "./user.model";
 
 export type Input<T extends { id: string }> = {
   [K in keyof Omit<T, "id">]: T[K];
@@ -38,6 +39,10 @@ export type ActivityForm = Pick<Activity, "name"> & {
 
 export type ActivityFormRq = Omit<ActivityForm, "records"> & {
   records: RecordItemFormRq[];
+};
+
+export type UserRq = Omit<User, "persons"> & {
+  persons: Input<Person>[];
 };
 
 export type PersonAutocomplete = Pick<Person, "name"> & { title: string };

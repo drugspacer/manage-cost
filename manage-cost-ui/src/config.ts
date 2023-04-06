@@ -5,7 +5,7 @@ type Config = {
 
 const config = {
   localhost: {
-    apiUrl: "http://localhost:10000",
+    apiUrl: "http://localhost:3000",
   },
 };
 

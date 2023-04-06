@@ -1,18 +1,22 @@
 package xyz.jesusohmyjesus.managecost.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import xyz.jesusohmyjesus.managecost.controller.EndpointMessages;
+import xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages;
 import xyz.jesusohmyjesus.managecost.entities.User;
+import xyz.jesusohmyjesus.managecost.exception.ApiException;
 import xyz.jesusohmyjesus.managecost.exception.ApiForbiddenException;
 import xyz.jesusohmyjesus.managecost.exception.ApiNotFoundException;
 import xyz.jesusohmyjesus.managecost.repository.UserRepository;
+import xyz.jesusohmyjesus.managecost.request.PasswordRq;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
-import static xyz.jesusohmyjesus.managecost.controller.EndpointMessages.NO_USER_FOUND;
-import static xyz.jesusohmyjesus.managecost.controller.EndpointMessages.USER_ALREADY_EXISTS;
+import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.NO_USER_FOUND;
+import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.USER_ALREADY_EXISTS;
 
 @Service
 public class UserService {
@@ -24,7 +28,7 @@ public class UserService {
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ApiNotFoundException(EndpointMessages.CURRENT_USER_NOT_FOUND.getLabel()));
+                .orElseThrow(() -> new ApiNotFoundException(ErrorMessages.CURRENT_USER_NOT_FOUND.getLabel()));
     }
 
     public Iterable<User> findAll() {
@@ -41,7 +45,7 @@ public class UserService {
 
     public User update(User newUser) {
         newUser.setPassword(userRepository.findById(newUser.getId())
-                .orElseThrow(() -> new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), newUser.getId())))
+                .orElseThrow(throwUserNotFoundSupplier(newUser.getId().toString()))
                 .getPassword()
         );
         return userRepository.save(newUser);
@@ -49,8 +53,33 @@ public class UserService {
 
     public void delete(UUID id) {
         userRepository.findById(id)
-                .ifPresentOrElse(userDto -> userRepository.deleteById(userDto.getId()), () -> {
-            throw new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), id));
-        });
+                .ifPresentOrElse(user -> userRepository.deleteById(id), throwUserNotFoundRunnable(id.toString()));
+    }
+
+    public void delete(String username) {
+        userRepository.findByUsername(username)
+                .ifPresentOrElse(user -> userRepository.deleteById(user.getId()), throwUserNotFoundRunnable(username));
+    }
+
+    public void changePassword(String username, PasswordRq passwords) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(throwUserNotFoundSupplier(username));
+        if (!passwordEncoder.matches(passwords.getOldPassword(), user.getPassword())) {
+            throw new ApiException(ErrorMessages.INCORRECT_OLD_PASSWORD.getLabel(), HttpStatus.BAD_REQUEST);
+        }
+        user.setPassword(passwordEncoder.encode(passwords.getPassword()));
+        userRepository.save(user);
+    }
+
+    private Runnable throwUserNotFoundRunnable(String identifier) {
+        return () -> {
+            throw new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), identifier));
+        };
+    }
+
+    private Supplier<ApiNotFoundException> throwUserNotFoundSupplier(String identifier) {
+        return () -> {
+            throw new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), identifier));
+        };
     }
 }
