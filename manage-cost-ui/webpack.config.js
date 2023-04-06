@@ -10,20 +10,25 @@ const styledComponentsTransformer = createStyledComponentsTransformer();
 module.exports = {
   entry: "./src/index.tsx",
   output: {
-    filename: "bundle.js",
+    filename: "[name].[contenthash].js",
+    chunkFilename: "[name].[contenthash].js",
     path: path.resolve(__dirname, "dist"),
   },
   module: {
     rules: [
       {
         test: /\.(ts)x?$/,
-        loader: "ts-loader",
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              getCustomTransformers: () => ({
+                before: [styledComponentsTransformer],
+              }),
+            },
+          },
+        ],
         exclude: /node_modules/,
-        options: {
-          getCustomTransformers: () => ({
-            before: [styledComponentsTransformer],
-          }),
-        },
       },
     ],
   },
@@ -33,15 +38,6 @@ module.exports = {
     historyApiFallback: true,
     static: {
       directory: path.join(__dirname, "public"),
-    },
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-      "Access-Control-Allow-Headers":
-        "X-Requested-With, content-type, Authorization",
-      "Content-Security-Policy":
-        "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "X-Content-Type-Options": "nosniff",
     },
     proxy: {
       "/api/**": {
@@ -59,6 +55,11 @@ module.exports = {
       patterns: [{ from: "public/*.css" }],
     }),
   ],
+  optimization: {
+    splitChunks: {
+      chunks: "all",
+    },
+  },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },

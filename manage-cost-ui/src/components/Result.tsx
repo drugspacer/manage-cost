@@ -62,8 +62,10 @@ const generateTableData = (persons: PersonTrip[]): PersonTable[] => {
   return result;
 };
 
-const Result: React.FC<Pick<Trip, "persons">> = ({ persons }) => {
+const Result = ({ persons }: Pick<Trip, "persons">) => {
   const tableData = generateTableData(persons);
+
+  console.log("Result render");
 
   return (
     <Card>
@@ -99,5 +101,7 @@ const Result: React.FC<Pick<Trip, "persons">> = ({ persons }) => {
     </Card>
   );
 };
+
+Result.muiName = "Card";
 
 export default Result;

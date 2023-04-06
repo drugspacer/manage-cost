@@ -6,26 +6,21 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import * as AuthService from "../service/auth.service";
-import { User } from "../models/auth.model";
 import Login, { RegisterRq } from "../models/login.model";
-import { currentUser } from "../api/user";
-import { monitorSession } from "../service/auth.service";
-
-type IAuthContext = {
-  user: User | null;
-  login: (data: Login) => Promise<void>;
-  logout: () => Promise<void>;
-  register: (data: RegisterRq) => Promise<void>;
-  isLoading: boolean;
-};
+import { User } from "../models/user.model";
+import { isUser } from "../functions/assertions";
+import AuthService from "../service/auth.service";
+import UserApi from "../service/api/user";
+import { IAuthContext } from "../models/auth.model";
+import AuthApiHelper from "../service/AuthApiHelper";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useSnackbar } from "notistack";
 
 const initialValue: IAuthContext = {
   user: null,
   login: () => new Promise((resolve) => resolve),
   logout: () => new Promise((resolve) => resolve),
   register: () => new Promise((resolve) => resolve),
-  isLoading: true,
 };
 
 export const AuthContext = createContext<IAuthContext>(initialValue);
@@ -33,53 +28,66 @@ export const AuthContext = createContext<IAuthContext>(initialValue);
 const Auth: FC<PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    if (urlSearchParams.get("signOut")) {
-      setIsLoading(false);
-    } else {
-      // Attempt to use refresh token cookie to acquire a token
-      // User will be directed to login if this fails, otherwise
-      // the current user is retrieved from server and set in the
-      // application's react context
-      AuthService.requestNewToken()
-        .then(async () => {
-          setUser(await currentUser());
-          setIsLoading(false);
-        })
-        .catch(async () => {
-          await AuthService.logout();
-          setIsLoading(false);
-        });
-    }
-    currentUser().then((user) => setUser(user));
+    AuthApiHelper.setLogout(logout);
+    AuthApiHelper.addMessageListener("snackbar", enqueueSnackbar);
+  }, []);
+
+  useEffect(() => {
+    // Attempt to use refresh token cookie to acquire a token
+    // User will be directed to login if this fails, otherwise
+    // the current user is retrieved from server and set in the
+    // application's react context
+    console.log("request new token Auth component");
+    AuthService.requestNewToken()
+      .then(async () => {
+        const user = await UserApi.currentUser();
+        isUser(user);
+        setUser(user);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   // Setup session monitoring
   useEffect(() => {
-    const interval = monitorSession();
+    const interval = AuthService.monitorSession();
     return () => clearInterval(interval);
   }, []);
 
-  const logout = useCallback(async () => {
-    await AuthService.logout();
+  const logout = useCallback(async (logoutMessage?: string) => {
+    await AuthService.logout(logoutMessage);
     setUser(null);
   }, []);
 
   const login = useCallback(async (data: Login) => {
     await AuthService.login(data);
-    setUser(await currentUser());
+    const user = await UserApi.currentUser();
+    isUser(user);
+    setUser(user);
   }, []);
 
   const register = useCallback(async (data: RegisterRq) => {
     await AuthService.register(data);
-    setUser(await currentUser());
+    const user = await UserApi.currentUser();
+    isUser(user);
+    setUser(user);
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, register, isLoading }}>
-      {!isLoading && children}
+  console.log("Auth render");
+
+  return isLoading ? (
+    <CircularProgress
+      sx={{
+        left: "calc(50% - 20px)",
+        top: "calc(50% - 20px)",
+        position: "fixed",
+      }}
+    />
+  ) : (
+    <AuthContext.Provider value={{ user, login, logout, register }}>
+      {children}
     </AuthContext.Provider>
   );
 };

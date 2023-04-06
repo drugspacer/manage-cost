@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,9 +20,13 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
 import xyz.jesusohmyjesus.managecost.security.JpaUserDetailsService;
 import xyz.jesusohmyjesus.managecost.security.RsaKeyProperties;
+import xyz.jesusohmyjesus.managecost.security.filter.ApiResponseBasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -35,7 +38,8 @@ public class SecurityConfig {
     private JpaUserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager)
+            throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,24 +51,28 @@ public class SecurityConfig {
                                 "/*.json",
                                 "/*.ico"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/auth/token")
+                        .requestMatchers(HttpMethod.DELETE, "/auth/token")
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register")
+                        .requestMatchers(HttpMethod.POST, "/auth/register")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
-                ).oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-                .httpBasic(Customizer.withDefaults())
+                ).oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            ApiErrorResponse.writeExceptionToResponse(authException, request, response);
+                            new BearerTokenAuthenticationEntryPoint().commence(request, response, authException);
+                        })
+                ).addFilterAt(
+                        new ApiResponseBasicAuthenticationFilter(authenticationManager),
+                        BasicAuthenticationFilter.class
+                ).httpBasic(Customizer.withDefaults())
                 .userDetailsService(userDetailsService)
-/*                .addFilterBefore(
-                        new LoginProcessingFilter(authenticationManager),
-                        UsernamePasswordAuthenticationFilter.class
-                ).logout(LogoutConfigurer::permitAll)*/
                 .build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

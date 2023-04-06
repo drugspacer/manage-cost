@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -17,6 +19,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +69,19 @@ public class ApiErrorResponse {
             this.message = e.getMessage();
             this.validationMessages = null;
         }
+    }
+
+    public static void writeExceptionToResponse(Exception e, HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(e, request);
+        response.setStatus(apiErrorResponse.getStatus());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        objectMapper.writeValue(response.getWriter(), apiErrorResponse);
+    }
+
+    private int getStatus() {
+        return httpStatus.value();
     }
 
     private static Map<String, String> getValidationMessages(Exception e) {

@@ -1,4 +1,10 @@
-import React, { FC, ReactNode, useState } from "react";
+import React, {
+  ClipboardEventHandler,
+  memo,
+  ReactNode,
+  useCallback,
+  useState,
+} from "react";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -9,13 +15,21 @@ import FormControl from "@mui/material/FormControl";
 import { OutlinedInputProps } from "@mui/material/OutlinedInput/OutlinedInput";
 import FormHelperText from "@mui/material/FormHelperText";
 
-const Password: FC<
-  Omit<OutlinedInputProps, "id" | "type" | "endAdornment"> & {
-    helperText: ReactNode;
-    label?: string;
-    name?: string;
-  }
-> = ({ helperText, label = "Пароль *", name = "password", ...rest }) => {
+type PasswordProps = Omit<
+  OutlinedInputProps,
+  "id" | "type" | "endAdornment"
+> & {
+  helperText: ReactNode;
+  label?: string;
+  name?: string;
+};
+
+const Password = ({
+  helperText,
+  label = "Пароль *",
+  name = "password",
+  ...rest
+}: PasswordProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleMouseDownPassword = (
@@ -24,8 +38,16 @@ const Password: FC<
     event.preventDefault();
   };
 
+  const disablePasteHandler: ClipboardEventHandler<HTMLInputElement> =
+    useCallback((e) => {
+      e.preventDefault();
+      return false;
+    }, []);
+
+  console.log("PasswordInput render");
+
   return (
-    <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
+    <FormControl sx={{ width: "25ch" }} variant="outlined" margin="normal">
       <InputLabel htmlFor={name} error={!!helperText}>
         {label}
       </InputLabel>
@@ -47,6 +69,7 @@ const Password: FC<
           </InputAdornment>
         }
         label={label}
+        onPaste={disablePasteHandler}
       />
       <FormHelperText id="component-error-text" error={true}>
         {helperText}
@@ -55,4 +78,6 @@ const Password: FC<
   );
 };
 
-export default Password;
+Password.muiName = "FormControl";
+
+export default memo(Password);

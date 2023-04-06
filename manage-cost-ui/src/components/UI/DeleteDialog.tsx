@@ -6,21 +6,33 @@ import DialogActions from "@mui/material/DialogActions";
 
 const flex = { flex: "1" };
 
-const DeleteDialog: React.FC<{
+type DeleteDialogProps = {
   open: boolean;
   onClose: (value: boolean) => void;
-}> = ({ onClose, open }) => (
-  <Dialog onClose={() => onClose(false)} open={open}>
-    <DialogTitle sx={{ textAlign: "center" }}>Удалить запись?</DialogTitle>
-    <DialogActions>
-      <Button variant="contained" onClick={() => onClose(true)} sx={flex}>
-        Удалить
-      </Button>
-      <Button variant="outlined" onClick={() => onClose(false)} sx={flex}>
-        Отменить
-      </Button>
-    </DialogActions>
-  </Dialog>
-);
+  header?: string;
+};
+
+const DeleteDialog = ({
+  onClose,
+  open,
+  header = "Удалить запись?",
+}: DeleteDialogProps) => {
+  console.log("DeleteDialog render");
+  return (
+    <Dialog onClose={() => onClose(false)} open={open}>
+      <DialogTitle sx={{ textAlign: "center" }}>{header}</DialogTitle>
+      <DialogActions>
+        <Button variant="contained" onClick={() => onClose(true)} sx={flex}>
+          Удалить
+        </Button>
+        <Button variant="outlined" onClick={() => onClose(false)} sx={flex}>
+          Отменить
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+DeleteDialog.muiName = "Dialog";
 
 export default DeleteDialog;

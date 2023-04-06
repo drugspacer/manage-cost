@@ -21,6 +21,7 @@ const TextInput = <
   state,
   ...rest
 }: TextInputProps<S, E>) => {
+  console.log("TextInput render");
   return (
     <TextField
       {...rest}
@@ -30,8 +31,11 @@ const TextInput = <
       error={!!errorState[name]}
       helperText={errorState[name]}
       value={state[name]}
+      margin="normal"
     />
   );
 };
+
+TextInput.muiName = "TextField";
 
 export default TextInput;

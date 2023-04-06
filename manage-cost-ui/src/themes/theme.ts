@@ -1,9 +1,16 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 import { red } from "@mui/material/colors";
 import type {} from "@mui/x-date-pickers/themeAugmentation";
+import { LinkProps } from "@mui/material/Link";
+import LinkBehavior from "./LinkBehaviour";
 
 // A custom theme for this app
-const theme = createTheme({
+let theme = createTheme({
+  typography: {
+    bold: {
+      fontWeight: "bold",
+    },
+  },
   palette: {
     background: {
       default: "#bdbdbd",
@@ -26,6 +33,45 @@ const theme = createTheme({
         },
       },
     },
+    MuiTabs: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          flexShrink: 0,
+          [theme.breakpoints.up("sm")]: {
+            paddingTop: theme.spacing(2),
+          },
+        }),
+      },
+    },
+    MuiToolbar: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          gap: theme.spacing(2),
+        }),
+      },
+    },
+    MuiLink: {
+      defaultProps: {
+        component: LinkBehavior,
+      } as LinkProps,
+    },
+    MuiButtonBase: {
+      defaultProps: {
+        LinkComponent: LinkBehavior,
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => {
+          return ownerState.type === "submit"
+            ? {
+                marginTop: theme.spacing(2),
+                marginBottom: theme.spacing(1),
+              }
+            : {};
+        },
+      },
+    },
     /*MuiPaper: {
       variants: [
         {
@@ -38,5 +84,7 @@ const theme = createTheme({
     },*/
   },
 });
+
+theme = responsiveFontSizes(theme);
 
 export default theme;

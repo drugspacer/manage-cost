@@ -1,33 +1,34 @@
-import React, { useContext } from "react";
+import React, { lazy, useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Trips from "./pages/Trips";
-import Trip from "./pages/Trip";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import { AuthContext } from "./context/Auth";
-import Profile from "./pages/Profile";
+import withLazyLoading from "./components/HOC/withLazyLoading";
+const Profile = lazy(() => import("./pages/Profile"));
+const Register = lazy(() => import("./pages/Register"));
+const Trip = lazy(() => import("./pages/Trip"));
 
 const PageNotFound = () => <h1>Page Not Found</h1>;
 
 function App() {
-  const { user, isLoading } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  console.log("App render");
 
-  return isLoading ? null : user ? (
+  return user ? (
     <Routes>
       <Route path="/" element={<Navigate replace to="/trips" />} />
       <Route path="/login" element={<Navigate replace to="/trips" />} />
       <Route path="/register" element={<Navigate replace to="/trips" />} />
       <Route path="/trips" element={<Trips />} />
-      <Route path="/trip/:id" element={<Trip />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/trip/:id" element={withLazyLoading(Trip)} />
+      <Route path="/profile" element={withLazyLoading(Profile)} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   ) : (
     <Routes>
-      <Route path="/" element={<Navigate replace to="/login" />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="*" element={<PageNotFound />} />
+      <Route path="/register" element={withLazyLoading(Register)} />
+      <Route path="*" element={<Navigate replace to="/login" />} />
     </Routes>
   );
 }

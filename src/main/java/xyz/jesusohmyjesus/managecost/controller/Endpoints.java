@@ -7,6 +7,7 @@ public class Endpoints {
     public static final String REGISTER = "/register";
     public static final String USERS = "/users";
     public static final String CURRENT_USER = "/current-user";
+    public static final String CHANGE_PASSWORD = "/change-password";
     public static final String TRIPS = "/trips";
     public static final String FINISH = "/{id}/finish";
     public static final String RETURN = "/{id}/return";

@@ -1,5 +1,5 @@
 import Card from "@mui/material/Card";
-import React, { FC, memo, MouseEventHandler } from "react";
+import React, { memo, MouseEventHandler } from "react";
 import Trip from "../models/trip.model";
 import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
@@ -11,11 +11,15 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 
-const TripCard: FC<{
+const TripCard = ({
+  trip,
+  onDelete,
+}: {
   trip: Omit<Trip, "isArchive">;
   onDelete?: MouseEventHandler<HTMLButtonElement>;
-}> = ({ trip, onDelete }) => {
+}) => {
   const navigate = useNavigate();
+  console.log("TripCard render");
 
   return (
     <Card sx={{ height: "100%" }}>
@@ -53,5 +57,7 @@ const TripCard: FC<{
     </Card>
   );
 };
+
+TripCard.muiName = "Card";
 
 export default memo(TripCard);

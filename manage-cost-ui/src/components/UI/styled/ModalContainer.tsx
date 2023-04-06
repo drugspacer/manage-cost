@@ -16,6 +16,6 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   maxWidth: "90vw",
   padding: theme.spacing(4),
   boxShadow: "24px",
-}));
+})) as typeof Box;
 
 export default ModalContainer;

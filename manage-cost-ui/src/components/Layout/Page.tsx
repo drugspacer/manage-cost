@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import Stack from "@mui/material/Stack";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -26,6 +25,7 @@ import Footer from "../UI/Footer";
 import { AuthContext } from "../../context/Auth";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router";
+import Link from "@mui/material/Link";
 
 type MenuElement = {
   basicMenu?: HTMLElement;
@@ -83,7 +83,7 @@ const Page: FC<
       );
     }
     return (
-      <Link key={item.href} underline="hover" color="inherit" href={item.href}>
+      <Link key={item.href} color="inherit" href={item.href}>
         {item.label}
       </Link>
     );
@@ -102,7 +102,6 @@ const Page: FC<
         edge="start"
         color="inherit"
         aria-label="menu"
-        sx={{ mr: 2 }}
         onClick={handleOpenClick}
         name="basicMenu"
         key="menuIcon"
@@ -179,6 +178,8 @@ const Page: FC<
       </Menu>
     );
   }
+
+  console.log("Page render");
 
   return (
     <>

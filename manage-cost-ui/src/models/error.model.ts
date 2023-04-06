@@ -7,8 +7,8 @@ export enum ERRORS {
   MIN_LENGTH = "Минимальная длина",
   CONFIRM_PASSWORD = "Пароли не совпадают",
   IS_ACTIVE_REQUIRED = "Необходим хотя бы один участник",
-  RECORD_LAND = "Итоговая сумма не совпадает в колонке Заплатил",
-  RECORD_BORROW = "Итоговая сумма не совпадает в колонке Потратил",
+  RECORD_LAND = "Итоговая сумма не совпадает в колонке Заплачено",
+  RECORD_BORROW = "Итоговая сумма не совпадает в колонке Потрачено",
 }
 
 export default ErrorState;

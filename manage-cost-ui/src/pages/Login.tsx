@@ -13,15 +13,16 @@ import {
   required,
   simpleFormValidation,
   SimpleValidateConfig,
+  validateField,
 } from "../functions/validation";
 import LoginModel from "../models/login.model";
 import TextInput from "../components/input/TextInput";
 import Password from "../components/input/Password";
-import Link from "@mui/material/Link";
 import { AuthContext } from "../context/Auth";
 import { useNavigate } from "react-router";
 import StyledPaper from "../components/UI/styled/StyledPaper";
 import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 
 const simpleValidationConfig: SimpleValidateConfig<LoginModel> = {
   username: [required],
@@ -49,18 +50,27 @@ const Login: FC = () => {
   };
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
-    ({ target }) =>
+    ({ target }) => {
+      const name = target.name as keyof LoginModel;
+      console.log(errorState[name]);
       setState((prevState) => ({
         ...prevState,
-        [target.name]: target.value,
-      })),
+        [name]: target.value,
+      }));
+      if (errorState[name]) {
+        setErrorState((prevState) => ({
+          ...prevState,
+          [name]: validateField(target.value, simpleValidationConfig[name]!),
+        }));
+      }
+    },
     []
   );
 
   const linkToRegistration = (
-    <Link sx={{ textAlign: "center" }} href="/register">
-      <Typography variant="body2">Зарегистрироваться</Typography>
-    </Link>
+    <Typography sx={{ textAlign: "center" }} variant="body2">
+      <Link href="/register">Зарегистрироваться</Link>
+    </Typography>
   );
 
   return (

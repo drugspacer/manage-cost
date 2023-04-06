@@ -1,12 +1,14 @@
-import React from "react";
+import React, { memo } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
-const Footer: React.FC = () => {
+const Footer = () => {
+  console.log("Footer render");
   return (
     <Box sx={{ backgroundColor: "grey.600", marginTop: 2, padding: 1 }}>
       <Link
+        component="a"
         href="https://github.com/drugspacer"
         color="common.white"
         underline="none"
@@ -21,4 +23,6 @@ const Footer: React.FC = () => {
   );
 };
 
-export default Footer;
+Footer.muiName = "Box";
+
+export default memo(Footer);

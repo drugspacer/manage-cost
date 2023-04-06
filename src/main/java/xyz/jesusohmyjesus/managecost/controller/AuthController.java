@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage;
 import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
+import xyz.jesusohmyjesus.managecost.response.MessageResponse;
 import xyz.jesusohmyjesus.managecost.security.SecurityUtils;
 import xyz.jesusohmyjesus.managecost.service.AuthService;
 
@@ -41,23 +43,23 @@ public class AuthController {
             )
     })
     @PostMapping(Endpoints.REGISTER)
-    public ResponseEntity<String> register(@RequestBody User user) {
+    public ResponseEntity<MessageResponse<String>> register(@RequestBody User user) {
         String token = authService.register(user);
         return ResponseEntity.ok()
                 .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(SecurityContextHolder.getContext()
                                 .getAuthentication()
                         ).toString()
-                ).body(token);
+                ).body(new MessageResponse<>(SuccessMessage.REGISTERED_SUCCESSFULLY.getLabel(), token));
     }
 
     @Operation(description = "Get JWT from username and password")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "token and refresh token created")})
     @PostMapping(Endpoints.TOKEN)
-    public ResponseEntity<String> token(UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
+    public ResponseEntity<MessageResponse<String>> token(UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
         return ResponseEntity.ok()
                 .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(usernamePasswordAuthenticationToken)
                         .toString()
-                ).body(authService.createToken(usernamePasswordAuthenticationToken));
+                ).body(new MessageResponse<>(authService.createToken(usernamePasswordAuthenticationToken)));
     }
 
     @Operation(description = "Deletes a JWT by removing the refresh_token cookie. This will force a client to log back in.")
@@ -73,10 +75,10 @@ public class AuthController {
     @Operation(description = "Get JWT from refresh token")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "token and refresh token created")})
     @PostMapping(Endpoints.REFRESH_TOKEN)
-    public ResponseEntity<String> refreshToken(JwtAuthenticationToken jwtAuthenticationToken) {
+    public ResponseEntity<MessageResponse<String>> refreshToken(JwtAuthenticationToken jwtAuthenticationToken) {
         return ResponseEntity.ok()
                 .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(jwtAuthenticationToken)
                         .toString()
-                ).body(authService.createToken(jwtAuthenticationToken));
+                ).body(new MessageResponse<>(authService.createToken(jwtAuthenticationToken)));
     }
 }
