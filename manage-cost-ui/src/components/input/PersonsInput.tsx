@@ -7,6 +7,7 @@ import { PersonAutocomplete } from "../../models/form.model";
 import { AuthContext } from "../../context/Auth";
 import Box from "@mui/material/Box";
 import { TextFieldProps } from "@mui/material/TextField/TextField";
+import { useTranslation } from "react-i18next";
 
 type PersonInputProps = {
   value: (string | Person)[];
@@ -33,6 +34,7 @@ const PersonsInput = ({
   margin = "normal",
 }: PersonInputProps) => {
   const { user } = useContext(AuthContext);
+  const { t } = useTranslation();
 
   const filterOptions: UseAutocompleteProps<
     Person | PersonAutocomplete,
@@ -49,7 +51,7 @@ const PersonsInput = ({
     ) {
       filtered.push({
         name: inputValue,
-        title: `Добавить "${inputValue}"`,
+        title: t("input.addItem", { item: inputValue }),
       });
     }
     return filtered;
@@ -89,8 +91,8 @@ const PersonsInput = ({
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <TextField
             {...params}
-            label="Участники *"
-            placeholder={readonly ? "" : "Добавить ещё"}
+            label={t("input.participant")}
+            placeholder={readonly ? "" : t("input.addMore")}
             helperText={error}
             error={!!error}
             margin={margin}

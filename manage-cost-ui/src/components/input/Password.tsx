@@ -14,23 +14,25 @@ import Visibility from "@mui/icons-material/Visibility";
 import FormControl from "@mui/material/FormControl";
 import { OutlinedInputProps } from "@mui/material/OutlinedInput/OutlinedInput";
 import FormHelperText from "@mui/material/FormHelperText";
+import { useTranslation } from "react-i18next";
 
 type PasswordProps = Omit<
   OutlinedInputProps,
   "id" | "type" | "endAdornment"
 > & {
   helperText: ReactNode;
-  label?: string;
+  label: string;
   name?: string;
 };
 
 const Password = ({
   helperText,
-  label = "Пароль *",
+  label,
   name = "password",
   ...rest
 }: PasswordProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const { t } = useTranslation();
 
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -59,7 +61,7 @@ const Password = ({
         endAdornment={
           <InputAdornment position="end">
             <IconButton
-              aria-label="toggle password visibility"
+              aria-label={t("ariaLabel.togglePassword")}
               onClick={() => setShowPassword((show) => !show)}
               onMouseDown={handleMouseDownPassword}
               edge="end"

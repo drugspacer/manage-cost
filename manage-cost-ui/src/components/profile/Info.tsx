@@ -17,6 +17,7 @@ import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import theme from "../../themes/theme";
 import ItemGrid from "../UI/styled/ItemGrid";
+import { useTranslation } from "react-i18next";
 
 const Info = () => {
   const { user } = useContext(AuthContext);
@@ -25,6 +26,8 @@ const Info = () => {
     undefined
   );
   const [isEdit, setIsEdit] = useState(false);
+  const { t: profile } = useTranslation("profile", { keyPrefix: "info" });
+  const { t: common } = useTranslation();
 
   const handleButton = () => {
     if (isEdit) {
@@ -70,11 +73,11 @@ const Info = () => {
   const inputButton = (
     <IconButton onClick={handleButton}>
       {isEdit ? (
-        <Tooltip title="Сохранить">
+        <Tooltip title={common("button.save")}>
           <SaveOutlinedIcon />
         </Tooltip>
       ) : (
-        <Tooltip title="Редактировать">
+        <Tooltip title={common("button.edit")}>
           <EditOutlinedIcon />
         </Tooltip>
       )}
@@ -85,12 +88,12 @@ const Info = () => {
   return (
     <Stack spacing={2}>
       <Typography variant="h6" sx={{ paddingLeft: theme.spacing(2) }}>
-        Информация об аккаунте
+        {profile("header")}
       </Typography>
       <Typography variant="body2" component="div" sx={{ paddingLeft: 2 }}>
         <Grid container spacing={2} alignItems="center">
           <ItemGrid item flexBasis="118px">
-            <Typography variant="bold">Username</Typography>
+            <Typography variant="bold">{profile("username")}</Typography>
           </ItemGrid>
           <Grid item xs>
             {user!.username}
@@ -99,7 +102,7 @@ const Info = () => {
             <Divider sx={{ ml: -2 }} />
           </Grid>
           <ItemGrid item flexBasis="118px" isFullMobile>
-            <Typography variant="bold">Участники</Typography>
+            <Typography variant="bold">{profile("participants")}</Typography>
           </ItemGrid>
           <Grid item xs={12} sm>
             <PersonsInput
@@ -115,7 +118,7 @@ const Info = () => {
             <Divider sx={{ ml: -2 }} />
           </Grid>
           <ItemGrid item flexBasis="118px">
-            <Typography variant="bold">Права пользователя</Typography>
+            <Typography variant="bold">{profile("roles")}</Typography>
           </ItemGrid>
           <Grid item xs>
             <Typography>

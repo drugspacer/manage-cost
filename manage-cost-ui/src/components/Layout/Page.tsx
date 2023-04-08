@@ -5,6 +5,7 @@ import React, {
   MouseEvent,
   useCallback,
   useContext,
+  useState,
 } from "react";
 import Stack from "@mui/material/Stack";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
@@ -26,6 +27,8 @@ import { AuthContext } from "../../context/Auth";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router";
 import Link from "@mui/material/Link";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../input/LanguageSwitcher";
 
 type MenuElement = {
   basicMenu?: HTMLElement;
@@ -40,12 +43,13 @@ const Page: FC<
     header?: string;
   }>
 > = ({ children, buttons = [], mainButton, breadcrumbs = [], header }) => {
-  const [anchorEl, setAnchorEl] = React.useState<MenuElement>({});
+  const [anchorEl, setAnchorEl] = useState<MenuElement>({});
   const isMobile = useMediaQuery((theme: typeof Theme) =>
     theme.breakpoints.down("sm")
   );
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleOpenClick = ({
     currentTarget,
@@ -101,7 +105,7 @@ const Page: FC<
         size="large"
         edge="start"
         color="inherit"
-        aria-label="menu"
+        aria-label={t("ariaLabel.menu")}
         onClick={handleOpenClick}
         name="basicMenu"
         key="menuIcon"
@@ -151,7 +155,7 @@ const Page: FC<
     toolbarContent.push(
       <IconButton
         size="large"
-        aria-label="account of current user"
+        aria-label={t("ariaLabel.profile")}
         aria-controls="menu-appbar"
         aria-haspopup="true"
         onClick={handleOpenClick}
@@ -172,9 +176,14 @@ const Page: FC<
         <MenuItem
           onClick={menuItemHandler(() => navigate(`/profile`), "profile")}
         >
-          Профиль
+          {t("button.profile")}
         </MenuItem>
-        <MenuItem onClick={menuItemHandler(logout, "profile")}>Выйти</MenuItem>
+        <MenuItem onClick={menuItemHandler(logout, "profile")}>
+          {t("button.logout")}
+        </MenuItem>
+        <MenuItem sx={{ justifyContent: "center" }}>
+          <LanguageSwitcher onClose={() => onCloseHandler("profile")} />
+        </MenuItem>
       </Menu>
     );
   }
@@ -189,7 +198,7 @@ const Page: FC<
       <Container sx={{ flexGrow: 1 }}>
         <Stack spacing={1} alignItems="center">
           <Breadcrumbs
-            aria-label="breadcrumb"
+            aria-label={t("ariaLabel.breadcrumb")}
             separator={<NavigateNextIcon fontSize="small" />}
           >
             {breadcrumbsContent}

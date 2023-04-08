@@ -10,10 +10,11 @@ import Password from "../components/profile/Password";
 import Delete from "../components/profile/Delete";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Theme from "../themes/theme";
-import TabContent from "../components/UI/TabContent";
+import TabContent from "../components/HOC/TabContent";
 import StyledTabPanel from "../components/UI/styled/StyledTabPanel";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
+import { useTranslation } from "react-i18next";
 
 const Profile: FC = () => {
   const [value, setValue] = useState("1");
@@ -21,12 +22,14 @@ const Profile: FC = () => {
   const isMobile = useMediaQuery((theme: typeof Theme) =>
     theme.breakpoints.down("sm")
   );
+  const { t: common } = useTranslation();
+  const { t: profile } = useTranslation("profile");
 
   const backHandler = () => navigate("/");
 
   const buttons = [
     {
-      text: "Назад",
+      text: common("button.back"),
       handler: backHandler,
       element: (
         <IconButton
@@ -43,7 +46,7 @@ const Profile: FC = () => {
 
   console.log("Profile render");
   return (
-    <Page header="Профиль" buttons={buttons}>
+    <Page header={profile("header")} buttons={buttons}>
       <Box
         sx={{
           display: "flex",
@@ -53,9 +56,9 @@ const Profile: FC = () => {
       >
         <TabContext value={value}>
           <Tabs onChange={(_e, newValue) => setValue(newValue)}>
-            <Tab label="Информация" value="1" />
-            <Tab label="Пароль" value="2" />
-            <Tab label="Удаление" value="3" />
+            <Tab label={profile("info.tab")} value="1" />
+            <Tab label={profile("password.tab")} value="2" />
+            <Tab label={profile("delete.tab")} value="3" />
           </Tabs>
           <StyledTabPanel value="1">
             <TabContent>

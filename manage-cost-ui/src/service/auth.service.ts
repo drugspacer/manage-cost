@@ -2,6 +2,7 @@ import { isString } from "../functions/assertions";
 import LoginModel, { RegisterRq } from "../models/login.model";
 import AuthApi from "./api/auth";
 import AuthApiHelper from "./AuthApiHelper";
+import i18n from "../i18n";
 
 class AuthService {
   static async register(data: RegisterRq) {
@@ -47,16 +48,12 @@ class AuthService {
         const timeLeft = tokenDuration - timeElapsed;
         console.debug("timeLeft", timeLeft);
         if (timeLeft <= 0) {
-          await AuthApiHelper.logoutAuth(
-            "You have been logged out from inactivity."
-          );
+          await AuthApiHelper.logoutAuth(i18n.t("error.inactivity"));
         } else if (timeLeft <= 24 * 60 * 60 * 1000) {
           // If less than day left, start trying to refresh the token in the background
           console.debug("attempting to acquire new token in the background");
           console.log("monitorSession request");
-          await AuthService.requestNewToken(
-            "Authorization error. You are being signed out."
-          );
+          await AuthService.requestNewToken(i18n.t("error.authorization"));
         }
       }
     };

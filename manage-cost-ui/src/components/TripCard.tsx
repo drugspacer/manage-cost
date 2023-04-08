@@ -10,6 +10,7 @@ import { useNavigate } from "react-router";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import { useTranslation } from "react-i18next";
 
 const TripCard = ({
   trip,
@@ -19,6 +20,8 @@ const TripCard = ({
   onDelete?: MouseEventHandler<HTMLButtonElement>;
 }) => {
   const navigate = useNavigate();
+  const { t: common } = useTranslation();
+  const { t: tripTranslation } = useTranslation("trip", { keyPrefix: "trip" });
   console.log("TripCard render");
 
   return (
@@ -38,8 +41,11 @@ const TripCard = ({
           title={trip.name}
           sx={{ width: "100%" }}
           action={
-            <Tooltip title="Удалить поездку">
-              <IconButton aria-label="delete" onClick={onDelete}>
+            <Tooltip title={tripTranslation("delete")}>
+              <IconButton
+                aria-label={common("ariaLabel.delete")}
+                onClick={onDelete}
+              >
                 <DeleteOutlinedIcon />
               </IconButton>
             </Tooltip>

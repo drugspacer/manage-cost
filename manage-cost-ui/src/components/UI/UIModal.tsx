@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import ModalContainer from "./styled/ModalContainer";
+import { useTranslation } from "react-i18next";
 
 const UIModal = ({
   children,
@@ -16,6 +17,8 @@ const UIModal = ({
   isOpen: boolean;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }>) => {
+  const { t } = useTranslation();
+
   console.log("UIModal render");
   return (
     <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-title">
@@ -25,7 +28,10 @@ const UIModal = ({
             <Typography id="modal-title" variant="h6" component="h2">
               {title}
             </Typography>
-            <IconButton onClick={onClose} aria-label="close">
+            <IconButton
+              onClick={onClose}
+              aria-label={t("ariaLabel.modalClose")}
+            >
               <CloseIcon />
             </IconButton>
           </Stack>

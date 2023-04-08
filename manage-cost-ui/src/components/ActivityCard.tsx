@@ -13,6 +13,7 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CardHeader from "@mui/material/CardHeader";
 import Tooltip from "@mui/material/Tooltip";
+import { useTranslation } from "react-i18next";
 
 type ActivityCardProp = {
   activity: Activity;
@@ -27,6 +28,9 @@ const ActivityCard = ({
   onEditAction,
   onDelete,
 }: ActivityCardProp) => {
+  const { t: common } = useTranslation();
+  const { t: trip } = useTranslation("trip", { keyPrefix: "activity" });
+
   const tableContent = activity.records.map((row, index) => (
     <TableRow
       key={index}
@@ -43,14 +47,14 @@ const ActivityCard = ({
   const buttons = (
     <>
       {!isArchive && (
-        <Tooltip title="Редактировать">
+        <Tooltip title={common("button.edit")}>
           <IconButton onClick={onEditAction}>
             <EditOutlinedIcon />
           </IconButton>
         </Tooltip>
       )}
       {!isArchive && (
-        <Tooltip title="Удалить">
+        <Tooltip title={common("button.delete")}>
           <IconButton onClick={onDelete}>
             <DeleteOutlinedIcon />
           </IconButton>
@@ -75,9 +79,9 @@ const ActivityCard = ({
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Имя</TableCell>
-                <TableCell>Потрачено</TableCell>
-                <TableCell>Заплачено</TableCell>
+                <TableCell>{trip("name")}</TableCell>
+                <TableCell>{trip("spend")}</TableCell>
+                <TableCell>{trip("pay")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>{tableContent}</TableBody>

@@ -10,7 +10,7 @@ import React, {
 import DeleteDialog from "../UI/DeleteDialog";
 
 const DeleteDialogWrapper: FC<
-  PropsWithChildren<{ onDelete: () => void; header?: string }>
+  PropsWithChildren<{ onDelete: () => void; header: string }>
 > = ({ children, onDelete, header }) => {
   const [open, setOpen] = useState(false);
 

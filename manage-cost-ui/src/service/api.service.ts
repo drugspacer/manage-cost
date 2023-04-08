@@ -7,6 +7,7 @@ import axios, {
 import ErrorRs, { AxiosRequest, MessageRs } from "../models/api.model";
 import { TokenHeader } from "../models/auth.model";
 import AuthApiHelper from "./AuthApiHelper";
+import i18n from "../i18n";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "/api";
@@ -69,9 +70,7 @@ class ApiService {
       error.response?.status === HttpStatusCode.Unauthorized &&
       !["/auth/refresh-token", "/auth/token"].includes(error.config?.url ?? "")
     ) {
-      await AuthApiHelper.logoutAuth(
-        "Authorization error. You are being signed out."
-      );
+      await AuthApiHelper.logoutAuth(i18n.t("error.authorization"));
     } else {
       if (data?.message) {
         AuthApiHelper.messageListener.forEach((listener) =>

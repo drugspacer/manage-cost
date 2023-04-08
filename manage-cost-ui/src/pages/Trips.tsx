@@ -14,6 +14,7 @@ import { ButtonProp } from "../models/ui.model";
 import ContentGrid from "../components/UI/styled/ContentGrid";
 import { isTripRs } from "../functions/assertions";
 import TripApi from "../service/api/trip";
+import { useTranslation } from "react-i18next";
 
 type AssertIsTripArr = (trips?: Trip[]) => asserts trips is Trip[];
 
@@ -27,6 +28,7 @@ const Trips: FC = () => {
   const [openModal, setOpenModal] = useState(false);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation("trip");
 
   useEffect(() => {
     TripApi.getTrips()
@@ -72,7 +74,10 @@ const Trips: FC = () => {
       <ContentGrid container spacing={2}>
         {trips.map((item) => (
           <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={item.id}>
-            <DeleteDialogWrapper onDelete={deleteHandler(item.id)}>
+            <DeleteDialogWrapper
+              onDelete={deleteHandler(item.id)}
+              header={t("deleteDialog")}
+            >
               <TripCard trip={item} />
             </DeleteDialogWrapper>
           </Grid>
@@ -87,15 +92,15 @@ const Trips: FC = () => {
     {
       element: (
         <Button key="create" color="inherit" onClick={openHandler}>
-          Создать поездку
+          {t("trip.create")}
         </Button>
       ),
-      text: "Создать поездку",
+      text: t("trip.create"),
       handler: openHandler,
     },
   ];
 
-  const breadcrumbs = [{ href: "/", label: "Поездки" }];
+  const breadcrumbs = [{ href: "/", label: t("trip.item_other") }];
 
   console.log("Trips render");
 
@@ -105,7 +110,7 @@ const Trips: FC = () => {
       <UIModal
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
-        title="Создать поездку"
+        title={t("trip.create")}
       >
         <SaveTrip onSubmit={submitHandler} />
       </UIModal>

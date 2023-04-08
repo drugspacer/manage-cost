@@ -8,6 +8,7 @@ import PersonTrip from "../models/personTrip.model";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import Table from "@mui/material/Table";
+import { useTranslation } from "react-i18next";
 
 type PersonTable = {
   name: string;
@@ -63,6 +64,8 @@ const generateTableData = (persons: PersonTrip[]): PersonTable[] => {
 };
 
 const Result = ({ persons }: Pick<Trip, "persons">) => {
+  const { t } = useTranslation("trip", { keyPrefix: "result" });
+
   const tableData = generateTableData(persons);
 
   console.log("Result render");
@@ -73,9 +76,9 @@ const Result = ({ persons }: Pick<Trip, "persons">) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Кто</TableCell>
-              <TableCell>Кому</TableCell>
-              <TableCell>Сколько</TableCell>
+              <TableCell>{t("who")}</TableCell>
+              <TableCell>{t("whom")}</TableCell>
+              <TableCell>{t("amount")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
