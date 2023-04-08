@@ -23,6 +23,7 @@ import { useNavigate } from "react-router";
 import StyledPaper from "../components/UI/styled/StyledPaper";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
+import { useTranslation } from "react-i18next";
 
 const simpleValidationConfig: SimpleValidateConfig<LoginModel> = {
   username: [required],
@@ -37,6 +38,7 @@ const Login: FC = () => {
   const [errorState, setErrorState] = useState<ErrorState<LoginModel>>({});
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { t } = useTranslation("auth");
 
   const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -69,27 +71,28 @@ const Login: FC = () => {
 
   const linkToRegistration = (
     <Typography sx={{ textAlign: "center" }} variant="body2">
-      <Link href="/register">Зарегистрироваться</Link>
+      <Link href="/register">{t("login.registerLink")}</Link>
     </Typography>
   );
 
   return (
-    <Page header="Логин">
+    <Page header={t("login.header")}>
       <StyledPaper elevation={6}>
         <FormWrapper
           onSubmit={submitHandler}
-          submitText="Войти"
+          submitText={t("login.submit")}
           additionalNode={linkToRegistration}
         >
           <TextInput
             name="username"
-            label="Логин *"
+            label={t("loginInput")}
             errorState={errorState}
             state={state}
             onChange={changeHandler}
           />
           <Password
             value={state.password}
+            label={t("passwordInput")}
             onChange={changeHandler}
             error={!!errorState.password}
             helperText={errorState.password}

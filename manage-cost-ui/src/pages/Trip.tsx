@@ -29,6 +29,7 @@ import { Tooltip } from "@mui/material";
 import { ButtonProp } from "../models/ui.model";
 import { isTripRs } from "../functions/assertions";
 import TripApi from "../service/api/trip";
+import { useTranslation } from "react-i18next";
 
 enum MODAL_TYPE {
   EDIT_TRIP = "Редактировать поездку",
@@ -44,6 +45,8 @@ const Trip: React.FC = () => {
   const [selectedActivity, setSelectedActivity] = useState<
     Activity | undefined
   >(undefined);
+  const { t: common } = useTranslation();
+  const { t: tripTranslate } = useTranslation("trip");
 
   useEffect(() => {
     TripApi.getTrip(id)
@@ -161,6 +164,7 @@ const Trip: React.FC = () => {
       <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={item.id}>
         <DeleteDialogWrapper
           onDelete={deleteActivityHandler(trip.id!, item.id)}
+          header={tripTranslate("deleteDialog")}
         >
           <ActivityCard
             activity={item}
@@ -193,7 +197,7 @@ const Trip: React.FC = () => {
                   color="text.secondary"
                   gutterBottom
                 >
-                  Добавить
+                  {tripTranslate("trip.add")}
                 </Typography>
               </CardContent>
             </CardActionArea>
@@ -205,7 +209,7 @@ const Trip: React.FC = () => {
     content = <ArchiveWrapper trip={trip}>{cards}</ArchiveWrapper>;
     if (trip.archive) {
       mainButton = {
-        text: "Вернуть из архива",
+        text: tripTranslate("trip.returnFromArchive"),
         handler: handleButton(TripApi.returnFromArchive),
       };
     } else {
@@ -215,7 +219,7 @@ const Trip: React.FC = () => {
             <IconButton
               size="large"
               color="inherit"
-              aria-label="edit"
+              aria-label={common("ariaLabel.edit")}
               sx={{ mr: 2 }}
               onClick={modalButtonHandler(MODAL_TYPE.EDIT_TRIP)}
             >
@@ -227,7 +231,7 @@ const Trip: React.FC = () => {
         handler: modalButtonHandler(MODAL_TYPE.EDIT_TRIP),
       });
       mainButton = {
-        text: "Завершить поездку",
+        text: tripTranslate("trip.end"),
         handler: handleButton(TripApi.finishTrip),
       };
     }
@@ -237,8 +241,11 @@ const Trip: React.FC = () => {
   }
 
   const breadcrumbs = [
-    { href: "/", label: "Поездки" },
-    { href: `/trip/${id}`, label: trip?.name ?? "Поездка" },
+    { href: "/", label: tripTranslate("trip.item_one") },
+    {
+      href: `/trip/${id}`,
+      label: trip?.name ?? tripTranslate("trip.item_other"),
+    },
   ];
   console.log("Trip render");
 

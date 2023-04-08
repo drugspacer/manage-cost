@@ -1,0 +1,30 @@
+{
+  "deleteDialog": "Delete entry?",
+  "ariaLabel": {
+    "simpleTable": "simple table"
+  },
+  "activity": {
+    "title": "Event name *",
+    "date": "Date *",
+    "name": "Name",
+    "spend": "Spent",
+    "pay": "Paid",
+    "amount": "Total amount: {{amount}}"
+  },
+  "result": {
+    "who": "Who",
+    "whom": "To whom",
+    "amount": "How much"
+  },
+  "trip": {
+    "returnFromArchive": "Return from archive",
+    "end": "Complete the trip",
+    "item_one": "Trip",
+    "item_other": "Trips",
+    "delete": "Delete trip",
+    "create": "Create trip",
+    "add": "Add",
+    "name": "Name *",
+    "place": "Place *"
+  }
+}

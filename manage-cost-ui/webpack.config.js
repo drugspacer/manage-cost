@@ -46,13 +46,23 @@ module.exports = {
         logLevel: "debug", //optional//,
       },
     },
+    /*    before: (app) => {
+      app.get("/static/locales/:lng/:ns.json", (req, res) => {
+        const { lng, ns } = req.params;
+        const localeFilePath = path.join(
+          __dirname,
+          `/static/locales/${lng}/${ns}.json`
+        );
+        res.sendFile(localeFilePath);
+      });
+    },*/
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: "./public/index.html",
     }),
     new CopyWebpackPlugin({
-      patterns: [{ from: "public/*.css" }],
+      patterns: [{ from: "public/*.css" }, { from: "public/**/*.json" }],
     }),
   ],
   optimization: {

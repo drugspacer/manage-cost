@@ -6,26 +6,32 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useTranslation } from "react-i18next";
 
 const DeleteContent: FC<{
   isLoading: boolean;
   onDelete?: MouseEventHandler<HTMLButtonElement>;
-}> = ({ isLoading, onDelete }) => (
-  <Stack spacing={2}>
-    <Typography variant="h6">Удаление аккаунта</Typography>
-    {isLoading ? (
-      <CircularProgress />
-    ) : (
-      <Button variant="contained" onClick={onDelete}>
-        Удалить аккаунт
-      </Button>
-    )}
-  </Stack>
-);
+}> = ({ isLoading, onDelete }) => {
+  const { t } = useTranslation("profile", { keyPrefix: "delete" });
+
+  return (
+    <Stack spacing={2}>
+      <Typography variant="h6">{t("header")}</Typography>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <Button variant="contained" onClick={onDelete}>
+          {t("button")}
+        </Button>
+      )}
+    </Stack>
+  );
+};
 
 const Delete = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user, logout } = useContext(AuthContext);
+  const { t } = useTranslation("profile", { keyPrefix: "delete" });
 
   const deleteHandler = async () => {
     setIsLoading(true);
@@ -39,10 +45,7 @@ const Delete = () => {
 
   console.log("Delete render");
   return (
-    <DeleteDialogWrapper
-      onDelete={deleteHandler}
-      header="Удалить аккаунт и все связанные с ним данные?"
-    >
+    <DeleteDialogWrapper onDelete={deleteHandler} header={t("modal")}>
       <DeleteContent isLoading={isLoading} />
     </DeleteDialogWrapper>
   );

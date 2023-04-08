@@ -1,0 +1,27 @@
+{
+  "delete": {
+    "tab": "Delete",
+    "header": "Delete an account",
+    "button": "Delete account",
+    "modal": "Delete an account and all data associated with it?"
+  },
+  "info": {
+    "tab": "Info",
+    "header": "Account info",
+    "username": "Username",
+    "participants": "Persons",
+    "roles": "User roles"
+  },
+  "password": {
+    "tab": "Password",
+    "header": "Change password",
+    "submit": "Change password",
+    "oldPassword": "Old password *",
+    "newPassword": "New password *",
+    "confirmNewPassword": "Confirm new password *"
+  },
+  "ariaLabel": {
+    "profileTabs": "Profile tabs"
+  },
+  "header": "Profile"
+}

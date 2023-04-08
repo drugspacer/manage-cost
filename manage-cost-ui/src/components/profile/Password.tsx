@@ -19,6 +19,7 @@ import {
 } from "../../functions/validation";
 import UserApi from "../../service/api/user";
 import Typography from "@mui/material/Typography";
+import { useTranslation } from "react-i18next";
 
 type PasswordForm = {
   oldPassword: string;
@@ -43,6 +44,7 @@ const Password = () => {
     confirmPassword: "",
   });
   const [errorState, setErrorState] = useState<ErrorState<PasswordForm>>({});
+  const { t } = useTranslation("profile", { keyPrefix: "password" });
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
     ({ target }) => {
@@ -70,10 +72,10 @@ const Password = () => {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h6">Изменить пароль</Typography>
-      <FormWrapper submitText="Изменить пароль" onSubmit={submitHandler}>
+      <Typography variant="h6">{t("header")}</Typography>
+      <FormWrapper submitText={t("submit")} onSubmit={submitHandler}>
         <PasswordInput
-          label="Старый пароль *"
+          label={t("oldPassword")}
           name="oldPassword"
           autoComplete="new-password"
           value={state.oldPassword}
@@ -82,14 +84,14 @@ const Password = () => {
           helperText={errorState.oldPassword}
         />
         <PasswordInput
-          label="Новый пароль *"
+          label={t("newPassword")}
           value={state.password}
           onChange={changeHandler}
           error={!!errorState.password}
           helperText={errorState.password}
         />
         <PasswordInput
-          label="Подтвердить новый пароль *"
+          label={t("confirmNewPassword")}
           name="confirmPassword"
           value={state.confirmPassword}
           onChange={changeHandler}

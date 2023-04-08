@@ -19,6 +19,7 @@ import FormWrapper from "../HOC/FormWrapper";
 import TextInput from "../input/TextInput";
 import PersonsInput from "../input/PersonsInput";
 import { personsToDataRq } from "../../functions/apiTransform";
+import { useTranslation } from "react-i18next";
 
 const formConfig: SimpleValidateConfig<TripForm> = {
   place: [required],
@@ -39,6 +40,8 @@ const SaveTrip = ({
 }) => {
   const [state, setState] = useState<TripForm>(trip);
   const [errorState, setErrorState] = useState<ErrorState<TripForm>>({});
+  const { t: common } = useTranslation();
+  const { t: tripTranslate } = useTranslation("trip", { keyPrefix: "trip" });
 
   const submitHandler: DOMAttributes<HTMLFormElement>["onSubmit"] = async (
     e
@@ -97,11 +100,11 @@ const SaveTrip = ({
   return (
     <FormWrapper
       onSubmit={submitHandler}
-      submitText={state.id ? "Редактировать" : "Создать"}
+      submitText={state.id ? common("button.edit") : common("button.create")}
     >
       <TextInput<TripForm>
         name="name"
-        label="Название *"
+        label={tripTranslate("name")}
         state={state}
         onChange={onTextChange}
         errorState={errorState}
@@ -113,7 +116,7 @@ const SaveTrip = ({
       />
       <TextInput<TripForm>
         name="place"
-        label="Место *"
+        label={tripTranslate("place")}
         errorState={errorState}
         state={state}
         onChange={onTextChange}

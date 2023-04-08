@@ -2,8 +2,11 @@ import React, { memo } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   console.log("Footer render");
   return (
     <Box sx={{ backgroundColor: "grey.600", marginTop: 2, padding: 1 }}>
@@ -14,7 +17,7 @@ const Footer = () => {
         underline="none"
         target="_blank"
       >
-        <Typography typography="body2">Created by drugspacer</Typography>
+        <Typography typography="body2">{t("created")}</Typography>
       </Link>
       <Typography align="center" typography="body2" color="common.white">
         2023

@@ -33,6 +33,7 @@ import StyledPaper from "../components/UI/styled/StyledPaper";
 import Typography from "@mui/material/Typography";
 import { registerToUserRq } from "../functions/apiTransform";
 import Link from "@mui/material/Link";
+import { useTranslation } from "react-i18next";
 
 const simpleValidationConfig: SimpleValidateConfig<RegisterModel> = {
   username: [required],
@@ -55,6 +56,7 @@ const Register: FC = () => {
   const [errorState, setErrorState] = useState<ErrorState<RegisterModel>>({});
   const navigate = useNavigate();
   const { register } = useContext(AuthContext);
+  const { t } = useTranslation("auth");
 
   const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -110,29 +112,30 @@ const Register: FC = () => {
 
   const linkOnLogin = (
     <Typography sx={{ textAlign: "center" }} variant="body2">
-      <Link href="/login">Назад на страницу логина</Link>
+      <Link href="/login">{t("register.backToLogin")}</Link>
     </Typography>
   );
 
   console.log("Register render");
 
   return (
-    <Page header="Регистрация">
+    <Page header={t("register.header")}>
       <StyledPaper elevation={6}>
         <FormWrapper
           onSubmit={submitHandler}
-          submitText="Зарегистрироваться"
+          submitText={t("register.submit")}
           additionalNode={linkOnLogin}
         >
           <TextInput
             name="username"
-            label="Логин *"
+            label={t("loginInput")}
             errorState={errorState}
             state={state}
             onChange={changeHandler}
           />
           <Password
             value={state.password}
+            label={t("passwordInput")}
             onChange={changeHandler}
             error={!!errorState.password}
             helperText={errorState.password}
@@ -143,7 +146,7 @@ const Register: FC = () => {
             onChange={changeHandler}
             error={!!errorState.confirmPassword}
             helperText={errorState.confirmPassword}
-            label="Подтвердить пароль *"
+            label={t("register.confirmPassword")}
             name="confirmPassword"
           />
           <PersonsInput

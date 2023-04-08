@@ -11,6 +11,7 @@ import Auth from "./context/Auth";
 import { SnackbarProvider } from "notistack";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Theme from "./themes/theme";
+import "./i18n";
 
 const Wrapper: React.FC = () => {
   const isMobile = useMediaQuery((theme: typeof Theme) =>

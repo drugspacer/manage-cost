@@ -47,6 +47,7 @@ import TextInput from "../input/TextInput";
 import { SaveActionProps } from "../../models/ui.model";
 import { SnackbarContext } from "../../context/SnackbarContext";
 import theme from "../../themes/theme";
+import { useTranslation } from "react-i18next";
 
 const simpleValidationConfig: SimpleValidateConfig<ActivityForm> = {
   name: [required],
@@ -100,6 +101,8 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
     ErrorState<RecordItemForm & ActivityForm>
   >({});
   const { onShowMessage } = useContext(SnackbarContext);
+  const { t: common } = useTranslation();
+  const { t: trip } = useTranslation("trip");
 
   useEffect(() => {
     const getSum = (
@@ -210,11 +213,13 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
   return (
     <FormWrapper
       onSubmit={submitHandler}
-      submitText={activity?.id ? "Изменить" : "Создать"}
+      submitText={
+        activity?.id ? common("button.edit") : common("button.create")
+      }
     >
       <TextInput<ActivityForm, RecordItemForm & ActivityForm>
         name="name"
-        label="Название мероприятия *"
+        label={trip("activity.title")}
         errorState={errorState}
         state={state}
         onChange={onNameChange}
@@ -225,18 +230,18 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
         sx={{ marginTop: theme.spacing(2), marginBottom: theme.spacing(1) }}
       >
         <DatePicker
-          label="Дата *"
+          label={trip("activity.date")}
           onChange={(date) => setState((prevState) => ({ ...prevState, date }))}
           renderInput={datePickerInput}
           value={state.date}
         />
         <Typography sx={{ display: "flex", alignItems: "center" }}>
-          Итоговая сумма: {state.sum}
+          {trip("activity.amount", { amount: state.sum })}
         </Typography>
       </Stack>
       <Table
         sx={{ minWidth: 300, paddingLeft: 1, paddingRight: 1 }}
-        aria-label="simple table"
+        aria-label={trip("ariaLabel.simpleTable")}
         padding="normal"
       >
         <TableHead>
@@ -248,9 +253,9 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
                 sx={{ padding: 0 }}
               />
             </StyledTableCell>
-            <StyledTableCell>Имя</StyledTableCell>
-            <StyledTableCell>Потратил</StyledTableCell>
-            <StyledTableCell>Заплатил</StyledTableCell>
+            <StyledTableCell>{trip("activity.name")}</StyledTableCell>
+            <StyledTableCell>{trip("activity.spend")}</StyledTableCell>
+            <StyledTableCell>{trip("activity.pay")}</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>

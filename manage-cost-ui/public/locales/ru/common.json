@@ -1,0 +1,34 @@
+{
+  "button": {
+    "save": "Созранить",
+    "create": "Создать",
+    "cancel": "Отменить",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "logout": "Выйти",
+    "profile": "Профиль",
+    "back": "Назад"
+  },
+  "ariaLabel": {
+    "menu": "меню",
+    "breadcrumb": "хлебные крошки",
+    "profile": "профиль текущего юзера",
+    "togglePassword": "изменить видимость пароля",
+    "modalClose": "закрыть",
+    "delete": "удалить",
+    "edit": "изменить"
+  },
+  "input": {
+    "participant": "Участники *",
+    "addMore": "Добавить ещё",
+    "addItem": "Добавить {{item}}"
+  },
+  "created": "Создано drugspacer",
+  "error": {
+    "authorization": "Ошибка авторизации. Вы были разлогинены.",
+    "inactivity": "Вы были разлогинены из-за неактивности.",
+    "notFound": "Страница не найдена",
+    "changeLanguage": "Ошибка во время изменения языка"
+  },
+  "changeLanguage": "Язык изменён на русский"
+}
