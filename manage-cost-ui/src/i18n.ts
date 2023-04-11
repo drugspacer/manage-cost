@@ -29,4 +29,6 @@ i18n
     },
   });
 
+i18n.services.formatter?.add("required", (value) => `${value} *`);
+
 export default i18n;

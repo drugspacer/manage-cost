@@ -1,19 +1,16 @@
 package xyz.jesusohmyjesus.managecost.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiForbiddenException;
 import xyz.jesusohmyjesus.managecost.model.ERole;
 import xyz.jesusohmyjesus.managecost.repository.RoleRepository;
-import xyz.jesusohmyjesus.managecost.repository.UserRepository;
-import xyz.jesusohmyjesus.managecost.security.JpaUserDetailsService;
-import xyz.jesusohmyjesus.managecost.security.SecurityUtils;
 import xyz.jesusohmyjesus.managecost.security.TokenService;
 
 import java.util.Collections;
@@ -23,29 +20,18 @@ import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.NO_
 @Service
 public class AuthService {
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    UserRepository userRepository;
+    private TokenService tokenService;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private UserService userService;
 
     @Autowired
-    JpaUserDetailsService userDetailsService;
+    private RoleRepository roleRepository;
 
-    @Autowired
-    TokenService tokenService;
-
-    @Autowired
-    SecurityUtils securityUtils;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    RoleRepository roleRepository;
-
+    @Transactional
     public String register(User user) {
         user.setRoles(Collections.singleton(roleRepository.findByName(ERole.USER)
                 .orElseThrow(() -> {

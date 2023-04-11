@@ -12,7 +12,7 @@ public enum SuccessMessage {
     DELETED("Данные успешно удалены"),
     TRIP_ARCHIVED("Поездка записана в архив"),
     USER_DELETED("Пользователь удалён"),
-    PASSWORD_CHANGED("Пользователь удалён");
+    PASSWORD_CHANGED("Пароль изменён");
 
     private final String label;
 }

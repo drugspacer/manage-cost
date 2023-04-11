@@ -19,6 +19,7 @@ type PersonInputProps = {
     true
   >["onChange"];
   readonly?: boolean;
+  required?: boolean;
   button?: ReactNode;
   margin?: TextFieldProps["margin"];
 };
@@ -30,6 +31,7 @@ const PersonsInput = ({
   error,
   onChange,
   readonly = false,
+  required = true,
   button,
   margin = "normal",
 }: PersonInputProps) => {
@@ -73,6 +75,8 @@ const PersonsInput = ({
     return option;
   };
 
+  const labelText = t("input.participant");
+
   return (
     <Autocomplete<Person | PersonAutocomplete, true, true, true>
       id="persons"
@@ -91,7 +95,7 @@ const PersonsInput = ({
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <TextField
             {...params}
-            label={t("input.participant")}
+            label={required ? `${labelText} *` : labelText}
             placeholder={readonly ? "" : t("input.addMore")}
             helperText={error}
             error={!!error}

@@ -1,5 +1,6 @@
 package xyz.jesusohmyjesus.managecost.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages;
@@ -10,10 +11,10 @@ import xyz.jesusohmyjesus.managecost.entities.RecordEntity;
 import xyz.jesusohmyjesus.managecost.entities.Trip;
 import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiForbiddenException;
+import xyz.jesusohmyjesus.managecost.repository.UserRepository;
 import xyz.jesusohmyjesus.managecost.request.NewTrip;
 import xyz.jesusohmyjesus.managecost.repository.ActivityRepository;
 import xyz.jesusohmyjesus.managecost.repository.TripRepository;
-import xyz.jesusohmyjesus.managecost.repository.PersonRepository;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -26,13 +27,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.ACTIVITY_MODIFICATION_FORBIDDEN;
+
 @Service
 public class TripService {
     @Autowired
     private TripRepository tripRepository;
-
-    @Autowired
-    private PersonRepository personRepository;
 
     @Autowired
     private ActivityRepository activityRepository;
@@ -40,79 +40,97 @@ public class TripService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Transactional
     public Trip createNewTrip(NewTrip data, String username) {
         Trip newTrip = new Trip(data.getName(), data.getPlace());
         User user = userService.findByUsername(username);
         data.getPersons()
                 .stream()
-                .filter(item -> item.getId() == null)
-                .forEach(item -> {
-                    item.setUser(user);
-                    personRepository.save(item);
-                });
-        data.getPersons()
-                .forEach(newTrip::addPerson);
+                .filter(person -> person.getId() == null)
+                .forEach(user::addPerson);
+        userRepository.save(user);
+        user.getPersons()
+                .stream()
+                .filter(person -> data.getPersons()
+                        .stream()
+                        .anyMatch(item -> person.getName()
+                                .equals(item.getName()))
+                ).forEach(newTrip::addPerson);
         newTrip.setUser(user);
         return tripRepository.save(newTrip);
     }
 
-    public Trip createNewActivity(UUID id, Activity data) {
+    public Trip createNewActivity(String username, UUID id, Activity data) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(throwNoTripFound(id));
+        checkAccess(trip, username, String.format(ErrorMessages.TRIP_MODIFICATION_FORBIDDEN.getLabel(), data.getId()));
         data.getRecords().forEach(record -> record.setActivity(data));
         trip.getActivities().add(data);
         activityRepository.save(data);
         return trip;
     }
 
-    public Trip updateTrip(NewTrip data) {
+    @Transactional
+    public Trip updateTrip(String username, NewTrip data) {
         Trip trip = tripRepository.findById(data.getId())
                 .orElseThrow(throwNoTripFound(data.getId()));
+        checkAccess(trip, username, String.format(ErrorMessages.TRIP_MODIFICATION_FORBIDDEN.getLabel(), data.getId()));
         trip.setName(data.getName());
         trip.setPlace(data.getPlace());
+        User user = trip.getUser();
         data.getPersons()
                 .stream()
-                .filter(item -> item.getId() == null)
-                .forEach(item -> {
-                    personRepository.save(item);
-                    item.setUser(trip.getUser());
-                });
+                .filter(person -> person.getId() == null)
+                .forEach(user::addPerson);
+        userRepository.save(user);
         Set<Person> oldPersons = trip.getPersons()
                 .stream()
                 .map(PersonTrip::getPerson)
                 .collect(Collectors.toSet());
-        data.getPersons()
+        user.getPersons()
                 .stream()
-                .filter(person -> !oldPersons.contains(person))
-                .forEach(trip::addPerson);
+                .filter(person -> data.getPersons()
+                        .stream()
+                        .anyMatch(item -> person.getName()
+                                .equals(item.getName()))
+                        && !oldPersons.contains(person)
+                ).forEach(trip::addPerson);
         oldPersons.stream()
-                .filter(person -> !data.getPersons().contains(person))
-                .forEach(trip::removePerson);
+                .filter(person -> !data.getPersons()
+                        .contains(person)
+                ).forEach(trip::removePerson);
         return tripRepository.save(trip);
     }
 
-    public Trip updateActivity(UUID tripId, Activity data) {
+    public Trip updateActivity(String username, UUID tripId, Activity data) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(throwNoTripFound(tripId));
+        checkAccess(trip, username, String.format(ACTIVITY_MODIFICATION_FORBIDDEN.getLabel(), data.getId()));
         data.getRecords()
                 .forEach(record -> record.setActivity(data));
         activityRepository.save(data);
         return trip;
     }
 
-    public Trip deleteActivity(UUID tripId, UUID activityId) {
+    public Trip deleteActivity(String username, UUID tripId, UUID activityId) {
+        checkAccess(tripId, username);
         activityRepository.deleteById(activityId);
         return tripRepository.findById(tripId)
                 .orElseThrow(throwNoTripFound(tripId));
     }
 
-    public void deleteTrip(UUID id) {
+    public void deleteTrip(String username, UUID id) {
+        checkAccess(id, username);
         tripRepository.deleteById(id);
     }
 
-    public Trip finishTrip(UUID id) {
+    public Trip finishTrip(String username, UUID id) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(throwNoTripFound(id));
+        checkAccess(trip, username);
         Map<Person, PersonTrip> personsMap = trip.getPersons()
                 .stream()
                 .collect(Collectors.toMap(PersonTrip::getPerson, Function.identity()));
@@ -141,24 +159,49 @@ public class TripService {
         return tripRepository.save(trip);
     }
 
-    public Trip returnFromArchive(UUID id) {
+    public Trip returnFromArchive(String username, UUID id) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(throwNoTripFound(id));
+        checkAccess(trip, username);
         trip.getPersons()
                 .forEach(person -> person.setSum(BigDecimal.valueOf(0)));
         trip.setArchive(false);
         return tripRepository.save(trip);
     }
 
-    public Trip getById(UUID id) {
+    public Trip getById(String username, UUID id) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(throwNoTripFound(id));
+        checkAccess(trip, username);
         trip.getActivities();
         return trip;
     }
 
     public Iterable<Trip> getAll(String username) {
         return tripRepository.findAllByUser(userService.findByUsername(username));
+    }
+
+    private void checkAccess(UUID tripId, String username) {
+        tripRepository.findById(tripId)
+                .ifPresentOrElse(trip -> checkAccess(trip, username, ErrorMessages.DELETE_FORBIDDEN.getLabel()), () -> {
+                    throw new ApiForbiddenException(String.format(ErrorMessages.NO_TRIP_FOUND.getLabel(), tripId));
+                });
+    }
+
+    private void checkAccess(Trip trip, String username) {
+        if (!trip.getUser()
+                .getUsername()
+                .equals(username)) {
+            throw new ApiForbiddenException();
+        }
+    }
+
+    private void checkAccess(Trip trip, String username, String message) {
+        if (!trip.getUser()
+                .getUsername()
+                .equals(username)) {
+            throw new ApiForbiddenException(message);
+        }
     }
 
     private Supplier<ApiForbiddenException> throwNoTripFound(UUID id) {

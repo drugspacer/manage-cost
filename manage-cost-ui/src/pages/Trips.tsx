@@ -1,5 +1,5 @@
 import Grid from "@mui/material/Grid";
-import React, { FC, useCallback, useEffect, useState } from "react";
+import React, { FC, useCallback, useContext, useEffect, useState } from "react";
 import TripCard from "../components/TripCard";
 import Button from "@mui/material/Button";
 import SaveTrip from "../components/forms/SaveTrip";
@@ -15,6 +15,7 @@ import ContentGrid from "../components/UI/styled/ContentGrid";
 import { isTripRs } from "../functions/assertions";
 import TripApi from "../service/api/trip";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../context/Auth";
 
 type AssertIsTripArr = (trips?: Trip[]) => asserts trips is Trip[];
 
@@ -29,6 +30,7 @@ const Trips: FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation("trip");
+  const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
     TripApi.getTrips()
@@ -45,6 +47,9 @@ const Trips: FC = () => {
       const data = await TripApi.saveTrip(request);
       isTripRs(data);
       setTrips((prevState) => [...prevState, tripRsToTrip(data)]);
+      if (!data.user.persons.every((item) => user?.persons.includes(item))) {
+        setUser(user);
+      }
     } finally {
       setIsLoading(false);
       setOpenModal(false);

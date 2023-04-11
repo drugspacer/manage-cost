@@ -54,8 +54,13 @@ public class TripController {
             )
     })
     @PostMapping(value = Endpoints.ID, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public MessageResponse<Trip> createNewActivity(@PathVariable UUID id, @RequestBody Activity data) {
-        return new MessageResponse<>(SuccessMessage.CREATED.getLabel(), tripService.createNewActivity(id, data));
+    public MessageResponse<Trip> createNewActivity(JwtAuthenticationToken jwtAuthenticationToken,
+                                                   @PathVariable UUID id,
+                                                   @RequestBody Activity data) {
+        return new MessageResponse<>(
+                SuccessMessage.CREATED.getLabel(),
+                tripService.createNewActivity(jwtAuthenticationToken.getName(), id, data)
+        );
     }
 
     @Operation(description = "An endpoint for total calculating")
@@ -68,8 +73,11 @@ public class TripController {
             )
     })
     @PostMapping(Endpoints.FINISH)
-    public MessageResponse<Trip> finishTrip(@PathVariable UUID id) {
-        return new MessageResponse<>(SuccessMessage.TRIP_ARCHIVED.getLabel(), tripService.finishTrip(id));
+    public MessageResponse<Trip> finishTrip(JwtAuthenticationToken jwtAuthenticationToken, @PathVariable UUID id) {
+        return new MessageResponse<>(
+                SuccessMessage.TRIP_ARCHIVED.getLabel(),
+                tripService.finishTrip(jwtAuthenticationToken.getName(), id)
+        );
     }
 
     @Operation(description = "Return a trip from an archive to next editing")
@@ -82,8 +90,9 @@ public class TripController {
             )
     })
     @PostMapping(Endpoints.RETURN)
-    public MessageResponse<Trip> returnFromArchive(@PathVariable UUID id) {
-        return new MessageResponse<>(tripService.returnFromArchive(id));
+    public MessageResponse<Trip> returnFromArchive(JwtAuthenticationToken jwtAuthenticationToken,
+                                                   @PathVariable UUID id) {
+        return new MessageResponse<>(tripService.returnFromArchive(jwtAuthenticationToken.getName(), id));
     }
 
     @Operation(description = "Update trip")
@@ -96,8 +105,11 @@ public class TripController {
             )
     })
     @PutMapping
-    public MessageResponse<Trip> updateTrip(@RequestBody NewTrip data) {
-        return new MessageResponse<>(SuccessMessage.UPDATED.getLabel(), tripService.updateTrip(data));
+    public MessageResponse<Trip> updateTrip(JwtAuthenticationToken jwtAuthenticationToken, @RequestBody NewTrip data) {
+        return new MessageResponse<>(
+                SuccessMessage.UPDATED.getLabel(),
+                tripService.updateTrip(jwtAuthenticationToken.getName(), data)
+        );
     }
 
     @Operation(description = "Update an activity for a specific trip")
@@ -110,8 +122,13 @@ public class TripController {
             )
     })
     @PutMapping(Endpoints.ID)
-    public MessageResponse<Trip> updateActivity(@PathVariable UUID id, @RequestBody Activity data) {
-        return new MessageResponse<>(SuccessMessage.UPDATED.getLabel(), tripService.updateActivity(id, data));
+    public MessageResponse<Trip> updateActivity(JwtAuthenticationToken jwtAuthenticationToken,
+                                                @PathVariable UUID id,
+                                                @RequestBody Activity data) {
+        return new MessageResponse<>(
+                SuccessMessage.UPDATED.getLabel(),
+                tripService.updateActivity(jwtAuthenticationToken.getName(), id, data)
+        );
     }
 
     @Operation(description = "Get all trips for current user")
@@ -131,8 +148,8 @@ public class TripController {
             )
     })
     @GetMapping(Endpoints.ID)
-    public MessageResponse<Trip> getById(@PathVariable UUID id) {
-        return new MessageResponse<>(tripService.getById(id));
+    public MessageResponse<Trip> getById(JwtAuthenticationToken jwtAuthenticationToken, @PathVariable UUID id) {
+        return new MessageResponse<>(tripService.getById(jwtAuthenticationToken.getName(), id));
     }
 
     @Operation(description = "Delete an activity of a specific trip")
@@ -145,15 +162,20 @@ public class TripController {
             )
     })
     @DeleteMapping(Endpoints.DELETE_ACTIVITY)
-    public MessageResponse<Trip> deleteActivity(@PathVariable UUID tripId, @PathVariable UUID activityId) {
-        return new MessageResponse<>(SuccessMessage.DELETED.getLabel(), tripService.deleteActivity(tripId, activityId));
+    public MessageResponse<Trip> deleteActivity(JwtAuthenticationToken jwtAuthenticationToken,
+                                                @PathVariable UUID tripId,
+                                                @PathVariable UUID activityId) {
+        return new MessageResponse<>(
+                SuccessMessage.DELETED.getLabel(),
+                tripService.deleteActivity(jwtAuthenticationToken.getName(), tripId, activityId)
+        );
     }
 
     @Operation(description = "Delete a trip by id")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "return nothing")})
     @DeleteMapping(Endpoints.ID)
-    public MessageResponse<Void> deleteTrip(@PathVariable UUID id) {
-        tripService.deleteTrip(id);
+    public MessageResponse<Void> deleteTrip(JwtAuthenticationToken jwtAuthenticationToken, @PathVariable UUID id) {
+        tripService.deleteTrip(jwtAuthenticationToken.getName(), id);
         MessageResponse<Void> response = new MessageResponse<>();
         response.setMessage(SuccessMessage.DELETED.getLabel());
         return response;

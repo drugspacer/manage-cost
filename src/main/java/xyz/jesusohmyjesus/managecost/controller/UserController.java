@@ -27,6 +27,8 @@ import xyz.jesusohmyjesus.managecost.service.UserService;
 
 import java.util.UUID;
 
+import static xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage.UPDATED;
+
 @Tag(name = "User endpoints")
 @RestController
 @RequestMapping(Endpoints.USERS)
@@ -71,6 +73,21 @@ public class UserController {
         return response;
     }
 
+    @Operation(description = "Update current user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "user updated"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "user not found",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+            )
+    })
+    @PutMapping(Endpoints.CURRENT_USER)
+    public MessageResponse<User> updateCurrentUser(JwtAuthenticationToken jwtAuthenticationToken,
+                                                   @RequestBody User newUser) {
+        return new MessageResponse<>(UPDATED.getLabel(), userService.update(jwtAuthenticationToken.getName(), newUser));
+    }
+
     @Operation(description = "Create a new user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "user created"),
@@ -97,7 +114,7 @@ public class UserController {
     })
     @PutMapping
     public MessageResponse<User> update(@RequestBody @Validated User newUser) {
-        return new MessageResponse<>(SuccessMessage.UPDATED.getLabel(), userService.update(newUser));
+        return new MessageResponse<>(UPDATED.getLabel(), userService.update(newUser));
     }
 
     @Operation(description = "Delete an existing user")

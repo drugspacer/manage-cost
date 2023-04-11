@@ -17,6 +17,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.collection.spi.PersistentSortedSet;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -57,7 +58,7 @@ public class Trip {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "trip_id", referencedColumnName = "id", nullable = false)
     private PersistentSortedSet<Activity> activities;
 
@@ -66,16 +67,32 @@ public class Trip {
     
     public void addPerson(Person person) {
         PersonTrip personTrip = new PersonTrip(this, person);
-        persons.add(personTrip);
+        this.getPersons()
+                .add(personTrip);
         person.getPersonTrips().add(personTrip);
     }
 
     public void removePerson(Person person) {
-        for (Iterator<PersonTrip> iterator = persons.iterator(); iterator.hasNext(); ) {
+        if (this.getActivities()
+                .stream()
+                .anyMatch(activity -> activity.getRecords()
+                        .stream()
+                        .anyMatch(record -> record.getPerson()
+                                .equals(person)))) {
+            throw new DataIntegrityViolationException(
+                    String.format("Cannot delete person (%s) from trip because related records exist", person.getName())
+            );
+        }
+        for (Iterator<PersonTrip> iterator = this.getPersons().iterator(); iterator.hasNext(); ) {
             PersonTrip personTrip = iterator.next();
-            if (personTrip.getTrip().equals(this) && personTrip.getPerson().equals(person)) {
+            if (personTrip.getTrip()
+                        .equals(this)
+                    && personTrip.getPerson()
+                        .equals(person)) {
                 iterator.remove();
-                personTrip.getPerson().getPersonTrips().remove(personTrip);
+                personTrip.getPerson()
+                        .getPersonTrips()
+                        .remove(personTrip);
             }
         }
     }
