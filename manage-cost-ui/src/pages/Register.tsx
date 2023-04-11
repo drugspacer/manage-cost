@@ -5,11 +5,10 @@ import React, {
   memo,
   useCallback,
   useContext,
-  useState,
+  useReducer,
 } from "react";
 import Page from "../components/Layout/Page";
 import FormWrapper from "../components/HOC/FormWrapper";
-import ErrorState from "../models/error.model";
 import {
   complexFormValidation,
   ComplexValidateConfig,
@@ -18,8 +17,6 @@ import {
   required,
   simpleFormValidation,
   SimpleValidateConfig,
-  validateField,
-  validateForm,
 } from "../functions/validation";
 import { Register as RegisterModel } from "../models/login.model";
 import TextInput from "../components/input/TextInput";
@@ -35,6 +32,7 @@ import Typography from "@mui/material/Typography";
 import { registerToUserRq } from "../functions/apiTransform";
 import Link from "@mui/material/Link";
 import { useTranslation } from "react-i18next";
+import reducer from "../functions/reducer";
 
 const simpleValidationConfig: SimpleValidateConfig<RegisterModel> = {
   username: [required],
@@ -47,52 +45,40 @@ const complexValidationConfig: ComplexValidateConfig<RegisterModel> = {
 };
 
 const Register: FC = () => {
-  const [state, setState] = useState<RegisterModel>({
-    username: "",
-    password: "",
-    confirmPassword: "",
-    persons: [],
-  });
-  const [errorState, setErrorState] = useState<ErrorState<RegisterModel>>({});
+  const [state, dispatch] = useReducer(
+    reducer<RegisterModel>(simpleValidationConfig, complexValidationConfig),
+    {
+      form: {
+        username: "",
+        password: "",
+        confirmPassword: "",
+        persons: [],
+      },
+      error: {},
+    }
+  );
   const navigate = useNavigate();
   const { register } = useContext(AuthContext);
   const { t } = useTranslation("auth");
 
   const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const errors = simpleFormValidation(state, simpleValidationConfig);
-    const complexErrors = complexFormValidation(state, complexValidationConfig);
+    const errors = simpleFormValidation(state.form, simpleValidationConfig);
+    const complexErrors = complexFormValidation(
+      state.form,
+      complexValidationConfig
+    );
     if (!!errors || !!complexErrors) {
-      setErrorState({ ...complexErrors, ...errors });
+      dispatch({ type: "setError", payload: { ...complexErrors, ...errors } });
       return;
     }
-    await register(registerToUserRq(state));
+    await register(registerToUserRq(state.form));
     navigate("/");
   };
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
-    ({ target }) => {
-      const name = target.name as keyof Omit<RegisterModel, "persons">;
-      setState((prevState) => ({
-        ...prevState,
-        [name]: target.value,
-      }));
-      if (errorState[name]) {
-        let error: string[] | string | undefined = undefined;
-        if (complexValidationConfig[name]) {
-          //I know there is use reducer needed.
-          error = validateForm(
-            { ...state, [name]: target.value },
-            complexValidationConfig[name]!
-          );
-        }
-        error = validateField(target.value, simpleValidationConfig[name]!);
-        setErrorState((prevState) => ({
-          ...prevState,
-          [name]: error,
-        }));
-      }
-    },
+    ({ target }) =>
+      dispatch({ type: "change", payload: { [target.name]: target.value } }),
     []
   );
 
@@ -101,17 +87,18 @@ const Register: FC = () => {
     true,
     false,
     true
-  >["onChange"] = (_e, newValue) => {
-    const persons = newValue.map((item) => {
-      if (typeof item === "string") {
+  >["onChange"] = (_e, newValue) =>
+    dispatch({
+      type: "personChange",
+      payload: newValue.map((item) => {
+        if (typeof item === "string") {
+          return item;
+        } else if ("title" in item) {
+          return item.name;
+        }
         return item;
-      } else if ("title" in item) {
-        return item.name;
-      }
-      return item;
+      }),
     });
-    setState((prevState) => ({ ...prevState, persons }));
-  };
 
   const linkOnLogin = (
     <Typography sx={{ textAlign: "center" }} variant="body2">
@@ -132,28 +119,28 @@ const Register: FC = () => {
           <TextInput
             name="username"
             label={t("loginInput")}
-            errorState={errorState}
-            state={state}
+            errorState={state.error}
+            state={state.form}
             onChange={changeHandler}
           />
           <Password
-            value={state.password}
+            value={state.form.password}
             label={t("passwordInput")}
             onChange={changeHandler}
-            error={!!errorState.password}
-            helperText={errorState.password}
+            error={!!state.error.password}
+            helperText={state.error.password}
             autoComplete="new-password"
           />
           <Password
-            value={state.confirmPassword}
+            value={state.form.confirmPassword}
             onChange={changeHandler}
-            error={!!errorState.confirmPassword}
-            helperText={errorState.confirmPassword}
+            error={!!state.error.confirmPassword}
+            helperText={state.error.confirmPassword}
             label={t("register.confirmPassword")}
             name="confirmPassword"
           />
           <PersonsInput
-            value={state.persons}
+            value={state.form.persons}
             onChange={onPersonChange}
             required={false}
           />

@@ -88,7 +88,7 @@ public class UserController {
         return new MessageResponse<>(UPDATED.getLabel(), userService.update(jwtAuthenticationToken.getName(), newUser));
     }
 
-    @Operation(description = "Create a new user")
+    @Operation(description = "Create a new user from admin console")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "user created"),
             @ApiResponse(
@@ -97,13 +97,13 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
             )
     })
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public MessageResponse<User> create(@RequestBody @Validated User newUser) {
         return new MessageResponse<>(SuccessMessage.CREATED.getLabel(), userService.create(newUser));
     }
 
-    @Operation(description = "Update an existing user")
+    @Operation(description = "Update an existing user from admin console")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "user update"),
             @ApiResponse(
@@ -113,11 +113,12 @@ public class UserController {
             )
     })
     @PutMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public MessageResponse<User> update(@RequestBody @Validated User newUser) {
         return new MessageResponse<>(UPDATED.getLabel(), userService.update(newUser));
     }
 
-    @Operation(description = "Delete an existing user")
+    @Operation(description = "Delete an existing user from admin console")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "user deleted"),
             @ApiResponse(
@@ -126,7 +127,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
             )
     })
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping(value = "/{id}")
     public MessageResponse<Void> delete(@PathVariable UUID id) {
         userService.delete(id);

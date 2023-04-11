@@ -5,7 +5,6 @@ import React, {
   useCallback,
   ChangeEventHandler,
   useEffect,
-  useContext,
 } from "react";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -45,9 +44,9 @@ import StyledTableCell from "../UI/styled/StyledTableCell";
 import FormWrapper from "../HOC/FormWrapper";
 import TextInput from "../input/TextInput";
 import { SaveActionProps } from "../../models/ui.model";
-import { SnackbarContext } from "../../context/SnackbarContext";
 import theme from "../../themes/theme";
 import { useTranslation } from "react-i18next";
+import { useSnackbar } from "notistack";
 
 const simpleValidationConfig: SimpleValidateConfig<ActivityForm> = {
   name: [required],
@@ -100,7 +99,7 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
   const [errorState, setErrorState] = useState<
     ErrorState<RecordItemForm & ActivityForm>
   >({});
-  const { onShowMessage } = useContext(SnackbarContext);
+  const { enqueueSnackbar } = useSnackbar();
   const { t: common } = useTranslation();
   const { t: trip } = useTranslation("trip");
 
@@ -130,12 +129,13 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
     const errors = simpleFormValidation(state, simpleValidationConfig);
     const tableErrors = complexFormValidation(state, complexValidationConfig);
     if (!!tableErrors) {
-      onShowMessage(
+      enqueueSnackbar(
         [
           ...((tableErrors?.borrowMoney as ERRORS[]) ?? []),
           ...((tableErrors?.landMoney as ERRORS[]) ?? []),
           ...((tableErrors?.isActive as ERRORS[]) ?? []),
-        ].join(", ")
+        ].join(", "),
+        { variant: "error" }
       );
     }
     if (!!errors || !!tableErrors) {

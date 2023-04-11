@@ -12,18 +12,10 @@ import DeleteDialogWrapper from "../components/HOC/DeleteDialogWrapper";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ButtonProp } from "../models/ui.model";
 import ContentGrid from "../components/UI/styled/ContentGrid";
-import { isTripRs } from "../functions/assertions";
+import { isTripRs, isTrips } from "../functions/assertions";
 import TripApi from "../service/api/trip";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../context/Auth";
-
-type AssertIsTripArr = (trips?: Trip[]) => asserts trips is Trip[];
-
-const isTrips: AssertIsTripArr = (trips) => {
-  if (trips === undefined) {
-    throw new Error("trips is undefined");
-  }
-};
 
 const Trips: FC = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -47,7 +39,12 @@ const Trips: FC = () => {
       const data = await TripApi.saveTrip(request);
       isTripRs(data);
       setTrips((prevState) => [...prevState, tripRsToTrip(data)]);
-      if (!data.user.persons.every((item) => user?.persons.includes(item))) {
+      if (
+        data.user.persons.some(
+          ({ name }) =>
+            user?.persons.findIndex((item) => item.name === name) === -1
+        )
+      ) {
         setUser(user);
       }
     } finally {

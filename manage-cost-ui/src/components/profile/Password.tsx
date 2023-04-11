@@ -2,12 +2,11 @@ import React, {
   ChangeEventHandler,
   FormEventHandler,
   useCallback,
-  useState,
+  useReducer,
 } from "react";
 import Stack from "@mui/material/Stack";
 import FormWrapper from "../HOC/FormWrapper";
 import PasswordInput from "../input/Password";
-import ErrorState from "../../models/error.model";
 import {
   complexFormValidation,
   ComplexValidateConfig,
@@ -16,12 +15,11 @@ import {
   required,
   simpleFormValidation,
   SimpleValidateConfig,
-  validateField,
-  validateForm,
 } from "../../functions/validation";
 import UserApi from "../../service/api/user";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
+import reducer from "../../functions/reducer";
 
 type PasswordForm = {
   oldPassword: string;
@@ -40,49 +38,39 @@ const complexValidationConfig: ComplexValidateConfig<PasswordForm> = {
 };
 
 const Password = () => {
-  const [state, setState] = useState<PasswordForm>({
-    oldPassword: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [errorState, setErrorState] = useState<ErrorState<PasswordForm>>({});
+  const [state, dispatch] = useReducer(
+    reducer<PasswordForm>(simpleValidationConfig, complexValidationConfig),
+    {
+      form: {
+        oldPassword: "",
+        password: "",
+        confirmPassword: "",
+      },
+      error: {},
+    }
+  );
   const { t } = useTranslation("profile", { keyPrefix: "password" });
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
-    ({ target }) => {
-      const name = target.name as keyof PasswordForm;
-      console.log(target);
-      setState((prevState) => ({ ...prevState, [name]: target.value }));
-      if (errorState[name]) {
-        let error: string[] | string | undefined = undefined;
-        if (complexValidationConfig[name]) {
-          //I know there is use reducer needed.
-          error = validateForm(
-            { ...state, [name]: target.value },
-            complexValidationConfig[name]!
-          );
-        }
-        error = validateField(target.value, simpleValidationConfig[name]!);
-        setErrorState((prevState) => ({
-          ...prevState,
-          [name]: error,
-        }));
-      }
-    },
+    ({ target }) =>
+      dispatch({ type: "change", payload: { [target.name]: target.value } }),
     []
   );
 
   const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const errors = simpleFormValidation(state, simpleValidationConfig);
-    const complexErrors = complexFormValidation(state, complexValidationConfig);
+    const errors = simpleFormValidation(state.form, simpleValidationConfig);
+    const complexErrors = complexFormValidation(
+      state.form,
+      complexValidationConfig
+    );
     if (!!errors || !!complexErrors) {
-      setErrorState({ ...errors, ...complexErrors });
+      dispatch({ type: "setError", payload: { ...errors, ...complexErrors } });
       return;
     }
     await UserApi.changePassword({
-      oldPassword: state.oldPassword,
-      password: state.password,
+      oldPassword: state.form.oldPassword,
+      password: state.form.password,
     });
   };
 
@@ -96,25 +84,25 @@ const Password = () => {
           label={t("oldPassword")}
           name="oldPassword"
           autoComplete="new-password"
-          value={state.oldPassword}
+          value={state.form.oldPassword}
           onChange={changeHandler}
-          error={!!errorState.oldPassword}
-          helperText={errorState.oldPassword}
+          error={!!state.error.oldPassword}
+          helperText={state.error.oldPassword}
         />
         <PasswordInput
           label={t("newPassword")}
-          value={state.password}
+          value={state.form.password}
           onChange={changeHandler}
-          error={!!errorState.password}
-          helperText={errorState.password}
+          error={!!state.error.password}
+          helperText={state.error.password}
         />
         <PasswordInput
           label={t("confirmNewPassword")}
           name="confirmPassword"
-          value={state.confirmPassword}
+          value={state.form.confirmPassword}
           onChange={changeHandler}
-          error={!!errorState.confirmPassword}
-          helperText={errorState.confirmPassword}
+          error={!!state.error.confirmPassword}
+          helperText={state.error.confirmPassword}
         />
       </FormWrapper>
     </Stack>
