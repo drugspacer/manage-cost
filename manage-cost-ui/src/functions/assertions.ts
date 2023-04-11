@@ -1,6 +1,7 @@
-import { TripRs } from "../models/trip.model";
+import Trip, { TripRs } from "../models/trip.model";
 import ErrorRs from "../models/api.model";
 import { User } from "../models/user.model";
+import Person from "../models/person.model";
 
 type AssertIsTripRs = (trip?: TripRs) => asserts trip is TripRs;
 
@@ -39,5 +40,21 @@ type AssertIsUser = (user?: User) => asserts user is User;
 export const isUser: AssertIsUser = (user) => {
   if (user === undefined) {
     throw new Error("user is undefined");
+  }
+};
+
+type AssertIsTripArr = (trips?: Trip[]) => asserts trips is Trip[];
+
+export const isTrips: AssertIsTripArr = (trips) => {
+  if (trips === undefined) {
+    throw new Error("trips is undefined");
+  }
+};
+
+type AssertIsPerson = (person: Person | string) => asserts person is Person;
+
+export const isPerson: AssertIsPerson = (person) => {
+  if (typeof person === "string") {
+    throw new Error("trips is undefined");
   }
 };

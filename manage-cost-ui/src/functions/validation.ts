@@ -1,5 +1,6 @@
 import ErrorState, { ERRORS } from "../models/error.model";
 import { ActivityForm } from "../models/form.model";
+import Person from "../models/person.model";
 
 type ValidateFunc<T = unknown> = (data: T) => string | undefined;
 
@@ -14,6 +15,16 @@ export type ComplexValidateConfig<T, F = T> = {
 export const required: ValidateFunc<{ length: number }> = ({ length }) => {
   if (length === 0) {
     return ERRORS.REQUIRED;
+  }
+};
+
+export const requiredPersonNonBlank: ValidateFunc<(Person | string)[]> = (
+  array
+) => {
+  if (
+    !array.every((item) => (typeof item === "string" ? !!item : !!item.name))
+  ) {
+    return ERRORS.REQUIRED_MANY;
   }
 };
 

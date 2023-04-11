@@ -3,84 +3,45 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { AuthContext } from "../../context/Auth";
 import PersonsInput from "../input/PersonsInput";
-import { UseAutocompleteProps } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
-import Person from "../../models/person.model";
-import { PersonAutocomplete } from "../../models/form.model";
-import { required, validateField } from "../../functions/validation";
 import { personsToDataRq } from "../../functions/apiTransform";
 import UserApi from "../../service/api/user";
 import IconButton from "@mui/material/IconButton";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import Tooltip from "@mui/material/Tooltip";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import theme from "../../themes/theme";
 import ItemGrid from "../UI/styled/ItemGrid";
 import { useTranslation } from "react-i18next";
+import UIModal from "../UI/UIModal";
+import Persons from "../forms/Persons";
+import Person from "../../models/person.model";
+import { isUser } from "../../functions/assertions";
 
 const Info = () => {
-  const { user } = useContext(AuthContext);
-  const [persons, setPersons] = useState<(string | Person)[]>(user!.persons);
-  const [personsErrors, setPersonsErrors] = useState<string | undefined>(
-    undefined
-  );
-  const [isEdit, setIsEdit] = useState(false);
+  const { user, setUser } = useContext(AuthContext);
   const { t: profile } = useTranslation("profile", { keyPrefix: "info" });
   const { t: common } = useTranslation();
+  const [modalOpen, setModalOpen] = useState(false);
 
-  const handleButton = () => {
-    if (isEdit) {
-      submit().then();
-    } else {
-      setIsEdit(true);
-    }
-  };
-
-  const submit = async () => {
-    const errors = validateField(persons, [required]);
-    if (!!errors) {
-      setPersonsErrors(errors);
-      return;
-    }
+  const submitHandler = async (persons: (string | Person)[]) => {
     try {
-      await UserApi.updateUser({ ...user!, persons: personsToDataRq(persons) });
+      const userRs = await UserApi.updateCurrentUser({
+        ...user!,
+        persons: personsToDataRq(persons),
+      });
+      isUser(userRs);
+      setUser(userRs);
     } finally {
-      setIsEdit(false);
-    }
-  };
-
-  const onPersonChange: UseAutocompleteProps<
-    Person | PersonAutocomplete,
-    true,
-    false,
-    true
-  >["onChange"] = (_e, newValue) => {
-    const persons = newValue.map((item) => {
-      if (typeof item === "string") {
-        return item;
-      } else if ("title" in item) {
-        return item.name;
-      }
-      return item;
-    });
-    setPersons(persons);
-    if (!!personsErrors) {
-      setPersonsErrors(validateField(persons, [required]));
+      setModalOpen(false);
     }
   };
 
   const inputButton = (
-    <IconButton onClick={handleButton}>
-      {isEdit ? (
-        <Tooltip title={common("button.save")}>
-          <SaveOutlinedIcon />
-        </Tooltip>
-      ) : (
-        <Tooltip title={common("button.edit")}>
-          <EditOutlinedIcon />
-        </Tooltip>
-      )}
+    <IconButton onClick={() => setModalOpen(true)}>
+      <Tooltip title={common("button.edit")}>
+        <EditOutlinedIcon />
+      </Tooltip>
     </IconButton>
   );
 
@@ -106,10 +67,8 @@ const Info = () => {
           </ItemGrid>
           <Grid item xs={12} sm>
             <PersonsInput
-              value={persons}
-              onChange={onPersonChange}
-              error={personsErrors}
-              readonly={!isEdit}
+              value={user!.persons}
+              readonly
               button={inputButton}
               margin="none"
             />
@@ -130,6 +89,13 @@ const Info = () => {
           </Grid>
         </Grid>
       </Typography>
+      <UIModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={common("input.participant")}
+      >
+        <Persons onSubmit={submitHandler} />
+      </UIModal>
     </Stack>
   );
 };

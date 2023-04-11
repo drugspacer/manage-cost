@@ -21,7 +21,9 @@
     "confirmNewPassword": "Подтвердить новый пароль *"
   },
   "ariaLabel": {
-    "profileTabs": "табы профиля"
+    "profileTabs": "табы профиля",
+    "deletePerson": "удалить участника"
   },
+  "person": "Участник",
   "header": "Профиль"
 }

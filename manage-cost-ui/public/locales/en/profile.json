@@ -21,7 +21,9 @@
     "confirmNewPassword": "Confirm new password *"
   },
   "ariaLabel": {
-    "profileTabs": "Profile tabs"
+    "profileTabs": "Profile tabs",
+    "deletePerson": "delete person"
   },
+  "person": "Person",
   "header": "Profile"
 }

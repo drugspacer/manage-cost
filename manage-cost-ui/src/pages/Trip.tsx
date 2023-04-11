@@ -93,7 +93,10 @@ const Trip: React.FC = () => {
         isTripRs(response);
         setTrip(tripRsToTrip(response));
         if (
-          !response.user.persons.every((item) => user?.persons.includes(item))
+          response.user.persons.some(
+            ({ name }) =>
+              user?.persons.findIndex((item) => item.name === name) === -1
+          )
         ) {
           setUser(user);
         }

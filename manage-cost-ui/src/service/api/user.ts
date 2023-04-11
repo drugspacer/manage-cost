@@ -26,9 +26,9 @@ class UserApi {
     return ApiService.request({ url: `/users/${id}`, method: "DELETE" });
   }
 
-  static updateUser(data: UserRq) {
+  static updateCurrentUser(data: UserRq) {
     return ApiService.request<User, UserRq>({
-      url: "/users",
+      url: "/users/current-user",
       method: "PUT",
       data,
     });

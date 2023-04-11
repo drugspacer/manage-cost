@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages;
+import xyz.jesusohmyjesus.managecost.entities.Person;
 import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiException;
 import xyz.jesusohmyjesus.managecost.exception.ApiForbiddenException;
@@ -12,6 +13,7 @@ import xyz.jesusohmyjesus.managecost.exception.ApiNotFoundException;
 import xyz.jesusohmyjesus.managecost.repository.UserRepository;
 import xyz.jesusohmyjesus.managecost.request.PasswordRq;
 
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -76,16 +78,19 @@ public class UserService {
     }
 
     private User update(User user, User newUser) {
+        for (Iterator<Person> iterator = user.getPersons().iterator(); iterator.hasNext(); ) {
+            Person personDb = iterator.next();
+            newUser.getPersons()
+                    .stream()
+                    .filter(person -> personDb.getId()
+                            .equals(person.getId()))
+                    .findAny()
+                    .ifPresentOrElse(person -> personDb.setName(person.getName()), iterator::remove);
+        }
         newUser.getPersons()
                 .stream()
                 .filter(person -> person.getId() == null)
                 .forEach(user::addPerson);
-        user.getPersons()
-                .stream()
-                .filter(person -> !newUser.getPersons()
-                        .contains(person)
-                ).forEach(person -> user.getPersons()
-                        .remove(person));
         return userRepository.save(user);
     }
 

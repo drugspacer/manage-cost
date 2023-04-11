@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 type PersonInputProps = {
   value: (string | Person)[];
   error?: string | string[];
-  onChange: UseAutocompleteProps<
+  onChange?: UseAutocompleteProps<
     Person | PersonAutocomplete,
     true,
     false,

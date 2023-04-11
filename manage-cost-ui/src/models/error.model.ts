@@ -4,6 +4,7 @@ type ErrorState<T> = {
 
 export enum ERRORS {
   REQUIRED = "Поле необходимо заполнить",
+  REQUIRED_MANY = "Поля необходимо заполнить",
   MIN_LENGTH = "Минимальная длина",
   CONFIRM_PASSWORD = "Пароли не совпадают",
   IS_ACTIVE_REQUIRED = "Необходим хотя бы один участник",
