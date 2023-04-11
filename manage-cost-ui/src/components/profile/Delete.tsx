@@ -30,13 +30,13 @@ const DeleteContent: FC<{
 
 const Delete = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const { t } = useTranslation("profile", { keyPrefix: "delete" });
 
   const deleteHandler = async () => {
     setIsLoading(true);
     try {
-      await UserApi.deleteUser(user!.id);
+      await UserApi.deleteCurrentUser();
       await logout();
     } finally {
       setIsLoading(false);

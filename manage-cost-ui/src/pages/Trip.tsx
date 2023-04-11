@@ -2,6 +2,7 @@ import React, {
   MouseEventHandler,
   ReactElement,
   useCallback,
+  useContext,
   useEffect,
   useState,
 } from "react";
@@ -30,6 +31,7 @@ import { ButtonProp } from "../models/ui.model";
 import { isTripRs } from "../functions/assertions";
 import TripApi from "../service/api/trip";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../context/Auth";
 
 enum MODAL_TYPE {
   EDIT_TRIP = "Редактировать поездку",
@@ -47,6 +49,7 @@ const Trip: React.FC = () => {
   >(undefined);
   const { t: common } = useTranslation();
   const { t: tripTranslate } = useTranslation("trip");
+  const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
     TripApi.getTrip(id)
@@ -89,6 +92,11 @@ const Trip: React.FC = () => {
         const response = await func(data, trip?.id);
         isTripRs(response);
         setTrip(tripRsToTrip(response));
+        if (
+          !response.user.persons.every((item) => user?.persons.includes(item))
+        ) {
+          setUser(user);
+        }
       } finally {
         setModalType(undefined);
         setSelectedActivity(undefined);

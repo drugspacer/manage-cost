@@ -16,6 +16,8 @@ import {
   required,
   simpleFormValidation,
   SimpleValidateConfig,
+  validateField,
+  validateForm,
 } from "../../functions/validation";
 import UserApi from "../../service/api/user";
 import Typography from "@mui/material/Typography";
@@ -48,8 +50,24 @@ const Password = () => {
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
     ({ target }) => {
+      const name = target.name as keyof PasswordForm;
       console.log(target);
-      setState((prevState) => ({ ...prevState, [target.name]: target.value }));
+      setState((prevState) => ({ ...prevState, [name]: target.value }));
+      if (errorState[name]) {
+        let error: string[] | string | undefined = undefined;
+        if (complexValidationConfig[name]) {
+          //I know there is use reducer needed.
+          error = validateForm(
+            { ...state, [name]: target.value },
+            complexValidationConfig[name]!
+          );
+        }
+        error = validateField(target.value, simpleValidationConfig[name]!);
+        setErrorState((prevState) => ({
+          ...prevState,
+          [name]: error,
+        }));
+      }
     },
     []
   );

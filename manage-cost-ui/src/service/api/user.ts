@@ -16,7 +16,7 @@ class UserApi {
   }
 
   static deleteCurrentUser() {
-    return ApiService.request<User>({
+    return ApiService.request({
       url: `/users/current-user`,
       method: "DELETE",
     });

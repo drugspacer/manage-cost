@@ -19,6 +19,7 @@ import {
   simpleFormValidation,
   SimpleValidateConfig,
   validateField,
+  validateForm,
 } from "../functions/validation";
 import { Register as RegisterModel } from "../models/login.model";
 import TextInput from "../components/input/TextInput";
@@ -39,7 +40,6 @@ const simpleValidationConfig: SimpleValidateConfig<RegisterModel> = {
   username: [required],
   password: [required, minLength(8)],
   confirmPassword: [required],
-  persons: [required],
 };
 
 const complexValidationConfig: ComplexValidateConfig<RegisterModel> = {
@@ -63,7 +63,7 @@ const Register: FC = () => {
     const errors = simpleFormValidation(state, simpleValidationConfig);
     const complexErrors = complexFormValidation(state, complexValidationConfig);
     if (!!errors || !!complexErrors) {
-      setErrorState({ ...errors, ...complexErrors });
+      setErrorState({ ...complexErrors, ...errors });
       return;
     }
     await register(registerToUserRq(state));
@@ -78,9 +78,18 @@ const Register: FC = () => {
         [name]: target.value,
       }));
       if (errorState[name]) {
+        let error: string[] | string | undefined = undefined;
+        if (complexValidationConfig[name]) {
+          //I know there is use reducer needed.
+          error = validateForm(
+            { ...state, [name]: target.value },
+            complexValidationConfig[name]!
+          );
+        }
+        error = validateField(target.value, simpleValidationConfig[name]!);
         setErrorState((prevState) => ({
           ...prevState,
-          [name]: validateField(target.value, simpleValidationConfig[name]!),
+          [name]: error,
         }));
       }
     },
@@ -102,12 +111,6 @@ const Register: FC = () => {
       return item;
     });
     setState((prevState) => ({ ...prevState, persons }));
-    if (!!errorState?.persons) {
-      setErrorState((prevState) => ({
-        ...prevState,
-        persons: validateField(persons, simpleValidationConfig.persons!),
-      }));
-    }
   };
 
   const linkOnLogin = (
@@ -152,7 +155,7 @@ const Register: FC = () => {
           <PersonsInput
             value={state.persons}
             onChange={onPersonChange}
-            error={errorState.persons}
+            required={false}
           />
         </FormWrapper>
       </StyledPaper>

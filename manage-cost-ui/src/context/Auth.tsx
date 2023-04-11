@@ -21,6 +21,7 @@ const initialValue: IAuthContext = {
   login: () => new Promise((resolve) => resolve),
   logout: () => new Promise((resolve) => resolve),
   register: () => new Promise((resolve) => resolve),
+  setUser: () => {},
 };
 
 export const AuthContext = createContext<IAuthContext>(initialValue);
@@ -86,7 +87,7 @@ const Auth: FC<PropsWithChildren> = ({ children }) => {
       }}
     />
   ) : (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, login, logout, register, setUser }}>
       {children}
     </AuthContext.Provider>
   );

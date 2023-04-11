@@ -40,15 +40,19 @@ public class UserService {
             throw new ApiForbiddenException(String.format(USER_ALREADY_EXISTS.getLabel(), newUser.getUsername()));
         }
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        newUser.getPersons()
+                .forEach(person -> person.setUser(newUser));
         return userRepository.save(newUser);
     }
 
     public User update(User newUser) {
-        newUser.setPassword(userRepository.findById(newUser.getId())
-                .orElseThrow(throwUserNotFoundSupplier(newUser.getId().toString()))
-                .getPassword()
-        );
-        return userRepository.save(newUser);
+        return update(userRepository.findById(newUser.getId())
+                .orElseThrow(throwUserNotFoundSupplier(newUser.getId().toString())), newUser);
+    }
+
+    public User update(String username, User newUser) {
+        return update(userRepository.findByUsername(username)
+                .orElseThrow(throwUserNotFoundSupplier(username)), newUser);
     }
 
     public void delete(UUID id) {
@@ -71,6 +75,20 @@ public class UserService {
         userRepository.save(user);
     }
 
+    private User update(User user, User newUser) {
+        newUser.getPersons()
+                .stream()
+                .filter(person -> person.getId() == null)
+                .forEach(user::addPerson);
+        user.getPersons()
+                .stream()
+                .filter(person -> !newUser.getPersons()
+                        .contains(person)
+                ).forEach(person -> user.getPersons()
+                        .remove(person));
+        return userRepository.save(user);
+    }
+
     private Runnable throwUserNotFoundRunnable(String identifier) {
         return () -> {
             throw new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), identifier));
@@ -78,8 +96,6 @@ public class UserService {
     }
 
     private Supplier<ApiNotFoundException> throwUserNotFoundSupplier(String identifier) {
-        return () -> {
-            throw new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), identifier));
-        };
+        return () -> new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), identifier));
     }
 }

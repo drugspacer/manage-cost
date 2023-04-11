@@ -38,6 +38,7 @@ public class Person {
 
     @Column(nullable = false, length = 64)
     @NonNull
+    @EqualsAndHashCode.Include
     private String name;
 
     @JsonIgnore
@@ -46,9 +47,6 @@ public class Person {
     private User user;
 
     @JsonIgnore
-    @OneToMany(
-            mappedBy = "primaryKey.person",
-            cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}
-    )
+    @OneToMany(mappedBy = "primaryKey.person", cascade = CascadeType.REMOVE)
     private Set<PersonTrip> personTrips = new HashSet<>();
 }

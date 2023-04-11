@@ -19,7 +19,7 @@
     "edit": "edit"
   },
   "input": {
-    "participant": "Persons *",
+    "participant": "Persons",
     "addMore": "Add more",
     "addItem": "Add {{item}}"
   },
