@@ -1,5 +1,6 @@
 import axios, {
   AxiosError,
+  AxiosInstance,
   AxiosResponse,
   HttpStatusCode,
   isAxiosError,
@@ -9,10 +10,29 @@ import { TokenHeader } from "../models/auth.model";
 import AuthApiHelper from "./AuthApiHelper";
 import i18n from "../i18n";
 
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "/api";
+const languages = ["ru", "en"]; //TODO: move to node.env
 
 class ApiService {
+  private static axiosInstance: AxiosInstance;
+
+  static {
+    const buildAcceptLanguage = (lng: string) =>
+      `${lng},${languages.filter((item) => item !== lng)[0]};q=0.5`;
+
+    ApiService.axiosInstance = axios.create({
+      baseURL: "/api",
+      withCredentials: true,
+    });
+    ApiService.axiosInstance.interceptors.request.use((config) => {
+      config.headers["Accept-Language"] = buildAcceptLanguage(i18n.language);
+      return config;
+    });
+    i18n.on("languageChanged", (newLanguage) => {
+      ApiService.axiosInstance.defaults.headers.common["Accept-Language"] =
+        buildAcceptLanguage(newLanguage);
+    });
+  }
+
   static async request<Rs = undefined, Rq = undefined>({
     url,
     method = "GET",
@@ -21,7 +41,7 @@ class ApiService {
     ...rest
   }: AxiosRequest<Rq>) {
     try {
-      const response = await axios.request<
+      const response = await ApiService.axiosInstance.request<
         MessageRs<Rs>,
         AxiosResponse<MessageRs<Rs>, Rq>,
         Rq

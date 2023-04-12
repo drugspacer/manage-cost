@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import xyz.jesusohmyjesus.managecost.interceptor.AcceptLanguageInterceptor;
 import xyz.jesusohmyjesus.managecost.interceptor.LoggerInterceptor;
 
 @EnableWebMvc
@@ -21,15 +22,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
     CostCountProperties properties;
-
-/*    @Bean
-    public ResourceHttpRequestHandler indexHtmlHandler() {
-        ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-        handler.setLocations(Collections.singletonList(new ClassPathResource("/static/")));
-        handler.setCacheSeconds(0);
-        handler.setSupportedMethods(HttpMethod.GET.name());
-        return handler;
-    }*/
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -56,6 +48,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loggerInterceptor);
+        registry.addInterceptor(new AcceptLanguageInterceptor());
     }
 
     @Override

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage;
 import xyz.jesusohmyjesus.managecost.entities.Activity;
 import xyz.jesusohmyjesus.managecost.entities.Trip;
 import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
@@ -27,6 +27,8 @@ import xyz.jesusohmyjesus.managecost.service.TripService;
 
 import java.util.UUID;
 
+import static org.springframework.context.i18n.LocaleContextHolder.getLocale;
+
 @Tag(name = "Trip endpoints")
 @RestController
 @RequestMapping(Endpoints.TRIPS)
@@ -34,12 +36,15 @@ public class TripController {
     @Autowired
     TripService tripService;
 
+    @Autowired
+    MessageSource messageSource;
+
     @Operation(description = "Create a new trip")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "get created trip")})
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public MessageResponse<Trip> createNewTrip(JwtAuthenticationToken jwtAuthenticationToken, @RequestBody NewTrip data) {
         return new MessageResponse<>(
-                SuccessMessage.CREATED.getLabel(),
+                messageSource.getMessage("success.created", null, getLocale()),
                 tripService.createNewTrip(data, jwtAuthenticationToken.getName())
         );
     }
@@ -58,7 +63,7 @@ public class TripController {
                                                    @PathVariable UUID id,
                                                    @RequestBody Activity data) {
         return new MessageResponse<>(
-                SuccessMessage.CREATED.getLabel(),
+                messageSource.getMessage("success.created", null, getLocale()),
                 tripService.createNewActivity(jwtAuthenticationToken.getName(), id, data)
         );
     }
@@ -75,7 +80,7 @@ public class TripController {
     @PostMapping(Endpoints.FINISH)
     public MessageResponse<Trip> finishTrip(JwtAuthenticationToken jwtAuthenticationToken, @PathVariable UUID id) {
         return new MessageResponse<>(
-                SuccessMessage.TRIP_ARCHIVED.getLabel(),
+                messageSource.getMessage("success.archived", null, getLocale()),
                 tripService.finishTrip(jwtAuthenticationToken.getName(), id)
         );
     }
@@ -107,7 +112,7 @@ public class TripController {
     @PutMapping
     public MessageResponse<Trip> updateTrip(JwtAuthenticationToken jwtAuthenticationToken, @RequestBody NewTrip data) {
         return new MessageResponse<>(
-                SuccessMessage.UPDATED.getLabel(),
+                messageSource.getMessage("success.updated", null, getLocale()),
                 tripService.updateTrip(jwtAuthenticationToken.getName(), data)
         );
     }
@@ -126,7 +131,7 @@ public class TripController {
                                                 @PathVariable UUID id,
                                                 @RequestBody Activity data) {
         return new MessageResponse<>(
-                SuccessMessage.UPDATED.getLabel(),
+                messageSource.getMessage("success.updated", null, getLocale()),
                 tripService.updateActivity(jwtAuthenticationToken.getName(), id, data)
         );
     }
@@ -166,7 +171,7 @@ public class TripController {
                                                 @PathVariable UUID tripId,
                                                 @PathVariable UUID activityId) {
         return new MessageResponse<>(
-                SuccessMessage.DELETED.getLabel(),
+                messageSource.getMessage("success.deleted", null, getLocale()),
                 tripService.deleteActivity(jwtAuthenticationToken.getName(), tripId, activityId)
         );
     }
@@ -177,7 +182,7 @@ public class TripController {
     public MessageResponse<Void> deleteTrip(JwtAuthenticationToken jwtAuthenticationToken, @PathVariable UUID id) {
         tripService.deleteTrip(jwtAuthenticationToken.getName(), id);
         MessageResponse<Void> response = new MessageResponse<>();
-        response.setMessage(SuccessMessage.DELETED.getLabel());
+        response.setMessage(messageSource.getMessage("success.deleted", null, getLocale()));
         return response;
     }
 }

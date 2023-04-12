@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage;
 import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
 import xyz.jesusohmyjesus.managecost.response.MessageResponse;
@@ -33,6 +34,9 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private MessageSource messageSource;
+
     @Operation(description = "Registration new user endpoint")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "token and refresh token created, user created"),
@@ -49,7 +53,10 @@ public class AuthController {
                 .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(SecurityContextHolder.getContext()
                                 .getAuthentication()
                         ).toString()
-                ).body(new MessageResponse<>(SuccessMessage.REGISTERED_SUCCESSFULLY.getLabel(), token));
+                ).body(new MessageResponse<>(
+                        messageSource.getMessage("success.register", null, LocaleContextHolder.getLocale()),
+                        token
+                ));
     }
 
     @Operation(description = "Get JWT from username and password")

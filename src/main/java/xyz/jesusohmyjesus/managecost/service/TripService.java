@@ -2,8 +2,8 @@ package xyz.jesusohmyjesus.managecost.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
-import xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages;
 import xyz.jesusohmyjesus.managecost.entities.Activity;
 import xyz.jesusohmyjesus.managecost.entities.Person;
 import xyz.jesusohmyjesus.managecost.entities.PersonTrip;
@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.ACTIVITY_MODIFICATION_FORBIDDEN;
+import static org.springframework.context.i18n.LocaleContextHolder.getLocale;
 
 @Service
 public class TripService {
@@ -42,6 +42,9 @@ public class TripService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Transactional
     public Trip createNewTrip(NewTrip data, String username) {
@@ -66,7 +69,11 @@ public class TripService {
     public Trip createNewActivity(String username, UUID id, Activity data) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(throwNoTripFound(id));
-        checkAccess(trip, username, String.format(ErrorMessages.TRIP_MODIFICATION_FORBIDDEN.getLabel(), data.getId()));
+        checkAccess(
+                trip,
+                username,
+                messageSource.getMessage("error.forbidden.trip", new Object[]{data.getId()}, getLocale())
+        );
         data.getRecords().forEach(record -> record.setActivity(data));
         trip.getActivities().add(data);
         activityRepository.save(data);
@@ -77,7 +84,11 @@ public class TripService {
     public Trip updateTrip(String username, NewTrip data) {
         Trip trip = tripRepository.findById(data.getId())
                 .orElseThrow(throwNoTripFound(data.getId()));
-        checkAccess(trip, username, String.format(ErrorMessages.TRIP_MODIFICATION_FORBIDDEN.getLabel(), data.getId()));
+        checkAccess(
+                trip,
+                username,
+                messageSource.getMessage("error.forbidden.trip", new Object[]{data.getId()}, getLocale())
+        );
         trip.setName(data.getName());
         trip.setPlace(data.getPlace());
         User user = trip.getUser();
@@ -108,7 +119,11 @@ public class TripService {
     public Trip updateActivity(String username, UUID tripId, Activity data) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(throwNoTripFound(tripId));
-        checkAccess(trip, username, String.format(ACTIVITY_MODIFICATION_FORBIDDEN.getLabel(), data.getId()));
+        checkAccess(
+                trip,
+                username,
+                messageSource.getMessage("error.forbidden.activity", new Object[]{data.getId()}, getLocale())
+        );
         data.getRecords()
                 .forEach(record -> record.setActivity(data));
         activityRepository.save(data);
@@ -183,16 +198,29 @@ public class TripService {
 
     private void checkAccess(UUID tripId, String username) {
         tripRepository.findById(tripId)
-                .ifPresentOrElse(trip -> checkAccess(trip, username, ErrorMessages.DELETE_FORBIDDEN.getLabel()), () -> {
-                    throw new ApiForbiddenException(String.format(ErrorMessages.NO_TRIP_FOUND.getLabel(), tripId));
-                });
+                .ifPresentOrElse(
+                        trip -> checkAccess(
+                                trip,
+                                username,
+                                messageSource.getMessage("error.forbidden.delete", null, getLocale())
+                        ),
+                        () -> {
+                            throw new ApiForbiddenException(messageSource.getMessage(
+                                    "error.not_found.trip",
+                                    new Object[]{tripId},
+                                    getLocale()
+                            ));
+                        }
+                );
     }
 
     private void checkAccess(Trip trip, String username) {
         if (!trip.getUser()
                 .getUsername()
                 .equals(username)) {
-            throw new ApiForbiddenException();
+            throw new ApiForbiddenException(
+                    messageSource.getMessage("error.forbidden.default", null, getLocale())
+            );
         }
     }
 
@@ -205,6 +233,8 @@ public class TripService {
     }
 
     private Supplier<ApiForbiddenException> throwNoTripFound(UUID id) {
-        return () -> new ApiForbiddenException(String.format(ErrorMessages.NO_TRIP_FOUND.getLabel(), id));
+        return () -> new ApiForbiddenException(
+                messageSource.getMessage("error.not_found.trip", new Object[]{id}, getLocale())
+        );
     }
 }
