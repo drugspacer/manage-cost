@@ -15,6 +15,7 @@ i18n
     load: "languageOnly",
     detection: {
       order: ["localStorage", "navigator"],
+      //header: 'Accept-Language',
     },
     backend: {
       loadPath: "/locales/{{lng}}/{{ns}}.json",
@@ -28,7 +29,5 @@ i18n
       useSuspense: true,
     },
   });
-
-i18n.services.formatter?.add("required", (value) => `${value} *`);
 
 export default i18n;

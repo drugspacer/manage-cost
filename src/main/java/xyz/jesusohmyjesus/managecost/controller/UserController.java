@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.validation.annotation.Validated;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage;
 import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
 import xyz.jesusohmyjesus.managecost.request.PasswordRq;
@@ -27,7 +27,7 @@ import xyz.jesusohmyjesus.managecost.service.UserService;
 
 import java.util.UUID;
 
-import static xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage.UPDATED;
+import static org.springframework.context.i18n.LocaleContextHolder.getLocale;
 
 @Tag(name = "User endpoints")
 @RestController
@@ -35,6 +35,9 @@ import static xyz.jesusohmyjesus.managecost.controller.message.SuccessMessage.UP
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Operation(description = "Get user by it's jwt token")
     @GetMapping(Endpoints.CURRENT_USER)
@@ -69,7 +72,7 @@ public class UserController {
     public MessageResponse<Void> deleteCurrentUser(JwtAuthenticationToken jwtAuthenticationToken) {
         userService.delete(jwtAuthenticationToken.getName());
         MessageResponse<Void> response = new MessageResponse<>();
-        response.setMessage(SuccessMessage.USER_DELETED.getLabel());
+        response.setMessage(messageSource.getMessage("success.user.deleted", null, getLocale()));
         return response;
     }
 
@@ -85,7 +88,10 @@ public class UserController {
     @PutMapping(Endpoints.CURRENT_USER)
     public MessageResponse<User> updateCurrentUser(JwtAuthenticationToken jwtAuthenticationToken,
                                                    @RequestBody User newUser) {
-        return new MessageResponse<>(UPDATED.getLabel(), userService.update(jwtAuthenticationToken.getName(), newUser));
+        return new MessageResponse<>(
+                messageSource.getMessage("success.updated", null, getLocale()),
+                userService.update(jwtAuthenticationToken.getName(), newUser)
+        );
     }
 
     @Operation(description = "Create a new user from admin console")
@@ -100,7 +106,10 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public MessageResponse<User> create(@RequestBody @Validated User newUser) {
-        return new MessageResponse<>(SuccessMessage.CREATED.getLabel(), userService.create(newUser));
+        return new MessageResponse<>(
+                messageSource.getMessage("success.created", null, getLocale()),
+                userService.create(newUser)
+        );
     }
 
     @Operation(description = "Update an existing user from admin console")
@@ -115,7 +124,10 @@ public class UserController {
     @PutMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public MessageResponse<User> update(@RequestBody @Validated User newUser) {
-        return new MessageResponse<>(UPDATED.getLabel(), userService.update(newUser));
+        return new MessageResponse<>(
+                messageSource.getMessage("success.updated", null, getLocale()),
+                userService.update(newUser)
+        );
     }
 
     @Operation(description = "Delete an existing user from admin console")
@@ -132,7 +144,7 @@ public class UserController {
     public MessageResponse<Void> delete(@PathVariable UUID id) {
         userService.delete(id);
         MessageResponse<Void> response = new MessageResponse<>();
-        response.setMessage(SuccessMessage.DELETED.getLabel());
+        response.setMessage(messageSource.getMessage("success.deleted", null, getLocale()));
         return response;
     }
 
@@ -154,7 +166,7 @@ public class UserController {
     public MessageResponse<Void> changePassword(@RequestBody PasswordRq passwords, JwtAuthenticationToken jwtAuthenticationToken) {
         userService.changePassword(jwtAuthenticationToken.getName(), passwords);
         MessageResponse<Void> response = new MessageResponse<>();
-        response.setMessage(SuccessMessage.PASSWORD_CHANGED.getLabel());
+        response.setMessage(messageSource.getMessage("success.password.changed", null, getLocale()));
         return response;
     }
 }

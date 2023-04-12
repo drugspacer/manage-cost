@@ -2,6 +2,7 @@ package xyz.jesusohmyjesus.managecost.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,7 +16,7 @@ import xyz.jesusohmyjesus.managecost.security.TokenService;
 
 import java.util.Collections;
 
-import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.NO_ROLE_FOUND;
+import static org.springframework.context.i18n.LocaleContextHolder.getLocale;
 
 @Service
 public class AuthService {
@@ -31,11 +32,16 @@ public class AuthService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private MessageSource messageSource;
+
     @Transactional
     public String register(User user) {
         user.setRoles(Collections.singleton(roleRepository.findByName(ERole.USER)
                 .orElseThrow(() -> {
-                    throw new ApiForbiddenException(String.format(NO_ROLE_FOUND.getLabel(), ERole.USER));
+                    throw new ApiForbiddenException(
+                            messageSource.getMessage("error.not_found.role", new Object[]{ERole.USER}, getLocale())
+                    );
                 })
         ));
         String password = user.getPassword();

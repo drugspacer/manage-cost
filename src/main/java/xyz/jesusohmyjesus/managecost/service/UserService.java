@@ -1,10 +1,10 @@
 package xyz.jesusohmyjesus.managecost.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages;
 import xyz.jesusohmyjesus.managecost.entities.Person;
 import xyz.jesusohmyjesus.managecost.entities.User;
 import xyz.jesusohmyjesus.managecost.exception.ApiException;
@@ -17,8 +17,7 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.NO_USER_FOUND;
-import static xyz.jesusohmyjesus.managecost.controller.message.ErrorMessages.USER_ALREADY_EXISTS;
+import static org.springframework.context.i18n.LocaleContextHolder.getLocale;
 
 @Service
 public class UserService {
@@ -28,9 +27,14 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private MessageSource messageSource;
+
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ApiNotFoundException(ErrorMessages.CURRENT_USER_NOT_FOUND.getLabel()));
+                .orElseThrow(() -> new ApiNotFoundException(
+                        messageSource.getMessage("error.not_found.current_user", null, getLocale()))
+                );
     }
 
     public Iterable<User> findAll() {
@@ -39,7 +43,11 @@ public class UserService {
 
     public User create(User newUser) {
         if (userRepository.existsByUsername(newUser.getUsername())) {
-            throw new ApiForbiddenException(String.format(USER_ALREADY_EXISTS.getLabel(), newUser.getUsername()));
+            throw new ApiForbiddenException(messageSource.getMessage(
+                    "error.duplicated.user",
+                    new Object[]{newUser.getUsername()},
+                    getLocale()
+            ));
         }
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         newUser.getPersons()
@@ -71,7 +79,10 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(throwUserNotFoundSupplier(username));
         if (!passwordEncoder.matches(passwords.getOldPassword(), user.getPassword())) {
-            throw new ApiException(ErrorMessages.INCORRECT_OLD_PASSWORD.getLabel(), HttpStatus.BAD_REQUEST);
+            throw new ApiException(
+                    messageSource.getMessage("error.incorrect.password", null, getLocale()),
+                    HttpStatus.UNAUTHORIZED
+            );
         }
         user.setPassword(passwordEncoder.encode(passwords.getPassword()));
         userRepository.save(user);
@@ -96,11 +107,15 @@ public class UserService {
 
     private Runnable throwUserNotFoundRunnable(String identifier) {
         return () -> {
-            throw new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), identifier));
+            throw new ApiNotFoundException(
+                    messageSource.getMessage("error.not_found.user", new Object[]{identifier}, getLocale())
+            );
         };
     }
 
     private Supplier<ApiNotFoundException> throwUserNotFoundSupplier(String identifier) {
-        return () -> new ApiNotFoundException(String.format(NO_USER_FOUND.getLabel(), identifier));
+        return () -> new ApiNotFoundException(
+                messageSource.getMessage("error.not_found.user", new Object[]{identifier}, getLocale())
+        );
     }
 }
