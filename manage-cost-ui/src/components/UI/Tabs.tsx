@@ -13,8 +13,6 @@ const Tabs = ({
   );
   const { t } = useTranslation("profile", { keyPrefix: "ariaLabel" });
 
-  console.log("Tabs render");
-
   return (
     <TabList
       orientation={isMobile ? "horizontal" : "vertical"}

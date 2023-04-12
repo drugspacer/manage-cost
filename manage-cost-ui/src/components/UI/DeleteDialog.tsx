@@ -15,7 +15,7 @@ type DeleteDialogProps = {
 
 const DeleteDialog = ({ onClose, open, header }: DeleteDialogProps) => {
   const { t } = useTranslation();
-  console.log("DeleteDialog render");
+
   return (
     <Dialog onClose={() => onClose(false)} open={open}>
       <DialogTitle sx={{ textAlign: "center" }}>{header}</DialogTitle>

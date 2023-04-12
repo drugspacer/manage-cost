@@ -19,7 +19,6 @@ const UIModal = ({
 }>) => {
   const { t } = useTranslation();
 
-  console.log("UIModal render");
   return (
     <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-title">
       <ModalContainer>

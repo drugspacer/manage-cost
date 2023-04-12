@@ -45,7 +45,6 @@ const Info = () => {
     </IconButton>
   );
 
-  console.log("Info render");
   return (
     <Stack spacing={2}>
       <Typography variant="h6" sx={{ paddingLeft: theme.spacing(2) }}>

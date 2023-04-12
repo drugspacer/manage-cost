@@ -106,8 +106,6 @@ const Register: FC = () => {
     </Typography>
   );
 
-  console.log("Register render");
-
   return (
     <Page header={t("register.header")}>
       <StyledPaper elevation={6}>

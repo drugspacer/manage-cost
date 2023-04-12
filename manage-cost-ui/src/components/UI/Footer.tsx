@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 const Footer = () => {
   const { t } = useTranslation();
 
-  console.log("Footer render");
   return (
     <Box sx={{ backgroundColor: "grey.600", marginTop: 2, padding: 1 }}>
       <Link

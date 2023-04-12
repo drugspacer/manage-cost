@@ -30,7 +30,6 @@ const FormWrapper = ({
     }
   };
 
-  console.log("FormWrapper render");
   return (
     <form onSubmit={submitHandler}>
       <Stack>

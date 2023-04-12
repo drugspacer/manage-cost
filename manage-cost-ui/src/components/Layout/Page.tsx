@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useContext,
   useState,
+  useMemo,
 } from "react";
 import Stack from "@mui/material/Stack";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
@@ -151,6 +152,27 @@ const Page: FC<
       );
   }
 
+  const menuItems = useMemo(
+    () =>
+      user
+        ? [
+            <MenuItem
+              key="profile"
+              onClick={menuItemHandler(() => navigate(`/profile`), "profile")}
+            >
+              {t("button.profile")}
+            </MenuItem>,
+            <MenuItem onClick={menuItemHandler(logout, "profile")} key="logout">
+              {t("button.logout")}
+            </MenuItem>,
+            <MenuItem sx={{ justifyContent: "center" }} key="language">
+              <LanguageSwitcher onClose={() => onCloseHandler("profile")} />
+            </MenuItem>,
+          ]
+        : null,
+    [!!user, menuItemHandler, onCloseHandler]
+  );
+
   if (user) {
     toolbarContent.push(
       <IconButton
@@ -173,22 +195,10 @@ const Page: FC<
         onClose={() => onCloseHandler("profile")}
         key="profile-menu"
       >
-        <MenuItem
-          onClick={menuItemHandler(() => navigate(`/profile`), "profile")}
-        >
-          {t("button.profile")}
-        </MenuItem>
-        <MenuItem onClick={menuItemHandler(logout, "profile")}>
-          {t("button.logout")}
-        </MenuItem>
-        <MenuItem sx={{ justifyContent: "center" }}>
-          <LanguageSwitcher onClose={() => onCloseHandler("profile")} />
-        </MenuItem>
+        {menuItems}
       </Menu>
     );
   }
-
-  console.log("Page render");
 
   return (
     <>

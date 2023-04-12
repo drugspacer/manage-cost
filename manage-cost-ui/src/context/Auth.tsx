@@ -41,7 +41,6 @@ const Auth: FC<PropsWithChildren> = ({ children }) => {
     // User will be directed to login if this fails, otherwise
     // the current user is retrieved from server and set in the
     // application's react context
-    console.log("request new token Auth component");
     AuthService.requestNewToken()
       .then(async () => {
         const user = await UserApi.currentUser();
@@ -75,8 +74,6 @@ const Auth: FC<PropsWithChildren> = ({ children }) => {
     isUser(user);
     setUser(user);
   }, []);
-
-  console.log("Auth render");
 
   return isLoading ? (
     <CircularProgress

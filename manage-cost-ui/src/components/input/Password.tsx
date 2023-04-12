@@ -46,8 +46,6 @@ const Password = ({
       return false;
     }, []);
 
-  console.log("PasswordInput render");
-
   return (
     <FormControl sx={{ width: "25ch" }} variant="outlined" margin="normal">
       <InputLabel htmlFor={name} error={!!helperText}>

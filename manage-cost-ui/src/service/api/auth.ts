@@ -1,8 +1,6 @@
 import LoginModel, { RegisterRq } from "../../models/login.model";
 import ApiService from "../api.service";
 
-console.log(ApiService);
-
 class AuthApi {
   static login(data: LoginModel) {
     return ApiService.request<string, LoginModel>({

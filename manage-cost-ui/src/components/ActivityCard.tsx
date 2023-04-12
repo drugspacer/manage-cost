@@ -63,8 +63,6 @@ const ActivityCard = ({
     </>
   );
 
-  console.log("ActivityCard render");
-
   return (
     <Card sx={{ height: "100%" }}>
       <CardHeader title={activity.name} action={buttons} />

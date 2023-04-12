@@ -68,8 +68,6 @@ const Result = ({ persons }: Pick<Trip, "persons">) => {
 
   const tableData = generateTableData(persons);
 
-  console.log("Result render");
-
   return (
     <Card>
       <CardContent>

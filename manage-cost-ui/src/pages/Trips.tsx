@@ -104,8 +104,6 @@ const Trips: FC = () => {
 
   const breadcrumbs = [{ href: "/", label: t("trip.item_other") }];
 
-  console.log("Trips render");
-
   return (
     <Page buttons={buttons} breadcrumbs={breadcrumbs}>
       {content}

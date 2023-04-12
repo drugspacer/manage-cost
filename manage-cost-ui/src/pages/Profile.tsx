@@ -44,7 +44,6 @@ const Profile: FC = () => {
     },
   ];
 
-  console.log("Profile render");
   return (
     <Page header={profile("header")} buttons={buttons}>
       <Box

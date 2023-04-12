@@ -115,8 +115,6 @@ const Persons = ({
 
   const addHandler = () => dispatch({ type: "add" });
 
-  console.log("Persons render");
-
   return (
     <FormWrapper onSubmit={submitHandler} submitText={common("button.save")}>
       {state.form.map((person, index) => (
