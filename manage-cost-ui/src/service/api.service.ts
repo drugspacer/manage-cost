@@ -57,7 +57,6 @@ class ApiService {
       });
       return ApiService.handleResponse(response);
     } catch (error) {
-      console.error(error);
       if (isAxiosError<ErrorRs, Rq>(error)) {
         throw await ApiService.handleError(error);
       }
@@ -67,7 +66,6 @@ class ApiService {
   private static handleResponse<Rs, Rq>(
     response: AxiosResponse<MessageRs<Rs>, Rq>
   ): Rs {
-    console.log(response);
     const data = response.data;
     if (!(response.config.url || "").includes("/refresh-token")) {
       // Update last activity on successful server responses, unless it was a refresh token request.
@@ -92,7 +90,7 @@ class ApiService {
     ) {
       await AuthApiHelper.logoutAuth(i18n.t("error.authorization"));
     } else {
-      if (data?.message) {
+      if (data?.message && "/auth/refresh-token" !== error.config?.url) {
         AuthApiHelper.messageListener.forEach((listener) =>
           listener(data.message, { variant: "error" })
         );

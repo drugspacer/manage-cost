@@ -74,8 +74,6 @@ const Password = () => {
     });
   };
 
-  console.log("PasswordForm render");
-
   return (
     <Stack spacing={2}>
       <Typography variant="h6">{t("header")}</Typography>

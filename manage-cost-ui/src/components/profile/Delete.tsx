@@ -43,7 +43,6 @@ const Delete = () => {
     }
   };
 
-  console.log("Delete render");
   return (
     <DeleteDialogWrapper onDelete={deleteHandler} header={t("modal")}>
       <DeleteContent isLoading={isLoading} />

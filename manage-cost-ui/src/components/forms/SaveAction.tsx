@@ -208,8 +208,6 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
     }));
   };
 
-  console.log("SaveAction render");
-
   return (
     <FormWrapper
       onSubmit={submitHandler}

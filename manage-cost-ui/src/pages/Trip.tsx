@@ -258,7 +258,6 @@ const Trip: React.FC = () => {
       label: trip?.name ?? tripTranslate("trip.item_other"),
     },
   ];
-  console.log("Trip render");
 
   return (
     <Page buttons={buttons} mainButton={mainButton} breadcrumbs={breadcrumbs}>

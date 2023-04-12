@@ -54,7 +54,6 @@ const Login: FC = () => {
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
     ({ target }) => {
       const name = target.name as keyof LoginModel;
-      console.log(errorState[name]);
       setState((prevState) => ({
         ...prevState,
         [name]: target.value,

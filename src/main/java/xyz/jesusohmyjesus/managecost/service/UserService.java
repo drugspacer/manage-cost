@@ -81,7 +81,7 @@ public class UserService {
         if (!passwordEncoder.matches(passwords.getOldPassword(), user.getPassword())) {
             throw new ApiException(
                     messageSource.getMessage("error.incorrect.password", null, getLocale()),
-                    HttpStatus.UNAUTHORIZED
+                    HttpStatus.BAD_REQUEST
             );
         }
         user.setPassword(passwordEncoder.encode(passwords.getPassword()));

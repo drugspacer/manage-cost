@@ -22,7 +22,6 @@ const TripCard = ({
   const navigate = useNavigate();
   const { t: common } = useTranslation();
   const { t: tripTranslation } = useTranslation("trip", { keyPrefix: "trip" });
-  console.log("TripCard render");
 
   return (
     <Card sx={{ height: "100%" }}>

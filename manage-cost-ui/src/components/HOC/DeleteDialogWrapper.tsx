@@ -29,8 +29,6 @@ const DeleteDialogWrapper: FC<
     []
   );
 
-  console.log("DialogWrapper render");
-
   return (
     <>
       {Children.map(children, (child) => {

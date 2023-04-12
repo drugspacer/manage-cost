@@ -7,9 +7,8 @@ import ContentGrid from "../UI/styled/ContentGrid";
 const ArchiveWrapper = ({
   trip,
   children,
-}: PropsWithChildren<{ trip: Pick<Trip, "persons" | "archive"> }>) => {
-  console.log("ArchiveWrapper render");
-  return trip.archive ? (
+}: PropsWithChildren<{ trip: Pick<Trip, "persons" | "archive"> }>) =>
+  trip.archive ? (
     <ContentGrid
       container
       spacing={4}
@@ -31,7 +30,6 @@ const ArchiveWrapper = ({
       {children}
     </ContentGrid>
   );
-};
 
 ArchiveWrapper.muiName = "Grid";
 

@@ -40,7 +40,6 @@ const PageNotFound = () => {
 
 function App() {
   const { user } = useContext(AuthContext);
-  console.log("App render");
 
   return user ? (
     <Routes>
