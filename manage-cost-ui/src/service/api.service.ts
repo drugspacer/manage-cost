@@ -10,14 +10,14 @@ import { TokenHeader } from "../models/auth.model";
 import AuthApiHelper from "./AuthApiHelper";
 import i18n from "../i18n";
 
-const languages = ["ru", "en"]; //TODO: move to node.env
-
 class ApiService {
   private static axiosInstance: AxiosInstance;
 
   static {
-    const buildAcceptLanguage = (lng: string) =>
-      `${lng},${languages.filter((item) => item !== lng)[0]};q=0.5`;
+    const buildAcceptLanguage = (lng = i18n.languages[0]) =>
+      `${lng},${
+        ["ru", "en"].filter((item) => !i18n.language.includes(item))[0]
+      };q=0.5`;
 
     ApiService.axiosInstance = axios.create({
       baseURL: "/api",

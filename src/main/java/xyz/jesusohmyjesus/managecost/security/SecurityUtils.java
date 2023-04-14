@@ -1,6 +1,7 @@
 package xyz.jesusohmyjesus.managecost.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.Cookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,7 @@ public class SecurityUtils {
                 .httpOnly(true)
                 .secure(properties.isHttpsEnvironment())
                 .maxAge(maxAge)
+                .sameSite(Cookie.SameSite.STRICT.name())
                 .build();
     }
 }

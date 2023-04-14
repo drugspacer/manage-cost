@@ -62,7 +62,12 @@ module.exports = {
       template: "./public/index.html",
     }),
     new CopyWebpackPlugin({
-      patterns: [{ from: "public/*.css" }, { from: "public/**/*.json" }],
+      patterns: [
+        "public/*.css",
+        "public/**/*.json",
+        "public/*.ico",
+        "public/*.txt",
+      ],
     }),
   ],
   optimization: {

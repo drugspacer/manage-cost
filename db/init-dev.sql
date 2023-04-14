@@ -1,3 +1,22 @@
+CREATE ROLE managecost WITH
+    LOGIN
+    SUPERUSER
+    INHERIT
+    CREATEDB
+    CREATEROLE
+    NOREPLICATION
+    ENCRYPTED PASSWORD 'SCRAM-SHA-256$4096:CMr/ZS5wBUNwSE5L2GOmgQ==$1jY/ua8ONHpitPeoCRou9P65z8fP16VGteWAjOzvAAA=:71aoEs0l0UoobzEcF3Vgy13jPQSz+IjGaOxVAhCtIDw=';
+
+CREATE DATABASE managecost
+    WITH
+    OWNER = managecost
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'Russian_Russia.1251'
+    LC_CTYPE = 'Russian_Russia.1251'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
 CREATE TABLE IF NOT EXISTS public.user_table
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -5,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public.user_table
     password character varying(64) NOT NULL,
     CONSTRAINT user_pk PRIMARY KEY (id),
     CONSTRAINT username_pk UNIQUE (username)
-    )
+)
 
     TABLESPACE pg_default;
 
@@ -24,6 +43,9 @@ CREATE TABLE IF NOT EXISTS public.role
 
 ALTER TABLE IF EXISTS public.role
     OWNER to managecost;
+
+INSERT INTO public.role (id, name) values(gen_random_uuid(), 'USER');
+INSERT INTO public.role (id, name) values(gen_random_uuid(), 'ADMIN');
 
 CREATE TABLE IF NOT EXISTS public.user_role
 (
@@ -46,49 +68,53 @@ CREATE TABLE IF NOT EXISTS public.trip
     version integer NOT NULL DEFAULT 0,
     name character varying(32) COLLATE pg_catalog."default" NOT NULL,
     place character varying(32) COLLATE pg_catalog."default" NOT NULL,
-    sum money NOT NULL DEFAULT 0.00,
+    sum money,
+    archive boolean DEFAULT false,
     user_id uuid NOT NULL,
     CONSTRAINT trip_pk PRIMARY KEY (id),
     CONSTRAINT user_fk FOREIGN KEY (user_id)
         REFERENCES public.user_table (id) MATCH SIMPLE
-    )
+)
 
     TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.trip
-    OWNER to costcount;
+    OWNER to managecost;
 
 CREATE TABLE IF NOT EXISTS public.person
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     name character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT person_pk PRIMARY KEY (id)
-    )
+    user_id uuid NOT NULL,
+    CONSTRAINT person_pk PRIMARY KEY (id),
+    CONSTRAINT user_fk FOREIGN KEY (user_id)
+        REFERENCES public.user_table (id) MATCH SIMPLE
+)
 
     TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.person
-    OWNER to costcount;
+    OWNER to managecost;
 
 CREATE TABLE IF NOT EXISTS public.person_trip
 (
     person_id uuid NOT NULL,
     trip_id uuid NOT NULL,
-    sum money NOT NULL DEFAULT 0.00,
+    sum money,
     CONSTRAINT person_fk FOREIGN KEY (person_id)
-    REFERENCES public.person (id) MATCH SIMPLE
-    ON UPDATE RESTRICT
-    ON DELETE RESTRICT,
+        REFERENCES public.person (id) MATCH SIMPLE
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
     CONSTRAINT trip_fk FOREIGN KEY (trip_id)
-    REFERENCES public.trip (id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
-    )
+        REFERENCES public.trip (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
 
     TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.person_trip
-    OWNER to costcount;
+    OWNER to managecost;
 
 CREATE TABLE IF NOT EXISTS public.activity
 (
@@ -100,15 +126,15 @@ CREATE TABLE IF NOT EXISTS public.activity
     sum money NOT NULL,
     CONSTRAINT activity_pk PRIMARY KEY (id),
     CONSTRAINT trip_fk FOREIGN KEY (trip_id)
-    REFERENCES public.trip (id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
-    )
+        REFERENCES public.trip (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
 
     TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.activity
-    OWNER to costcount;
+    OWNER to managecost;
 
 CREATE TABLE IF NOT EXISTS public.record
 (
@@ -119,21 +145,21 @@ CREATE TABLE IF NOT EXISTS public.record
     borrow_money money,
     CONSTRAINT record_pk PRIMARY KEY (id),
     CONSTRAINT activity_fk FOREIGN KEY (activity_id)
-    REFERENCES public.activity (id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE,
+        REFERENCES public.activity (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
     CONSTRAINT person_fk FOREIGN KEY (person_id)
-    REFERENCES public.person (id) MATCH SIMPLE
-    ON UPDATE RESTRICT
-    ON DELETE RESTRICT
-    )
+        REFERENCES public.person (id) MATCH SIMPLE
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
+)
 
     TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.record
-    OWNER to costcount;
+    OWNER to managecost;
 
--- DROP TABLE IF EXISTS public.record;
+/*-- DROP TABLE IF EXISTS public.record;
 -- DROP TABLE IF EXISTS public.activity;
 -- DROP TABLE IF EXISTS public.person_trip;
 -- DROP TABLE IF EXISTS public.trip;
@@ -141,3 +167,7 @@ ALTER TABLE IF EXISTS public.record
 -- DROP TABLE IF EXISTS public.user_table;
 -- DROP TABLE IF EXISTS public.role;
 -- DROP TABLE IF EXISTS public.user_role;
+-- DROP EXTENSION pgcrypto;*/
+
+-- DROP DATABASE IF EXISTS managecost;
+-- DROP ROLE IF EXISTS managecost;

@@ -47,6 +47,11 @@ import { SaveActionProps } from "../../models/ui.model";
 import theme from "../../themes/theme";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "notistack";
+import i18n from "../../i18n";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import ru from "date-fns/locale/ru";
+import en from "date-fns/locale/en-US";
 
 const simpleValidationConfig: SimpleValidateConfig<ActivityForm> = {
   name: [required],
@@ -227,12 +232,19 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
         spacing={2}
         sx={{ marginTop: theme.spacing(2), marginBottom: theme.spacing(1) }}
       >
-        <DatePicker
-          label={trip("activity.date")}
-          onChange={(date) => setState((prevState) => ({ ...prevState, date }))}
-          renderInput={datePickerInput}
-          value={state.date}
-        />
+        <LocalizationProvider
+          adapterLocale={i18n.language.includes("en") ? en : ru}
+          dateAdapter={AdapterDateFns}
+        >
+          <DatePicker
+            label={trip("activity.date")}
+            onChange={(date) =>
+              setState((prevState) => ({ ...prevState, date }))
+            }
+            renderInput={datePickerInput}
+            value={state.date}
+          />
+        </LocalizationProvider>
         <Typography sx={{ display: "flex", alignItems: "center" }}>
           {trip("activity.amount", { amount: state.sum })}
         </Typography>

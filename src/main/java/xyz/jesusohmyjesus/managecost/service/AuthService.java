@@ -1,6 +1,8 @@
 package xyz.jesusohmyjesus.managecost.service;
 
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +22,8 @@ import static org.springframework.context.i18n.LocaleContextHolder.getLocale;
 
 @Service
 public class AuthService {
+    private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -55,6 +59,9 @@ public class AuthService {
     }
 
     public String createToken(Authentication authentication) {
-        return tokenService.generateToken(authentication);
+        LOG.debug("Token requested for user: '{}'", authentication.getName());
+        String token = tokenService.generateToken(authentication);
+        LOG.debug("Token granted {}", token);
+        return token;
     }
 }
