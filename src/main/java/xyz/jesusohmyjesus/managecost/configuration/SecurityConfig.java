@@ -43,20 +43,15 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(requests -> requests.requestMatchers(
-                                HttpMethod.GET,
-                                "/index.html",
-                                "/static/**",
-                                "/*.js",
-                                "/*.json",
-                                "/*.ico"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/auth/token")
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers(HttpMethod.DELETE, "/api/auth/token")
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register")
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register")
                         .permitAll()
-                        .anyRequest()
+                        .requestMatchers("/api/**")
                         .authenticated()
+                        .anyRequest()
+                        .permitAll()
                 ).oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint((request, response, authException) -> {
                             ApiErrorResponse.writeExceptionToResponse(authException, request, response);

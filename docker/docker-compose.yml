@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  app:
+    image: ${DOCKER_USERNAME}/${PROJECT}:latest
+    ports:
+      - "8081:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - db
+    networks:
+      - backend
+  db:
+    image: postgres:15.2-alpine
+    ports:
+      - "5433:5432"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_INITDB_ARGS: "--locale=ru_RU.utf8 --lc-collate=ru_RU.utf8 --lc-ctype=ru_RU.utf8"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ../db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  db_data:

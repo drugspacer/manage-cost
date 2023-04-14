@@ -5,14 +5,14 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.5</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
     <groupId>xyz.jesusohmyjesus</groupId>
     <artifactId>manage-cost</artifactId>
-    <version>0.0.1</version>
-    <packaging>war</packaging>
+    <version>0.1</version>
+    <packaging>jar</packaging>
     <name>manage-cost</name>
     <description>manage-cost</description>
     <properties>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-security</artifactId>
-            <version>1.6.15</version>
+            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -160,7 +160,7 @@
                             <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${frontend-src-dir}/build</directory>
+                                    <directory>${frontend-src-dir}/dist</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 
 public class SpringDocConfig {
     @Autowired
-    CostCountProperties properties;
+    private CostCountProperties properties;
 
     @Bean
     public OpenAPI openApi() {

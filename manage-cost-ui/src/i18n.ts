@@ -14,8 +14,7 @@ i18n
     defaultNS: "common",
     load: "languageOnly",
     detection: {
-      order: ["localStorage", "navigator"],
-      //header: 'Accept-Language',
+      order: ["navigator", "localStorage"],
     },
     backend: {
       loadPath: "/locales/{{lng}}/{{ns}}.json",

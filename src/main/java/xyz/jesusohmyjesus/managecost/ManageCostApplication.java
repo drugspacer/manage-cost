@@ -21,7 +21,7 @@ public class ManageCostApplication {
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
-        messageSource.setBasename("classpath:messages/messages");
+        messageSource.setBasename("classpath:i18n/messages");
         return messageSource;
     }
 }

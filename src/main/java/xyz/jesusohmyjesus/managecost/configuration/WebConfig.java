@@ -5,8 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -14,34 +12,27 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import xyz.jesusohmyjesus.managecost.interceptor.AcceptLanguageInterceptor;
 import xyz.jesusohmyjesus.managecost.interceptor.LoggerInterceptor;
 
-@EnableWebMvc
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     @Autowired
-    LoggerInterceptor loggerInterceptor;
+    private LoggerInterceptor loggerInterceptor;
 
     @Autowired
-    CostCountProperties properties;
+    private CostCountProperties properties;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/static/**")
-                .addResourceLocations("/WEB-INF/view/react/build/static/");
-        registry.addResourceHandler("/*.js", "/*.json", "/*.ico")
-                .addResourceLocations("/WEB-INF/view/react/build/");
+        registry.addResourceHandler("/locales/**")
+                .addResourceLocations("classpath:/static/public/locales/");
+        registry.addResourceHandler("/*.ico")
+                .addResourceLocations("classpath:/static/public/");
         registry.addResourceHandler("/**")
-                .addResourceLocations("/WEB-INF/view/react/build/index.html");
-    }
-
-    @Override
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable("default");
+                .addResourceLocations("classpath:/static/");
     }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/")
-                .setViewName("forward:/index.html");
+        registry.addRedirectViewController("/{path:^(?!api|index\\.html|.*\\.js$).*}", "index.html");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 

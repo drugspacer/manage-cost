@@ -75,17 +75,21 @@ const Info = () => {
           <Grid item xs={12}>
             <Divider sx={{ ml: -2 }} />
           </Grid>
-          <ItemGrid item flexBasis="118px">
-            <Typography variant="bold">{profile("roles")}</Typography>
-          </ItemGrid>
-          <Grid item xs>
-            <Typography>
-              {user!.roles.map((role) => role.name).join(", ")}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Divider sx={{ ml: -2 }} />
-          </Grid>
+          {process.env.NODE_ENV === "development" && (
+            <>
+              <ItemGrid item flexBasis="118px">
+                <Typography variant="bold">{profile("roles")}</Typography>
+              </ItemGrid>
+              <Grid item xs>
+                <Typography>
+                  {user!.roles.map((role) => role.name).join(", ")}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Divider sx={{ ml: -2 }} />
+              </Grid>
+            </>
+          )}
         </Grid>
       </Typography>
       <UIModal

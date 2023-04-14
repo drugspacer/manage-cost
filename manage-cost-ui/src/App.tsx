@@ -43,7 +43,7 @@ function App() {
 
   return user ? (
     <Routes>
-      <Route path="/" element={<Navigate replace to="/trips" />} />
+      <Route path="/index.html" element={<Navigate replace to="/trips" />} />
       <Route path="/login" element={<Navigate replace to="/trips" />} />
       <Route path="/register" element={<Navigate replace to="/trips" />} />
       <Route path="/trips" element={withLazyLoading(Trips)} />
