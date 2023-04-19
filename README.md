@@ -27,9 +27,7 @@ docker registry. Then you can run application in containers in your local machin
 - Docker is installed on your local machine,
 - You have account on [Docker Registry](https://hub.docker.com/)
 
-Setup **application-prod.properties** file. Change property **cost-count.hostname** to: 
-
-    cost-count.hostname=localhost
+> In this setup application uses a test environment. So you can modify **application-test.properties** file to add other functionality.
 
 Create and fill **./docker/.env** file with sensitive data.
 
