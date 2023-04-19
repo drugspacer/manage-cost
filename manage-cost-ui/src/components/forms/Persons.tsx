@@ -5,6 +5,7 @@ import React, {
   useCallback,
   MouseEventHandler,
   useReducer,
+  Reducer,
 } from "react";
 import TextField from "@mui/material/TextField";
 import Person from "../../models/person.model";
@@ -21,10 +22,12 @@ import IconButton from "@mui/material/IconButton";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import { useSnackbar } from "notistack";
 import { ChangeAction } from "../../models/action.model";
+import { isErrorRs } from "../../functions/apiTransform";
+import { TFuncKey } from "i18next";
 
 type ErrorAction = {
   type: "setError";
-  payload: string | string[];
+  payload: string;
 };
 
 type DeleteAction = {
@@ -36,8 +39,13 @@ type AddAction = {
   type: "add";
 };
 
+type State = {
+  form: (string | Person)[];
+  error?: string;
+};
+
 const reducer = (
-  state: { form: (string | Person)[]; error?: string | string[] },
+  state: State,
   action:
     | ChangeAction<Record<string, string>>
     | ErrorAction
@@ -79,7 +87,15 @@ const Persons = ({
   onSubmit: (persons: (string | Person)[]) => void;
 }) => {
   const { user } = useContext(AuthContext);
-  const [state, dispatch] = useReducer(reducer, {
+  const [state, dispatch] = useReducer<
+    Reducer<
+      State,
+      | ChangeAction<Record<string, string>>
+      | AddAction
+      | DeleteAction
+      | ErrorAction
+    >
+  >(reducer, {
     form: user!.persons,
     error: undefined,
   });
@@ -94,10 +110,24 @@ const Persons = ({
     const errors = validateField(state.form, [requiredPersonNonBlank]);
     if (!!errors) {
       dispatch({ type: "setError", payload: errors });
-      enqueueSnackbar(errors, { variant: "error" });
+      enqueueSnackbar(
+        common(`validateField.${errors}` as TFuncKey<"common">) as string,
+        { variant: "error" }
+      );
       return;
     }
-    await onSubmit(state.form);
+    try {
+      await onSubmit(state.form);
+    } catch (error) {
+      if (isErrorRs(error) && error.validationMessages) {
+        const errorStr = Object.values(error.validationMessages)[0];
+        dispatch({
+          type: "setError",
+          payload: errorStr,
+        });
+        enqueueSnackbar(errorStr, { variant: "error" });
+      }
+    }
   };
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(

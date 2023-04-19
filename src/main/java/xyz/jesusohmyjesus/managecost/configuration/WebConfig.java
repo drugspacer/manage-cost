@@ -1,16 +1,25 @@
 package xyz.jesusohmyjesus.managecost.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.WebProperties;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import xyz.jesusohmyjesus.managecost.interceptor.AcceptLanguageInterceptor;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import xyz.jesusohmyjesus.managecost.interceptor.LoggerInterceptor;
+
+import java.util.List;
+import java.util.Locale;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -19,6 +28,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
     private CostCountProperties properties;
+
+    @Autowired
+    private MessageSource messageSource;
+
+    @Autowired
+    private WebProperties webProperties;
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+        localeResolver.setDefaultLocale(webProperties.getLocale());
+        localeResolver.setSupportedLocales(List.of(Locale.ENGLISH, Locale.of("ru")));
+        return localeResolver;
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -32,14 +55,17 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addRedirectViewController("/{path:^(?!api|index\\.html|.*\\.js$).*}", "index.html");
+        registry.addRedirectViewController(
+                "/{path:^(?!api|index\\.html|swagger-ui\\.html|.*\\.js$).*}",
+                "index.html"
+        );
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loggerInterceptor);
-        registry.addInterceptor(new AcceptLanguageInterceptor());
+        //registry.addInterceptor(new AcceptLanguageInterceptor());
     }
 
     @Override
@@ -56,5 +82,12 @@ public class WebConfig implements WebMvcConfigurer {
                         HttpMethod.PATCH.name(),
                         HttpMethod.DELETE.name()
                 );
+    }
+
+    @Override
+    public Validator getValidator() {
+        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+        bean.setValidationMessageSource(messageSource);
+        return bean;
     }
 }

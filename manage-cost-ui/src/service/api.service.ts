@@ -9,6 +9,11 @@ import ErrorRs, { AxiosRequest, MessageRs } from "../models/api.model";
 import { TokenHeader } from "../models/auth.model";
 import AuthApiHelper from "./AuthApiHelper";
 import i18n from "../i18n";
+import { formatISO, parseISO } from "date-fns";
+import { Input } from "../models/form.model";
+import Person from "../models/person.model";
+import { isPersons, isTripRs } from "../functions/apiTransform";
+import Activity from "../models/activity.model";
 
 class ApiService {
   private static axiosInstance: AxiosInstance;
@@ -27,6 +32,45 @@ class ApiService {
       config.headers["Accept-Language"] = buildAcceptLanguage(i18n.language);
       return config;
     });
+    ApiService.axiosInstance.interceptors.request.use((config) => {
+      const { data } = config;
+      if (data instanceof Object && data.constructor === Object) {
+        for (const key in data) {
+          // send only data without timezone
+          if (data[key] instanceof Date) {
+            data[key] = formatISO(data[key], { representation: "date" });
+          }
+          //transform persons
+          if (key === "persons" && isPersons(data[key])) {
+            data[key] = (data[key] as (string | Person)[]).map<Input<Person>>(
+              (item) => (typeof item === "string" ? { name: item } : item)
+            );
+          }
+        }
+      }
+      return config;
+    });
+    ApiService.axiosInstance.interceptors.response.use(
+      (response) => {
+        // Check if the response data contains a 'date' property
+        if (isTripRs(response.data)) {
+          response.data = {
+            ...response.data,
+            data: {
+              ...response.data.data,
+              activities: response.data.data.activities.map<Activity>(
+                (activity) => ({
+                  ...activity,
+                  date: parseISO(activity.date),
+                })
+              ),
+            },
+          };
+        }
+        return response;
+      },
+      (error) => Promise.reject(error)
+    );
     i18n.on("languageChanged", (newLanguage) => {
       ApiService.axiosInstance.defaults.headers.common["Accept-Language"] =
         buildAcceptLanguage(newLanguage);

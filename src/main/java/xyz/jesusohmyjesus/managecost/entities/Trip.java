@@ -11,6 +11,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -19,7 +21,6 @@ import lombok.Setter;
 import org.hibernate.collection.spi.PersistentSortedSet;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -41,15 +42,16 @@ public class Trip {
     private int version;
 
     @Column(nullable = false, length = 32)
+    @NotBlank
     @NonNull
+    @Size(max = 32)
     private String name;
 
     @Column(nullable = false, length = 32)
+    @NotBlank
     @NonNull
+    @Size(max = 32)
     private String place;
-
-    @Column(nullable = false, precision = 2, insertable = false, columnDefinition = "numeric")
-    private BigDecimal sum;
 
     @Column(name = "archive")
     private boolean isArchive = false;
@@ -69,7 +71,8 @@ public class Trip {
         PersonTrip personTrip = new PersonTrip(this, person);
         this.getPersons()
                 .add(personTrip);
-        person.getPersonTrips().add(personTrip);
+        person.getPersonTrips()
+                .add(personTrip);
     }
 
     public void removePerson(Person person) {

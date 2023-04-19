@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useCallback, useMemo, useState } from "react";
 import Page from "../components/Layout/Page";
 import TabContext from "@mui/lab/TabContext";
 import Tab from "@mui/material/Tab";
@@ -25,24 +25,32 @@ const Profile: FC = () => {
   const { t: common } = useTranslation();
   const { t: profile } = useTranslation("profile");
 
-  const backHandler = () => navigate("/");
+  const backHandler = useCallback(() => navigate("/"), []);
 
-  const buttons = [
-    {
-      text: common("button.back"),
-      handler: backHandler,
-      element: (
-        <IconButton
-          size="large"
-          color="inherit"
-          onClick={backHandler}
-          key="back"
-        >
-          <ArrowBackOutlinedIcon />
-        </IconButton>
-      ),
-    },
-  ];
+  const tabsChangeHandler = useCallback(
+    (_e: React.SyntheticEvent, newValue: string) => setValue(newValue),
+    []
+  );
+
+  const buttons = useMemo(
+    () => [
+      {
+        text: common("button.back"),
+        handler: backHandler,
+        element: (
+          <IconButton
+            size="large"
+            color="inherit"
+            onClick={backHandler}
+            key="back"
+          >
+            <ArrowBackOutlinedIcon />
+          </IconButton>
+        ),
+      },
+    ],
+    [backHandler, common]
+  );
 
   return (
     <Page header={profile("header")} buttons={buttons}>
@@ -54,7 +62,7 @@ const Profile: FC = () => {
         }}
       >
         <TabContext value={value}>
-          <Tabs onChange={(_e, newValue) => setValue(newValue)}>
+          <Tabs onChange={tabsChangeHandler}>
             <Tab label={profile("info.tab")} value="1" />
             <Tab label={profile("password.tab")} value="2" />
             <Tab label={profile("delete.tab")} value="3" />

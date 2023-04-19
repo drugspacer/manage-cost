@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import Login, { RegisterRq } from "../models/login.model";
+import Login, { Register } from "../models/login.model";
 import { User } from "../models/user.model";
 import { isUser } from "../functions/assertions";
 import AuthService from "../service/auth.service";
@@ -68,7 +68,7 @@ const Auth: FC<PropsWithChildren> = ({ children }) => {
     setUser(user);
   }, []);
 
-  const register = useCallback(async (data: RegisterRq) => {
+  const register = useCallback(async (data: Register) => {
     await AuthService.register(data);
     const user = await UserApi.currentUser();
     isUser(user);
@@ -76,13 +76,7 @@ const Auth: FC<PropsWithChildren> = ({ children }) => {
   }, []);
 
   return isLoading ? (
-    <CircularProgress
-      sx={{
-        left: "calc(50% - 20px)",
-        top: "calc(50% - 20px)",
-        position: "fixed",
-      }}
-    />
+    <CircularProgress />
   ) : (
     <AuthContext.Provider value={{ user, login, logout, register, setUser }}>
       {children}

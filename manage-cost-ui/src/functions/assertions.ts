@@ -1,11 +1,11 @@
-import Trip, { TripRs } from "../models/trip.model";
+import Trip from "../models/trip.model";
 import ErrorRs from "../models/api.model";
 import { User } from "../models/user.model";
 import Person from "../models/person.model";
 
-type AssertIsTripRs = (trip?: TripRs) => asserts trip is TripRs;
+type AssertIsTrip = (trip?: Trip) => asserts trip is Trip;
 
-export const isTripRs: AssertIsTripRs = (trip) => {
+export const isTrip: AssertIsTrip = (trip) => {
   if (trip === undefined) {
     throw new Error("trip is undefined");
   }

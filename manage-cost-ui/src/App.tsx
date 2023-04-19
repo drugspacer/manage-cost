@@ -5,7 +5,7 @@ import withLazyLoading from "./components/HOC/withLazyLoading";
 import { useTranslation } from "react-i18next";
 import i18n from "./i18n";
 
-// Load the 'profile' namespace before rendering MyComponent
+// Load the 'common' namespace before rendering MyComponent
 i18n.loadNamespaces("common");
 
 const Profile = lazy(() =>
@@ -17,7 +17,7 @@ const Profile = lazy(() =>
 
 const Login = lazy(() =>
   import("./pages/Login").then((module) => {
-    // Load the 'register' namespace when the module is loaded
+    // Load the 'auth' namespace when the module is loaded
     return i18n.loadNamespaces("auth").then(() => module);
   })
 );
@@ -43,6 +43,7 @@ function App() {
 
   return user ? (
     <Routes>
+      <Route path="/" element={<Navigate replace to="/trips" />} />
       <Route path="/index.html" element={<Navigate replace to="/trips" />} />
       <Route path="/login" element={<Navigate replace to="/trips" />} />
       <Route path="/register" element={<Navigate replace to="/trips" />} />

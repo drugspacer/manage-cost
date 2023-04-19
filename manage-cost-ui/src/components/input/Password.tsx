@@ -34,11 +34,14 @@ const Password = ({
   const [showPassword, setShowPassword] = useState(false);
   const { t } = useTranslation();
 
-  const handleMouseDownPassword = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault();
-  };
+  const handleMouseDownPassword = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+    },
+    []
+  );
+
+  const clickHandler = useCallback(() => setShowPassword((show) => !show), []);
 
   const disablePasteHandler: ClipboardEventHandler<HTMLInputElement> =
     useCallback((e) => {
@@ -60,7 +63,7 @@ const Password = ({
           <InputAdornment position="end">
             <IconButton
               aria-label={t("ariaLabel.togglePassword")}
-              onClick={() => setShowPassword((show) => !show)}
+              onClick={clickHandler}
               onMouseDown={handleMouseDownPassword}
               edge="end"
             >

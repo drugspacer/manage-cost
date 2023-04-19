@@ -11,11 +11,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -26,8 +25,6 @@ import java.util.UUID;
 @Table
 @Getter
 @Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Person {
     @Id
@@ -37,7 +34,8 @@ public class Person {
     private UUID id;
 
     @Column(nullable = false, length = 64)
-    @NonNull
+    @NotBlank
+    @Size(max = 64)
     @EqualsAndHashCode.Include
     private String name;
 

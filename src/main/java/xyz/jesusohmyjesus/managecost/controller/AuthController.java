@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -47,7 +48,7 @@ public class AuthController {
             )
     })
     @PostMapping(Endpoints.REGISTER)
-    public ResponseEntity<MessageResponse<String>> register(@RequestBody User user) {
+    public ResponseEntity<MessageResponse<String>> register(@Valid @RequestBody User user) {
         String token = authService.register(user);
         return ResponseEntity.ok()
                 .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(SecurityContextHolder.getContext()
@@ -62,7 +63,9 @@ public class AuthController {
     @Operation(description = "Get JWT from username and password")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "token and refresh token created")})
     @PostMapping(Endpoints.TOKEN)
-    public ResponseEntity<MessageResponse<String>> token(UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
+    public ResponseEntity<MessageResponse<String>> token(
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
+    ) {
         return ResponseEntity.ok()
                 .header(SET_COOKIE, securityUtils.createRefreshTokenCookie(usernamePasswordAuthenticationToken)
                         .toString()

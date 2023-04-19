@@ -1,6 +1,6 @@
 {
-  "short_name": "Cost Count",
-  "name": "Cost Count",
+  "short_name": "Manage Cost",
+  "name": "Manage Cost",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

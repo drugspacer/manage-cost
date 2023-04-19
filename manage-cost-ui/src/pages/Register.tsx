@@ -22,17 +22,18 @@ import { Register as RegisterModel } from "../models/login.model";
 import TextInput from "../components/input/TextInput";
 import Password from "../components/input/Password";
 import PersonsInput from "../components/input/PersonsInput";
-import { UseAutocompleteProps } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
+import { AutocompleteValue } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
 import Person from "../models/person.model";
 import { PersonAutocomplete } from "../models/form.model";
 import { useNavigate } from "react-router";
 import { AuthContext } from "../context/Auth";
 import StyledPaper from "../components/UI/styled/StyledPaper";
 import Typography from "@mui/material/Typography";
-import { registerToUserRq } from "../functions/apiTransform";
 import Link from "@mui/material/Link";
 import { useTranslation } from "react-i18next";
 import reducer from "../functions/reducer";
+import { TFuncKey } from "i18next";
+import { isErrorRs } from "../functions/apiTransform";
 
 const simpleValidationConfig: SimpleValidateConfig<RegisterModel> = {
   username: [required],
@@ -59,7 +60,8 @@ const Register: FC = () => {
   );
   const navigate = useNavigate();
   const { register } = useContext(AuthContext);
-  const { t } = useTranslation("auth");
+  const { t: auth } = useTranslation("auth");
+  const { t: common } = useTranslation();
 
   const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -72,8 +74,14 @@ const Register: FC = () => {
       dispatch({ type: "setError", payload: { ...complexErrors, ...errors } });
       return;
     }
-    await register(registerToUserRq(state.form));
-    navigate("/");
+    try {
+      await register(state.form);
+      navigate("/");
+    } catch (error) {
+      if (isErrorRs(error) && error.validationMessages) {
+        dispatch({ type: "setError", payload: error.validationMessages });
+      }
+    }
   };
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -82,59 +90,78 @@ const Register: FC = () => {
     []
   );
 
-  const onPersonChange: UseAutocompleteProps<
-    Person | PersonAutocomplete,
-    true,
-    false,
-    true
-  >["onChange"] = (_e, newValue) =>
-    dispatch({
-      type: "personChange",
-      payload: newValue.map((item) => {
-        if (typeof item === "string") {
+  const onPersonChange = useCallback(
+    (
+      _e: React.SyntheticEvent,
+      newValue: AutocompleteValue<
+        Person | PersonAutocomplete,
+        true,
+        false,
+        true
+      >
+    ) =>
+      dispatch({
+        type: "personChange",
+        payload: newValue.map((item) => {
+          if (typeof item === "string") {
+            return item;
+          } else if ("title" in item) {
+            return item.name;
+          }
           return item;
-        } else if ("title" in item) {
-          return item.name;
-        }
-        return item;
+        }),
       }),
-    });
+    []
+  );
 
   const linkOnLogin = (
     <Typography sx={{ textAlign: "center" }} variant="body2">
-      <Link href="/login">{t("register.backToLogin")}</Link>
+      <Link href="/login">{auth("register.backToLogin")}</Link>
     </Typography>
   );
 
   return (
-    <Page header={t("register.header")}>
+    <Page header={auth("register.header")}>
       <StyledPaper elevation={6}>
         <FormWrapper
           onSubmit={submitHandler}
-          submitText={t("register.submit")}
+          submitText={auth("register.submit")}
           additionalNode={linkOnLogin}
         >
           <TextInput
             name="username"
-            label={t("loginInput")}
+            label={auth("loginInput")}
             errorState={state.error}
             state={state.form}
             onChange={changeHandler}
           />
           <Password
             value={state.form.password}
-            label={t("passwordInput")}
+            label={auth("passwordInput")}
             onChange={changeHandler}
             error={!!state.error.password}
-            helperText={state.error.password}
+            helperText={
+              state.error.password
+                ? (common(
+                    `validationError.${state.error.password}` as TFuncKey<"common">,
+                    { minLength: 8 }
+                  ) as string)
+                : undefined
+            }
             autoComplete="new-password"
           />
           <Password
             value={state.form.confirmPassword}
             onChange={changeHandler}
             error={!!state.error.confirmPassword}
-            helperText={state.error.confirmPassword}
-            label={t("register.confirmPassword")}
+            helperText={
+              state.error.confirmPassword
+                ? (common(
+                    `validationError.${state.error.confirmPassword}` as TFuncKey<"common">
+                  ) as string)
+                : undefined
+            }
+            label={auth("register.confirmPassword")}
             name="confirmPassword"
           />
           <PersonsInput

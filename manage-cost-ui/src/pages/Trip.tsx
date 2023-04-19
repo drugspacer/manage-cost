@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useParams } from "react-router";
@@ -13,9 +14,8 @@ import UIModal from "../components/UI/UIModal";
 import SaveAction from "../components/forms/SaveAction";
 import ActivityCard from "../components/ActivityCard";
 import SaveTrip from "../components/forms/SaveTrip";
-import Trip, { TripRs } from "../models/trip.model";
+import Trip from "../models/trip.model";
 import ArchiveWrapper from "../components/Layout/ArchiveWrapper";
-import { tripRsToTrip } from "../functions/apiTransform";
 import Activity from "../models/activity.model";
 import CardActionArea from "@mui/material/CardActionArea";
 import Card from "@mui/material/Card";
@@ -27,8 +27,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Tooltip } from "@mui/material";
-import { ButtonProp } from "../models/ui.model";
-import { isTripRs } from "../functions/assertions";
+import { isTrip } from "../functions/assertions";
 import TripApi from "../service/api/trip";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../context/Auth";
@@ -52,23 +51,27 @@ const Trip: React.FC = () => {
   const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
+    window.scrollTo(0, document.body.scrollHeight);
+  }, []);
+
+  useEffect(() => {
     TripApi.getTrip(id)
       .then((data) => {
-        isTripRs(data);
-        setTrip(tripRsToTrip(data));
+        isTrip(data);
+        setTrip(data);
       })
       .finally(() => setIsLoading(false));
   }, []);
 
   const handleButton: (
-    func: (id: string | undefined) => Promise<TripRs | undefined>
+    func: (id: string | undefined) => Promise<Trip | undefined>
   ) => () => void = useCallback(
     (func) => async () => {
       setIsLoading(true);
       try {
         const data = await func(trip?.id);
-        isTripRs(data);
-        setTrip(tripRsToTrip(data));
+        isTrip(data);
+        setTrip(data);
       } finally {
         setIsLoading(false);
       }
@@ -81,17 +84,15 @@ const Trip: React.FC = () => {
     []
   );
 
-  const persons = trip ? trip.persons.map((item) => item.person) : [];
-
   const submitHandler: <T extends object>(
-    func: (request: T, id?: string) => Promise<TripRs | undefined>
+    func: (request: T, id?: string) => Promise<Trip | undefined>
   ) => (data: T) => void = useCallback(
     (func) => async (data) => {
       setIsLoading(true);
       try {
         const response = await func(data, trip?.id);
-        isTripRs(response);
-        setTrip(tripRsToTrip(response));
+        isTrip(response);
+        setTrip(response);
         if (
           response.user.persons.some(
             ({ name }) =>
@@ -114,9 +115,9 @@ const Trip: React.FC = () => {
       async () => {
         setIsLoading(true);
         try {
-          const data = await TripApi.deleteActivity(tripId, activityId);
-          isTripRs(data);
-          setTrip(tripRsToTrip(data));
+          const trip = await TripApi.deleteActivity(tripId, activityId);
+          isTrip(trip);
+          setTrip(trip);
         } finally {
           setIsLoading(false);
         }
@@ -132,6 +133,8 @@ const Trip: React.FC = () => {
       },
     []
   );
+
+  const persons = trip ? trip.persons.map((item) => item.person) : [];
 
   const modalDataRender = (
     type: MODAL_TYPE | undefined
@@ -166,27 +169,25 @@ const Trip: React.FC = () => {
     }
   };
 
-  let content = null;
-  const buttons: ButtonProp[] = [];
-  let mainButton: ButtonProp | undefined = undefined;
-
-  if (!isLoading && trip !== undefined) {
-    const cards = trip.activities.map((item) => (
-      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={item.id}>
-        <DeleteDialogWrapper
-          onDelete={deleteActivityHandler(trip.id!, item.id)}
-          header={tripTranslate("deleteDialog")}
-        >
-          <ActivityCard
-            activity={item}
-            isArchive={trip.archive}
-            onEditAction={editActionHandler(item)}
-          />
-        </DeleteDialogWrapper>
-      </Grid>
-    ));
-
-    if (!trip.archive) {
+  const cards = useMemo(() => {
+    const cards =
+      !isLoading && trip !== undefined
+        ? trip.activities.map((item) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={item.id}>
+              <DeleteDialogWrapper
+                onDelete={deleteActivityHandler(trip.id!, item.id)}
+                header={tripTranslate("deleteDialog")}
+              >
+                <ActivityCard
+                  activity={item}
+                  isArchive={trip.archive}
+                  onEditAction={editActionHandler(item)}
+                />
+              </DeleteDialogWrapper>
+            </Grid>
+          ))
+        : undefined;
+    if (!!cards && !trip!.archive) {
       cards.push(
         <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key="new">
           <Card sx={{ height: "100%" }}>
@@ -216,48 +217,76 @@ const Trip: React.FC = () => {
         </Grid>
       );
     }
+    return cards;
+  }, [
+    isLoading,
+    trip,
+    deleteActivityHandler,
+    modalButtonHandler,
+    editActionHandler,
+    tripTranslate,
+  ]);
 
-    content = <ArchiveWrapper trip={trip}>{cards}</ArchiveWrapper>;
-    if (trip.archive) {
-      mainButton = {
+  const content = useMemo(() => {
+    if (isLoading) {
+      return <CircularProgress />;
+    } else if (!!trip) {
+      return <ArchiveWrapper trip={trip}>{cards}</ArchiveWrapper>;
+    }
+    return null;
+  }, [trip, cards, isLoading]);
+
+  const mainButton = useMemo(() => {
+    if (trip === undefined) {
+      return undefined;
+    } else if (trip.archive) {
+      return {
         text: tripTranslate("trip.returnFromArchive"),
         handler: handleButton(TripApi.returnFromArchive),
       };
-    } else {
-      buttons.push({
-        element: (
-          <Tooltip title={MODAL_TYPE.EDIT_TRIP} key="edit">
-            <IconButton
-              size="large"
-              color="inherit"
-              aria-label={common("ariaLabel.edit")}
-              sx={{ mr: 2 }}
-              onClick={modalButtonHandler(MODAL_TYPE.EDIT_TRIP)}
-            >
-              <EditOutlinedIcon />
-            </IconButton>
-          </Tooltip>
-        ),
-        text: MODAL_TYPE.EDIT_TRIP,
-        handler: modalButtonHandler(MODAL_TYPE.EDIT_TRIP),
-      });
-      mainButton = {
-        text: tripTranslate("trip.end"),
-        handler: handleButton(TripApi.finishTrip),
-      };
     }
-  }
-  if (isLoading) {
-    content = <CircularProgress />;
-  }
+    return {
+      text: tripTranslate("trip.end"),
+      handler: handleButton(TripApi.finishTrip),
+    };
+  }, [trip?.archive, handleButton, tripTranslate]);
 
-  const breadcrumbs = [
-    { href: "/", label: tripTranslate("trip.item_one") },
-    {
-      href: `/trip/${id}`,
-      label: trip?.name ?? tripTranslate("trip.item_other"),
-    },
-  ];
+  const buttons = useMemo(
+    () =>
+      trip === undefined || trip.archive
+        ? []
+        : [
+            {
+              element: (
+                <Tooltip title={MODAL_TYPE.EDIT_TRIP} key="edit">
+                  <IconButton
+                    size="large"
+                    color="inherit"
+                    aria-label={common("ariaLabel.edit")}
+                    sx={{ mr: 2 }}
+                    onClick={modalButtonHandler(MODAL_TYPE.EDIT_TRIP)}
+                  >
+                    <EditOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+              ),
+              text: MODAL_TYPE.EDIT_TRIP,
+              handler: modalButtonHandler(MODAL_TYPE.EDIT_TRIP),
+            },
+          ],
+    [trip?.archive, modalButtonHandler, common]
+  );
+
+  const breadcrumbs = useMemo(
+    () => [
+      { href: "/", label: tripTranslate("trip.item_one") },
+      {
+        href: `/trip/${id}`,
+        label: trip?.name ?? tripTranslate("trip.item_other"),
+      },
+    ],
+    [trip?.name, tripTranslate]
+  );
 
   return (
     <Page buttons={buttons} mainButton={mainButton} breadcrumbs={breadcrumbs}>

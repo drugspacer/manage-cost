@@ -27,23 +27,22 @@ import {
   simpleFormValidation,
   complexFormValidation,
   listItemRequired,
+  requiredSum,
 } from "../../functions/validation";
 import {
   ActivityForm,
   ActivityFormRq,
   RecordItemForm,
 } from "../../models/form.model";
-import ErrorState, { ERRORS } from "../../models/error.model";
+import ErrorState from "../../models/error.model";
 import { TextFieldProps as MuiTextFieldPropsType } from "@mui/material/TextField/TextField";
 import { InputBaseProps } from "@mui/material/InputBase/InputBase";
 import { Checkbox } from "@mui/material";
-import { CheckboxProps } from "@mui/material/Checkbox/Checkbox";
 import Activity from "../../models/activity.model";
 import Typography from "@mui/material/Typography";
 import StyledTableCell from "../UI/styled/StyledTableCell";
 import FormWrapper from "../HOC/FormWrapper";
 import TextInput from "../input/TextInput";
-import { SaveActionProps } from "../../models/ui.model";
 import theme from "../../themes/theme";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "notistack";
@@ -52,10 +51,20 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import ru from "date-fns/locale/ru";
 import en from "date-fns/locale/en-US";
+import localizedErrors from "../../../public/locales/ru/common.json";
+import { TFuncKey } from "i18next";
+import { isErrorRs } from "../../functions/apiTransform";
+
+type SaveActionProps = {
+  persons: Person[];
+  activity?: Activity;
+  onSubmit: (data: ActivityFormRq) => void;
+};
 
 const simpleValidationConfig: SimpleValidateConfig<ActivityForm> = {
   name: [required],
   date: [requiredDate],
+  sum: [requiredSum],
 };
 
 const complexValidationConfig: ComplexValidateConfig<
@@ -133,14 +142,22 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
     e.preventDefault();
     const errors = simpleFormValidation(state, simpleValidationConfig);
     const tableErrors = complexFormValidation(state, complexValidationConfig);
-    if (!!tableErrors) {
-      enqueueSnackbar(
-        [
-          ...((tableErrors?.borrowMoney as ERRORS[]) ?? []),
-          ...((tableErrors?.landMoney as ERRORS[]) ?? []),
-          ...((tableErrors?.isActive as ERRORS[]) ?? []),
-        ].join(", "),
-        { variant: "error" }
+    if (!!tableErrors || !!errors?.sum) {
+      [
+        ...(([
+          errors?.sum,
+        ] as (keyof typeof localizedErrors.validationError)[]) ?? []),
+        ...((tableErrors?.borrowMoney as (keyof typeof localizedErrors.validationError)[]) ??
+          []),
+        ...((tableErrors?.landMoney as (keyof typeof localizedErrors.validationError)[]) ??
+          []),
+        ...((tableErrors?.isActive as (keyof typeof localizedErrors.validationError)[]) ??
+          []),
+      ].forEach((error) =>
+        enqueueSnackbar(
+          common(`validationError.${error}` as TFuncKey<"common">) as string,
+          { variant: "error" }
+        )
       );
     }
     if (!!errors || !!tableErrors) {
@@ -161,7 +178,17 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
     };
 
     const data = activityFormToActivityFormRq(state);
-    await onSubmit(data);
+    try {
+      await onSubmit(data);
+    } catch (error) {
+      if (isErrorRs(error) && error.validationMessages) {
+        setErrorState(error.validationMessages);
+        delete error.validationMessages.name;
+        Object.values(error.validationMessages).forEach((error) =>
+          enqueueSnackbar(error, { variant: "error" })
+        );
+      }
+    }
   };
 
   const onNameChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
@@ -193,25 +220,41 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
       []
     );
 
-  const datePickerInput: (props: MuiTextFieldPropsType) => ReactElement = (
-    params
-  ) => (
-    <TextField
-      {...params}
-      error={!!errorState?.date}
-      helperText={errorState?.date}
-    />
+  const datePickerInput: (props: MuiTextFieldPropsType) => ReactElement =
+    useCallback(
+      (params) => (
+        <TextField
+          {...params}
+          error={!!errorState?.date}
+          helperText={
+            errorState?.date
+              ? (common(
+                  `validationError.${errorState?.date}` as TFuncKey<"common">
+                ) as string)
+              : undefined
+          }
+        />
+      ),
+      [errorState?.date, common]
+    );
+
+  const allActiveHandler = useCallback(
+    ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+      setState((prevState) => ({
+        ...prevState,
+        records: prevState.records.map((item) => ({
+          ...item,
+          isActive: target.checked,
+        })),
+      }));
+    },
+    []
   );
 
-  const allActiveHandler: CheckboxProps["onChange"] = ({ target }) => {
-    setState((prevState) => ({
-      ...prevState,
-      records: prevState.records.map((item) => ({
-        ...item,
-        isActive: target.checked,
-      })),
-    }));
-  };
+  const dateHandler = useCallback(
+    (date: Date | null) => setState((prevState) => ({ ...prevState, date })),
+    []
+  );
 
   return (
     <FormWrapper
@@ -238,9 +281,7 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
         >
           <DatePicker
             label={trip("activity.date")}
-            onChange={(date) =>
-              setState((prevState) => ({ ...prevState, date }))
-            }
+            onChange={dateHandler}
             renderInput={datePickerInput}
             value={state.date}
           />

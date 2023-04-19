@@ -7,13 +7,14 @@ import React, {
   useContext,
   useState,
   useMemo,
+  memo,
 } from "react";
 import Stack from "@mui/material/Stack";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { BreadcrumbData, ButtonProp } from "../../models/ui.model";
+import { ButtonProp } from "../../models/ui.model";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -36,6 +37,11 @@ type MenuElement = {
   profile?: HTMLElement;
 };
 
+type BreadcrumbData = {
+  href: string;
+  label: string;
+};
+
 const Page: FC<
   PropsWithChildren<{
     breadcrumbs?: BreadcrumbData[];
@@ -52,21 +58,13 @@ const Page: FC<
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const handleOpenClick = ({
-    currentTarget,
-  }: MouseEvent<HTMLButtonElement>): void => {
-    setAnchorEl((prevState) => ({
-      ...prevState,
-      [currentTarget.name]: currentTarget,
-    }));
-  };
-
-  const menuItemHandler = useCallback(
-    (handler: () => void, name: keyof MenuElement): (() => void) =>
-      () => {
-        onCloseHandler(name);
-        handler();
-      },
+  const handleOpenClick = useCallback(
+    ({ currentTarget }: MouseEvent<HTMLButtonElement>): void => {
+      setAnchorEl((prevState) => ({
+        ...prevState,
+        [currentTarget.name]: currentTarget,
+      }));
+    },
     []
   );
 
@@ -79,78 +77,33 @@ const Page: FC<
     []
   );
 
-  const breadcrumbsContent = breadcrumbs.map((item, index, self) => {
-    if (self.length === index + 1) {
-      return (
-        <Typography key={item.href} color="text.primary">
-          {item.label}
-        </Typography>
-      );
-    }
-    return (
-      <Link key={item.href} color="inherit" href={item.href}>
-        {item.label}
-      </Link>
-    );
-  });
+  const menuItemHandler = useCallback(
+    (handler: () => void, name: keyof MenuElement): (() => void) =>
+      () => {
+        onCloseHandler(name);
+        handler();
+      },
+    [onCloseHandler]
+  );
 
-  const toolbarContent: (ReactElement | null | undefined)[] = [
-    <Typography sx={{ flexGrow: 1 }} key="header">
-      {breadcrumbs.length ? breadcrumbs[breadcrumbs.length - 1].label : header}
-    </Typography>,
-  ];
-
-  if (isMobile) {
-    toolbarContent.unshift(
-      <IconButton
-        size="large"
-        edge="start"
-        color="inherit"
-        aria-label={t("ariaLabel.menu")}
-        onClick={handleOpenClick}
-        name="basicMenu"
-        key="menuIcon"
-      >
-        <MenuIcon />
-      </IconButton>,
-      <Menu
-        id="basicMenu"
-        anchorEl={anchorEl.basicMenu}
-        open={!!anchorEl.basicMenu}
-        onClose={() => onCloseHandler("basicMenu")}
-        MenuListProps={{
-          "aria-labelledby": "basic-button",
-        }}
-        key="menu"
-      >
-        {mainButton && (
-          <MenuItem onClick={menuItemHandler(mainButton.handler, "basicMenu")}>
-            {mainButton.text}
-          </MenuItem>
-        )}
-        {buttons.map((item) => (
-          <MenuItem
-            onClick={menuItemHandler(item.handler, "basicMenu")}
-            key={item.text}
-          >
-            {item.text}
-          </MenuItem>
-        ))}
-      </Menu>
-    );
-  } else {
-    toolbarContent.unshift(...buttons.map(({ element }) => element));
-    mainButton &&
-      toolbarContent.push(
-        <Button
-          color="inherit"
-          onClick={mainButton.handler}
-          key={mainButton.text}
-        >
-          {mainButton.text}
-        </Button>
-      );
-  }
+  const breadcrumbsContent = useMemo(
+    () =>
+      breadcrumbs.map((item, index, self) => {
+        if (self.length === index + 1) {
+          return (
+            <Typography key={item.href} color="text.primary">
+              {item.label}
+            </Typography>
+          );
+        }
+        return (
+          <Link key={item.href} color="inherit" href={item.href}>
+            {item.label}
+          </Link>
+        );
+      }),
+    [breadcrumbs]
+  );
 
   const menuItems = useMemo(
     () =>
@@ -170,35 +123,107 @@ const Page: FC<
             </MenuItem>,
           ]
         : null,
-    [!!user, menuItemHandler, onCloseHandler]
+    [!!user, menuItemHandler, onCloseHandler, t]
   );
 
-  if (user) {
-    toolbarContent.push(
-      <IconButton
-        size="large"
-        aria-label={t("ariaLabel.profile")}
-        aria-controls="menu-appbar"
-        aria-haspopup="true"
-        onClick={handleOpenClick}
-        color="inherit"
-        key="profile-icon"
-        name="profile"
-      >
-        <AccountCircle />
-      </IconButton>,
-      <Menu
-        id="profile"
-        anchorEl={anchorEl.profile}
-        keepMounted
-        open={!!anchorEl.profile}
-        onClose={() => onCloseHandler("profile")}
-        key="profile-menu"
-      >
-        {menuItems}
-      </Menu>
-    );
-  }
+  const toolbarContent: ReactElement[] = useMemo(() => {
+    const toolbarContent = [
+      <Typography sx={{ flexGrow: 1 }} key="header">
+        {breadcrumbs.length
+          ? breadcrumbs[breadcrumbs.length - 1].label
+          : header}
+      </Typography>,
+    ];
+    if (isMobile && mainButton && buttons) {
+      toolbarContent.unshift(
+        <IconButton
+          size="large"
+          edge="start"
+          color="inherit"
+          aria-label={t("ariaLabel.menu")}
+          onClick={handleOpenClick}
+          name="basicMenu"
+          key="menuIcon"
+        >
+          <MenuIcon />
+        </IconButton>,
+        <Menu
+          id="basicMenu"
+          anchorEl={anchorEl.basicMenu}
+          open={!!anchorEl.basicMenu}
+          onClose={() => onCloseHandler("basicMenu")}
+          MenuListProps={{
+            "aria-labelledby": "basic-button",
+          }}
+          key="menu"
+        >
+          {mainButton && (
+            <MenuItem
+              onClick={menuItemHandler(mainButton.handler, "basicMenu")}
+            >
+              {mainButton.text}
+            </MenuItem>
+          )}
+          {buttons.map((item) => (
+            <MenuItem
+              onClick={menuItemHandler(item.handler, "basicMenu")}
+              key={item.text}
+            >
+              {item.text}
+            </MenuItem>
+          ))}
+        </Menu>
+      );
+    } else {
+      toolbarContent.unshift(...buttons.map(({ element }) => element!));
+      mainButton &&
+        toolbarContent.push(
+          <Button
+            color="inherit"
+            onClick={mainButton.handler}
+            key={mainButton.text}
+          >
+            {mainButton.text}
+          </Button>
+        );
+    }
+    if (!!user) {
+      toolbarContent.push(
+        <IconButton
+          size="large"
+          aria-label={t("ariaLabel.profile")}
+          aria-controls="menu-appbar"
+          aria-haspopup="true"
+          onClick={handleOpenClick}
+          color="inherit"
+          key="profile-icon"
+          name="profile"
+        >
+          <AccountCircle />
+        </IconButton>,
+        <Menu
+          id="profile"
+          anchorEl={anchorEl.profile}
+          keepMounted
+          open={!!anchorEl.profile}
+          onClose={() => onCloseHandler("profile")}
+          key="profile-menu"
+        >
+          {menuItems}
+        </Menu>
+      );
+    }
+    return toolbarContent;
+  }, [
+    isMobile,
+    mainButton,
+    buttons,
+    handleOpenClick,
+    anchorEl,
+    menuItems,
+    breadcrumbs,
+    header,
+  ]);
 
   return (
     <>
@@ -221,4 +246,4 @@ const Page: FC<
   );
 };
 
-export default Page;
+export default memo(Page);

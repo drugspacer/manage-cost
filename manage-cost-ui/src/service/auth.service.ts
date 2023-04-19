@@ -1,11 +1,11 @@
 import { isString } from "../functions/assertions";
-import LoginModel, { RegisterRq } from "../models/login.model";
+import LoginModel, { Register } from "../models/login.model";
 import AuthApi from "./api/auth";
 import AuthApiHelper from "./AuthApiHelper";
 import i18n from "../i18n";
 
 class AuthService {
-  static async register(data: RegisterRq) {
+  static async register(data: Register) {
     const token = await AuthApi.register(data);
     isString(token);
     localStorage.setItem("token", token);
