@@ -11,8 +11,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import xyz.jesusohmyjesus.managecost.validation.NullPositiveOrZero;
 
 import java.math.BigDecimal;
 
@@ -23,7 +23,6 @@ import java.math.BigDecimal;
         @AssociationOverride(name = "primaryKey.activity", joinColumns = @JoinColumn(name = "activity_id"))
 })
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@NoArgsConstructor
 public class RecordEntity {
     @EmbeddedId
     @EqualsAndHashCode.Include
@@ -48,18 +47,15 @@ public class RecordEntity {
         primaryKey.setActivity(activity);
     }
 
-    public RecordEntity(Activity activity, Person person) {
-        setPerson(person);
-        setActivity(activity);
-    }
-
     @Getter
     @Setter
-    @Column(name = "land_money", columnDefinition = "numeric", precision = 2)
+    @Column(name = "land_money", columnDefinition = "numeric", precision = 9, scale = 2)
+    @NullPositiveOrZero
     private BigDecimal landMoney;
 
     @Getter
     @Setter
-    @Column(name = "borrow_money", columnDefinition = "numeric", precision = 2)
+    @Column(name = "borrow_money", columnDefinition = "numeric", precision = 9, scale = 2)
+    @NullPositiveOrZero
     private BigDecimal borrowMoney;
 }

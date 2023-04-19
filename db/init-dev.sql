@@ -68,7 +68,6 @@ CREATE TABLE IF NOT EXISTS public.trip
     version integer NOT NULL DEFAULT 0,
     name character varying(32) COLLATE pg_catalog."default" NOT NULL,
     place character varying(32) COLLATE pg_catalog."default" NOT NULL,
-    sum money,
     archive boolean DEFAULT false,
     user_id uuid NOT NULL,
     CONSTRAINT trip_pk PRIMARY KEY (id),
@@ -100,7 +99,7 @@ CREATE TABLE IF NOT EXISTS public.person_trip
 (
     person_id uuid NOT NULL,
     trip_id uuid NOT NULL,
-    sum money,
+    sum NUMERIC(9, 2) NOT NULL,
     CONSTRAINT person_fk FOREIGN KEY (person_id)
         REFERENCES public.person (id) MATCH SIMPLE
         ON UPDATE RESTRICT
@@ -123,7 +122,7 @@ CREATE TABLE IF NOT EXISTS public.activity
     trip_id uuid NOT NULL,
     name character varying(32) COLLATE pg_catalog."default" NOT NULL,
     date date NOT NULL,
-    sum money NOT NULL,
+    sum NUMERIC(9, 2),
     CONSTRAINT activity_pk PRIMARY KEY (id),
     CONSTRAINT trip_fk FOREIGN KEY (trip_id)
         REFERENCES public.trip (id) MATCH SIMPLE
@@ -141,8 +140,8 @@ CREATE TABLE IF NOT EXISTS public.record
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     activity_id uuid NOT NULL,
     person_id uuid NOT NULL,
-    land_money money,
-    borrow_money money,
+    land_money NUMERIC(9, 2),
+    borrow_money NUMERIC(9, 2),
     CONSTRAINT record_pk PRIMARY KEY (id),
     CONSTRAINT activity_fk FOREIGN KEY (activity_id)
         REFERENCES public.activity (id) MATCH SIMPLE

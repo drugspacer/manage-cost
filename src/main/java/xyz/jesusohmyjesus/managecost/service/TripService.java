@@ -18,7 +18,6 @@ import xyz.jesusohmyjesus.managecost.repository.TripRepository;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,8 +73,10 @@ public class TripService {
                 username,
                 messageSource.getMessage("error.forbidden.trip", new Object[]{data.getId()}, getLocale())
         );
-        data.getRecords().forEach(record -> record.setActivity(data));
-        trip.getActivities().add(data);
+        data.getRecords()
+                .forEach(record -> record.setActivity(data));
+        trip.getActivities()
+                .add(data);
         activityRepository.save(data);
         return trip;
     }
@@ -167,7 +168,7 @@ public class TripService {
                         if (record.getLandMoney() != null) {
                             personSum = personSum.add(record.getLandMoney());
                         }
-                        person.setSum(personSum.setScale(2, RoundingMode.HALF_UP));
+                        person.setSum(personSum);
                     });
                 });
         trip.setArchive(true);

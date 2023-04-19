@@ -14,13 +14,7 @@ export type TripForm = Pick<Trip, "place" | "name"> & {
   version?: number;
 };
 
-export type TripRq = Pick<Trip, "place" | "name"> & {
-  id?: string;
-  version?: number;
-  persons: Input<Person>[];
-};
-
-export type RecordItemFormRq = Pick<RecordItem, "person"> & {
+type RecordItemFormRq = Pick<RecordItem, "person"> & {
   landMoney?: string;
   borrowMoney?: string;
 };
@@ -42,7 +36,7 @@ export type ActivityFormRq = Omit<ActivityForm, "records"> & {
 };
 
 export type UserRq = Omit<User, "persons"> & {
-  persons: Input<Person>[];
+  persons: (string | Person)[];
 };
 
 export type PersonAutocomplete = Pick<Person, "name"> & { title: string };

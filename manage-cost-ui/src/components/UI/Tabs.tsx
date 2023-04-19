@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react";
+import React, { memo, PropsWithChildren } from "react";
 import TabList, { TabListProps } from "@mui/lab/TabList";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Theme from "../../themes/theme";
@@ -28,4 +28,4 @@ const Tabs = ({
 
 Tabs.muiName = "TabList";
 
-export default Tabs;
+export default memo(Tabs);

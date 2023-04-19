@@ -12,8 +12,9 @@ public class SpringDocConfig {
 
     @Bean
     public OpenAPI openApi() {
-        return new OpenAPI().info(new Info().title("Cost Count API")
-                .description("Endpoints available in the Cost Count API")
+        return new OpenAPI().info(new Info()
+                .title("Manage Cost API")
+                .description("Endpoints available in the Manage Cost API")
                 .version(properties.getVersion())
                 .contact(new Contact().name("drugspacer")
                         .url("https://github.com/drugspacer/cost-count")

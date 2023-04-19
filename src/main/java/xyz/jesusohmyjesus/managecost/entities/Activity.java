@@ -1,5 +1,6 @@
 package xyz.jesusohmyjesus.managecost.entities;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,10 +12,15 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Version;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import xyz.jesusohmyjesus.managecost.response.DateOnlySerializer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -38,18 +44,22 @@ public class Activity implements Comparable<Activity> {
     private int version;
 
     @Column(nullable = false, length = 32)
-    @NonNull
+    @NotBlank
+    @Size(max = 32)
     private String name;
 
-    @Column(columnDefinition = "numeric", precision = 2)
-    @NonNull
+    @Column(nullable = false, columnDefinition = "numeric", precision = 9, scale = 2)
+    @NotNull
+    @Positive
     private BigDecimal sum;
 
     @Column
     @Temporal(TemporalType.DATE)
-    @NonNull
+    @NotNull
+    @JsonSerialize(using = DateOnlySerializer.class)
     private Date date;
 
+    @Valid
     @OneToMany(mappedBy = "primaryKey.activity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecordEntity> records = new ArrayList<>();
 

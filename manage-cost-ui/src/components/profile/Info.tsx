@@ -1,9 +1,8 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { AuthContext } from "../../context/Auth";
 import PersonsInput from "../input/PersonsInput";
-import { personsToDataRq } from "../../functions/apiTransform";
 import UserApi from "../../service/api/user";
 import IconButton from "@mui/material/IconButton";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -28,7 +27,7 @@ const Info = () => {
     try {
       const userRs = await UserApi.updateCurrentUser({
         ...user!,
-        persons: personsToDataRq(persons),
+        persons,
       });
       isUser(userRs);
       setUser(userRs);
@@ -37,12 +36,15 @@ const Info = () => {
     }
   };
 
-  const inputButton = (
-    <IconButton onClick={() => setModalOpen(true)}>
-      <Tooltip title={common("button.edit")}>
-        <EditOutlinedIcon />
-      </Tooltip>
-    </IconButton>
+  const inputButton = useMemo(
+    () => (
+      <IconButton onClick={() => setModalOpen(true)}>
+        <Tooltip title={common("button.edit")}>
+          <EditOutlinedIcon />
+        </Tooltip>
+      </IconButton>
+    ),
+    [common]
   );
 
   return (

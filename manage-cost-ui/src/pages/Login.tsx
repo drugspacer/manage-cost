@@ -24,6 +24,8 @@ import StyledPaper from "../components/UI/styled/StyledPaper";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import { useTranslation } from "react-i18next";
+import { TFuncKey } from "i18next";
+import { isErrorRs } from "../functions/apiTransform";
 
 const simpleValidationConfig: SimpleValidateConfig<LoginModel> = {
   username: [required],
@@ -38,7 +40,8 @@ const Login: FC = () => {
   const [errorState, setErrorState] = useState<ErrorState<LoginModel>>({});
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { t } = useTranslation("auth");
+  const { t: auth } = useTranslation("auth");
+  const { t: common } = useTranslation();
 
   const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -47,8 +50,14 @@ const Login: FC = () => {
       setErrorState(errors);
       return;
     }
-    await login(state);
-    navigate("/");
+    try {
+      await login(state);
+      navigate("/");
+    } catch (error) {
+      if (isErrorRs(error) && error.validationMessages) {
+        setErrorState(error.validationMessages);
+      }
+    }
   };
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -70,31 +79,37 @@ const Login: FC = () => {
 
   const linkToRegistration = (
     <Typography sx={{ textAlign: "center" }} variant="body2">
-      <Link href="/register">{t("login.registerLink")}</Link>
+      <Link href="/register">{auth("login.registerLink")}</Link>
     </Typography>
   );
 
   return (
-    <Page header={t("login.header")}>
+    <Page header={auth("login.header")}>
       <StyledPaper elevation={6}>
         <FormWrapper
           onSubmit={submitHandler}
-          submitText={t("login.submit")}
+          submitText={auth("login.submit")}
           additionalNode={linkToRegistration}
         >
           <TextInput
             name="username"
-            label={t("loginInput")}
+            label={auth("loginInput")}
             errorState={errorState}
             state={state}
             onChange={changeHandler}
           />
           <Password
             value={state.password}
-            label={t("passwordInput")}
+            label={auth("passwordInput")}
             onChange={changeHandler}
             error={!!errorState.password}
-            helperText={errorState.password}
+            helperText={
+              errorState.password
+                ? (common(
+                    `validationError.${errorState.password}` as TFuncKey<"common">
+                  ) as string)
+                : undefined
+            }
           />
         </FormWrapper>
       </StyledPaper>

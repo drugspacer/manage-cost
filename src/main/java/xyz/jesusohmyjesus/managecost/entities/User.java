@@ -15,10 +15,10 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -29,8 +29,6 @@ import java.util.UUID;
 @Table(name = "user_table", uniqueConstraints = {@UniqueConstraint(columnNames = "username")})
 @Getter
 @Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,14 +36,16 @@ public class User {
     private UUID id;
 
     @Column(nullable = false, length = 20)
-    @NonNull
+    @NotBlank
+    @Size(max = 20)
     private String username;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false, length = 64)
-    @NonNull
+    @Size(min = 8)
     private String password;
 
+    @Valid
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Person> persons;
 

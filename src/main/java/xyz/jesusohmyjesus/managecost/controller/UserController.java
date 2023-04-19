@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +24,7 @@ import xyz.jesusohmyjesus.managecost.exception.ApiErrorResponse;
 import xyz.jesusohmyjesus.managecost.request.PasswordRq;
 import xyz.jesusohmyjesus.managecost.response.MessageResponse;
 import xyz.jesusohmyjesus.managecost.service.UserService;
+import xyz.jesusohmyjesus.managecost.validation.IsUUID;
 
 import java.util.UUID;
 
@@ -87,7 +88,7 @@ public class UserController {
     })
     @PutMapping(Endpoints.CURRENT_USER)
     public MessageResponse<User> updateCurrentUser(JwtAuthenticationToken jwtAuthenticationToken,
-                                                   @RequestBody User newUser) {
+                                                   @Valid @RequestBody User newUser) {
         return new MessageResponse<>(
                 messageSource.getMessage("success.updated", null, getLocale()),
                 userService.update(jwtAuthenticationToken.getName(), newUser)
@@ -105,7 +106,7 @@ public class UserController {
     })
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public MessageResponse<User> create(@RequestBody @Validated User newUser) {
+    public MessageResponse<User> create(@Valid @RequestBody User newUser) {
         return new MessageResponse<>(
                 messageSource.getMessage("success.created", null, getLocale()),
                 userService.create(newUser)
@@ -123,7 +124,7 @@ public class UserController {
     })
     @PutMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public MessageResponse<User> update(@RequestBody @Validated User newUser) {
+    public MessageResponse<User> update(@Valid @RequestBody User newUser) {
         return new MessageResponse<>(
                 messageSource.getMessage("success.updated", null, getLocale()),
                 userService.update(newUser)
@@ -141,7 +142,7 @@ public class UserController {
     })
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping(value = "/{id}")
-    public MessageResponse<Void> delete(@PathVariable UUID id) {
+    public MessageResponse<Void> delete(@IsUUID @PathVariable UUID id) {
         userService.delete(id);
         MessageResponse<Void> response = new MessageResponse<>();
         response.setMessage(messageSource.getMessage("success.deleted", null, getLocale()));
@@ -163,7 +164,8 @@ public class UserController {
             )
     })
     @PostMapping(Endpoints.CHANGE_PASSWORD)
-    public MessageResponse<Void> changePassword(@RequestBody PasswordRq passwords, JwtAuthenticationToken jwtAuthenticationToken) {
+    public MessageResponse<Void> changePassword(@Valid @RequestBody PasswordRq passwords,
+                                                JwtAuthenticationToken jwtAuthenticationToken) {
         userService.changePassword(jwtAuthenticationToken.getName(), passwords);
         MessageResponse<Void> response = new MessageResponse<>();
         response.setMessage(messageSource.getMessage("success.password.changed", null, getLocale()));

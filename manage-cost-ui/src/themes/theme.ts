@@ -72,16 +72,15 @@ let theme = createTheme({
         },
       },
     },
-    /*MuiPaper: {
-      variants: [
-        {
-          props: { variant: "withPadding" },
-          style: ({ theme }) => ({
-            padding: `${theme.spacing(3)} ${theme.spacing(5)}`,
-          }),
+    MuiCircularProgress: {
+      styleOverrides: {
+        root: {
+          left: "calc(50% - 20px)",
+          top: "calc(50% - 20px)",
+          position: "fixed",
         },
-      ],
-    },*/
+      },
+    },
   },
 });
 

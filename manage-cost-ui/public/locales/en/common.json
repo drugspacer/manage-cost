@@ -30,5 +30,15 @@
     "notFound": "Page is not found",
     "changeLanguage": "Error while change language"
   },
+  "validationError": {
+    "REQUIRED": "Field is required",
+    "REQUIRED_SUM": "The total must be greater than 0",
+    "REQUIRED_MANY": "At least one field must be filled",
+    "MIN_LENGTH": "Minimum length: {{minLength}}",
+    "CONFIRM_PASSWORD": "Password mismatch",
+    "IS_ACTIVE_REQUIRED": "At least one member required",
+    "RECORD_LAND": "The total amount does not match in the Paid column",
+    "RECORD_BORROW": "The total amount does not match in the Spent column"
+  },
   "changeLanguage": "Language changed to English"
 }

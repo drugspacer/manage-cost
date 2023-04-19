@@ -2,6 +2,7 @@ import React, {
   FormEventHandler,
   PropsWithChildren,
   ReactNode,
+  useCallback,
   useState,
 } from "react";
 import Stack from "@mui/material/Stack";
@@ -21,14 +22,17 @@ const FormWrapper = ({
 }: FromWrapperProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submitHandler: FormEventHandler<HTMLFormElement> = async (event) => {
-    setIsSubmitting(true);
-    try {
-      await onSubmit(event);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const submitHandler: FormEventHandler<HTMLFormElement> = useCallback(
+    async (event) => {
+      setIsSubmitting(true);
+      try {
+        await onSubmit(event);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [onSubmit]
+  );
 
   return (
     <form onSubmit={submitHandler}>

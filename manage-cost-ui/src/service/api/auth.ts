@@ -1,4 +1,4 @@
-import LoginModel, { RegisterRq } from "../../models/login.model";
+import LoginModel, { Register } from "../../models/login.model";
 import ApiService from "../api.service";
 
 class AuthApi {
@@ -26,8 +26,8 @@ class AuthApi {
     });
   }
 
-  static register(data: RegisterRq) {
-    return ApiService.request<string, RegisterRq>({
+  static register(data: Register) {
+    return ApiService.request<string, Register>({
       url: "/auth/register",
       method: "POST",
       data,

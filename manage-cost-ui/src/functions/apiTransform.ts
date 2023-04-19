@@ -1,38 +1,25 @@
-import Trip, { TripRs } from "../models/trip.model";
-import Activity from "../models/activity.model";
-import parse from "date-fns/parse";
-import { Register } from "../models/login.model";
-import { Input } from "../models/form.model";
+import Trip from "../models/trip.model";
 import Person from "../models/person.model";
+import Activity from "../models/activity.model";
+import ErrorRs, { MessageRs } from "../models/api.model";
 
-export const tripRsToTrip = (data: TripRs): Trip => {
-  const { activities, ...rest } = data;
-  return {
-    ...rest,
-    activities: activities?.map<Activity>(({ date, ...rest }) => {
-      let parsedDate: Date;
-      if (typeof date === "number") {
-        parsedDate = new Date(date);
-      } else {
-        parsedDate = parse(date.substring(0, 10), "y-M-d", new Date());
-      }
-      return {
-        ...rest,
-        date: parsedDate,
-      };
-    }),
-  };
+type TripRs = Omit<Trip, "activities"> & {
+  activities: ActivityRs[];
 };
 
-export const registerToUserRq = ({ username, password, persons }: Register) => {
-  return {
-    username,
-    password,
-    persons: personsToDataRq(persons),
-  };
+type ActivityRs = Omit<Activity, "date"> & {
+  date: string;
 };
 
-export const personsToDataRq = (persons: (string | Person)[]) =>
-  persons.map<Input<Person>>((item) =>
-    typeof item === "string" ? { name: item } : item
-  );
+export const isPersons = (data: any): data is (string | Person)[] =>
+  Array.isArray(data) &&
+  (data.length === 0 || typeof data[0] === "string" || "name" in data[0]);
+
+export const isTripRs = (data: any): data is MessageRs<TripRs> =>
+  !!data &&
+  "data" in data &&
+  typeof data.data === "object" &&
+  "activities" in data.data;
+
+export const isErrorRs = (data: any): data is ErrorRs =>
+  !!data && typeof data === "object" && "exception" in data;

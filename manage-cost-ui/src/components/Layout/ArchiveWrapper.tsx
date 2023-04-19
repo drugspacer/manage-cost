@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react";
+import React, { memo, PropsWithChildren } from "react";
 import Grid from "@mui/material/Grid";
 import Result from "../Result";
 import Trip from "../../models/trip.model";
@@ -33,4 +33,4 @@ const ArchiveWrapper = ({
 
 ArchiveWrapper.muiName = "Grid";
 
-export default ArchiveWrapper;
+export default memo(ArchiveWrapper);

@@ -1,8 +1,11 @@
-import ErrorState, { ERRORS } from "../models/error.model";
+import ErrorState from "../models/error.model";
 import { ActivityForm } from "../models/form.model";
 import Person from "../models/person.model";
+import error from "../../public/locales/ru/common.json";
 
-type ValidateFunc<T = unknown> = (data: T) => string | undefined;
+export type ValidateFunc<T = unknown> = (
+  data: T
+) => keyof typeof error.validationError | undefined;
 
 export type SimpleValidateConfig<T> = {
   [K in keyof T]?: ValidateFunc<T[K]>[];
@@ -14,7 +17,7 @@ export type ComplexValidateConfig<T, F = T> = {
 
 export const required: ValidateFunc<{ length: number }> = ({ length }) => {
   if (length === 0) {
-    return ERRORS.REQUIRED;
+    return "REQUIRED";
   }
 };
 
@@ -24,7 +27,7 @@ export const requiredPersonNonBlank: ValidateFunc<(Person | string)[]> = (
   if (
     !array.every((item) => (typeof item === "string" ? !!item : !!item.name))
   ) {
-    return ERRORS.REQUIRED_MANY;
+    return "REQUIRED_MANY";
   }
 };
 
@@ -34,13 +37,19 @@ export const minLength: (
   (minLength) =>
   ({ length }) => {
     if (length < minLength) {
-      return `${ERRORS.MIN_LENGTH} - ${minLength}`;
+      return "MIN_LENGTH";
     }
   };
 
 export const requiredDate: ValidateFunc<Date | null> = (data) => {
   if (data === null) {
-    return ERRORS.REQUIRED;
+    return "REQUIRED";
+  }
+};
+
+export const requiredSum: ValidateFunc<string> = (value) => {
+  if (value.length === 0 || +value <= 0) {
+    return "REQUIRED_SUM";
   }
 };
 
@@ -49,13 +58,13 @@ export const confirmPassword: ValidateFunc<{
   confirmPassword: string;
 }> = ({ password, confirmPassword }) => {
   if (confirmPassword !== password) {
-    return ERRORS.CONFIRM_PASSWORD;
+    return "CONFIRM_PASSWORD";
   }
 };
 
 export const listItemRequired: ValidateFunc<ActivityForm> = ({ records }) => {
   if (!records.some(({ isActive }) => isActive)) {
-    return ERRORS.IS_ACTIVE_REQUIRED;
+    return "IS_ACTIVE_REQUIRED";
   }
 };
 
@@ -78,7 +87,7 @@ export const borrowEqualsSum: ValidateFunc<ActivityForm> = ({
   ) {
     return;
   }
-  return ERRORS.RECORD_BORROW;
+  return "RECORD_BORROW";
 };
 
 export const landEqualsSum: ValidateFunc<ActivityForm> = ({ sum, records }) => {
@@ -95,13 +104,13 @@ export const landEqualsSum: ValidateFunc<ActivityForm> = ({ sum, records }) => {
   ) {
     return;
   }
-  return ERRORS.RECORD_LAND;
+  return "RECORD_LAND";
 };
 
 export function validateField<T>(
   data: T,
   functions: ValidateFunc<T>[]
-): string | undefined {
+): ReturnType<ValidateFunc<T>> | undefined {
   for (const validate of functions) {
     const res = validate(data);
     if (!!res) {
@@ -113,15 +122,18 @@ export function validateField<T>(
 export function validateForm<T>(
   form: T,
   functions: ValidateFunc<T>[]
-): string[] | undefined {
-  const resArr = functions.reduce<string[]>((resArr, func) => {
-    const result = func(form);
-    if (result === undefined) {
+): (keyof typeof error.validationError)[] | undefined {
+  const resArr = functions.reduce<(keyof typeof error.validationError)[]>(
+    (resArr, func) => {
+      const result = func(form);
+      if (result === undefined) {
+        return resArr;
+      }
+      resArr.push(result);
       return resArr;
-    }
-    resArr.push(result);
-    return resArr;
-  }, []);
+    },
+    []
+  );
   if (resArr.length === 0) {
     return;
   }
@@ -163,8 +175,11 @@ export function complexFormValidation<T extends Object, F extends Object>(
 }
 
 export const getFirstError = (
-  errors: string | string[] | undefined
-): string | undefined => {
+  errors:
+    | keyof typeof error.validationError
+    | (keyof typeof error.validationError)[]
+    | undefined
+): keyof typeof error.validationError | undefined => {
   if (Array.isArray(errors)) {
     return errors[0];
   }

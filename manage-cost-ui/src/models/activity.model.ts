@@ -8,8 +8,4 @@ interface Activity extends Id, Version {
   records: RecordItem[];
 }
 
-export type ActivityRs = Omit<Activity, "date"> & {
-  date: string | number;
-};
-
 export default Activity;

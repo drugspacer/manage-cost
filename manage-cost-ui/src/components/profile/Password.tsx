@@ -20,6 +20,7 @@ import UserApi from "../../service/api/user";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import reducer from "../../functions/reducer";
+import { TFuncKey } from "i18next";
 
 type PasswordForm = {
   oldPassword: string;
@@ -49,7 +50,8 @@ const Password = () => {
       error: {},
     }
   );
-  const { t } = useTranslation("profile", { keyPrefix: "password" });
+  const { t: profile } = useTranslation("profile", { keyPrefix: "password" });
+  const { t: common } = useTranslation();
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
     ({ target }) =>
@@ -76,31 +78,51 @@ const Password = () => {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h6">{t("header")}</Typography>
-      <FormWrapper submitText={t("submit")} onSubmit={submitHandler}>
+      <Typography variant="h6">{profile("header")}</Typography>
+      <FormWrapper submitText={profile("submit")} onSubmit={submitHandler}>
         <PasswordInput
-          label={t("oldPassword")}
+          label={profile("oldPassword")}
           name="oldPassword"
           autoComplete="new-password"
           value={state.form.oldPassword}
           onChange={changeHandler}
           error={!!state.error.oldPassword}
-          helperText={state.error.oldPassword}
+          helperText={
+            state.error.oldPassword
+              ? (common(
+                  `validationError.${state.error.oldPassword}` as TFuncKey<"common">,
+                  { minLength: 8 }
+                ) as string)
+              : undefined
+          }
         />
         <PasswordInput
-          label={t("newPassword")}
+          label={profile("newPassword")}
           value={state.form.password}
           onChange={changeHandler}
           error={!!state.error.password}
-          helperText={state.error.password}
+          helperText={
+            state.error.password
+              ? (common(
+                  `validationError.${state.error.password}` as TFuncKey<"common">,
+                  { minLength: 8 }
+                ) as string)
+              : undefined
+          }
         />
         <PasswordInput
-          label={t("confirmNewPassword")}
+          label={profile("confirmNewPassword")}
           name="confirmPassword"
           value={state.form.confirmPassword}
           onChange={changeHandler}
           error={!!state.error.confirmPassword}
-          helperText={state.error.confirmPassword}
+          helperText={
+            state.error.confirmPassword
+              ? (common(
+                  `validationError.${state.error.confirmPassword}` as TFuncKey<"common">
+                ) as string)
+              : undefined
+          }
         />
       </FormWrapper>
     </Stack>

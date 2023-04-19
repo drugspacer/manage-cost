@@ -28,7 +28,7 @@ const ActivityCard = ({
   onEditAction,
   onDelete,
 }: ActivityCardProp) => {
-  const { t: common } = useTranslation();
+  const { t: common, i18n } = useTranslation();
   const { t: trip } = useTranslation("trip", { keyPrefix: "activity" });
 
   const tableContent = activity.records.map((row, index) => (
@@ -68,7 +68,7 @@ const ActivityCard = ({
       <CardHeader title={activity.name} action={buttons} />
       <CardContent>
         <Typography sx={{ fontSize: 14 }} color="text.secondary">
-          {activity.date.toLocaleDateString("ru-RU")}
+          {activity.date.toLocaleDateString(i18n.language)}
         </Typography>
         <Typography sx={{ mb: 1.5 }} color="text.secondary">
           {activity.sum}
