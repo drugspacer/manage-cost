@@ -10,6 +10,7 @@ import { SnackbarProvider } from "notistack";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Theme from "./themes/theme";
 import i18n from "./i18n";
+import Dictionary from "./context/Dictionary";
 
 const Wrapper: React.FC = () => {
   const isMobile = useMediaQuery((theme: typeof Theme) =>
@@ -18,7 +19,9 @@ const Wrapper: React.FC = () => {
   return (
     <SnackbarProvider dense={isMobile}>
       <Auth>
-        <App />
+        <Dictionary>
+          <App />
+        </Dictionary>
       </Auth>
     </SnackbarProvider>
   );

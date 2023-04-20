@@ -2,7 +2,7 @@ import Person from "../../models/person.model";
 import TextField from "@mui/material/TextField";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import React, { memo, ReactNode, useContext } from "react";
-import { UseAutocompleteProps } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
+import { UseAutocompleteProps } from "@mui/base/useAutocomplete";
 import { PersonAutocomplete } from "../../models/form.model";
 import { AuthContext } from "../../context/Auth";
 import Box from "@mui/material/Box";
@@ -10,14 +10,9 @@ import { TextFieldProps } from "@mui/material/TextField/TextField";
 import { useTranslation } from "react-i18next";
 
 type PersonInputProps = {
-  value: (string | Person)[];
+  value: Person[];
   error?: string | string[];
-  onChange?: UseAutocompleteProps<
-    Person | PersonAutocomplete,
-    true,
-    false,
-    true
-  >["onChange"];
+  onChange?: (person: Person[]) => void;
   readonly?: boolean;
   required?: boolean;
   button?: ReactNode;
@@ -55,7 +50,7 @@ const PersonsInput = ({
     ) {
       filtered.push({
         name: inputValue,
-        title: t("input.addItem", { item: inputValue }),
+        inputValue: t("input.addItem", { item: inputValue }),
       });
     }
     return filtered;
@@ -69,12 +64,31 @@ const PersonsInput = ({
   >["getOptionLabel"] = (option) => {
     if (typeof option === "string") {
       return option;
-    } else if ("title" in option) {
-      return option.title;
+    } else if ("inputValue" in option) {
+      return option.inputValue;
     } else if ("name" in option) {
       return option.name;
     }
     return option;
+  };
+
+  const changeHandler = (
+    _e: React.SyntheticEvent,
+    newValue: (Person | PersonAutocomplete | string)[]
+  ) => {
+    const persons = newValue.map<Person>((item) => {
+      if (typeof item === "string") {
+        return {
+          name: item,
+        };
+      } else if ("title" in item) {
+        return {
+          name: item.name,
+        };
+      }
+      return item;
+    });
+    onChange && onChange(persons);
   };
 
   const labelText = t("input.participant");
@@ -83,7 +97,7 @@ const PersonsInput = ({
     <Autocomplete<Person | PersonAutocomplete, true, true, true>
       id="persons"
       multiple
-      onChange={onChange}
+      onChange={changeHandler}
       filterOptions={filterOptions}
       disableCloseOnSelect
       freeSolo

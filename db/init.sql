@@ -78,11 +78,27 @@ CREATE TABLE IF NOT EXISTS public.person_trip
 
     TABLESPACE pg_default;
 
+CREATE TABLE IF NOT EXISTS public.tag
+(
+    name character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    id uuid NOT NULL,
+    CONSTRAINT tag_pk PRIMARY KEY (id),
+    CONSTRAINT tag_pk_name UNIQUE (name)
+)
+
+    TABLESPACE pg_default;
+
+INSERT INTO public.tag (id, name) values(gen_random_uuid(), 'TRANSPORT');
+INSERT INTO public.tag (id, name) values(gen_random_uuid(), 'ENTERTAINMENT');
+INSERT INTO public.tag (id, name) values(gen_random_uuid(), 'ACCOMMODATION');
+INSERT INTO public.tag (id, name) values(gen_random_uuid(), 'FOOD');
+
 CREATE TABLE IF NOT EXISTS public.activity
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     version integer NOT NULL DEFAULT 0,
     trip_id uuid NOT NULL,
+    tag_id uuid,
     name character varying(32) COLLATE pg_catalog."default" NOT NULL,
     date date NOT NULL,
     sum NUMERIC(9, 2) NOT NULL,
@@ -90,7 +106,9 @@ CREATE TABLE IF NOT EXISTS public.activity
     CONSTRAINT trip_fk FOREIGN KEY (trip_id)
         REFERENCES public.trip (id) MATCH SIMPLE
         ON UPDATE CASCADE
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT tag_fk FOREIGN KEY (tag_id)
+        REFERENCES public.tag (id) MATCH SIMPLE
 )
 
     TABLESPACE pg_default;
@@ -118,6 +136,7 @@ CREATE TABLE IF NOT EXISTS public.record
 -- DROP TABLE IF EXISTS public.record;
 -- DROP TABLE IF EXISTS public.activity;
 -- DROP TABLE IF EXISTS public.person_trip;
+-- DROP TABLE IF EXISTS public.tag;
 -- DROP TABLE IF EXISTS public.trip;
 -- DROP TABLE IF EXISTS public.person;
 -- DROP TABLE IF EXISTS public.user_table;

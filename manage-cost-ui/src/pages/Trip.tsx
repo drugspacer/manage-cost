@@ -52,7 +52,7 @@ const Trip: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight);
-  }, []);
+  }, [isLoading]);
 
   useEffect(() => {
     TripApi.getTrip(id)

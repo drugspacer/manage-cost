@@ -1,7 +1,6 @@
 import React, { memo, MouseEventHandler } from "react";
 import Activity from "../models/activity.model";
 import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import Table from "@mui/material/Table";
 import TableRow from "@mui/material/TableRow";
@@ -14,6 +13,11 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CardHeader from "@mui/material/CardHeader";
 import Tooltip from "@mui/material/Tooltip";
 import { useTranslation } from "react-i18next";
+import Chip from "@mui/material/Chip";
+import List from "@mui/material/List";
+import ListItemText from "@mui/material/ListItemText";
+import Stack from "@mui/material/Stack";
+import { TFuncKey } from "i18next";
 
 type ActivityCardProp = {
   activity: Activity;
@@ -29,7 +33,7 @@ const ActivityCard = ({
   onDelete,
 }: ActivityCardProp) => {
   const { t: common, i18n } = useTranslation();
-  const { t: trip } = useTranslation("trip", { keyPrefix: "activity" });
+  const { t: trip } = useTranslation("trip");
 
   const tableContent = activity.records.map((row, index) => (
     <TableRow
@@ -67,19 +71,33 @@ const ActivityCard = ({
     <Card sx={{ height: "100%" }}>
       <CardHeader title={activity.name} action={buttons} />
       <CardContent>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary">
-          {activity.date.toLocaleDateString(i18n.language)}
-        </Typography>
-        <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          {activity.sum}
-        </Typography>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <List>
+            <ListItemText
+              primary={activity.date.toLocaleDateString(i18n.language)}
+              secondary={activity.sum}
+            />
+          </List>
+          {activity.tag && (
+            <Chip
+              variant="outlined"
+              label={
+                trip(`tag.${activity.tag.name}` as TFuncKey<"trip">) as string
+              }
+            />
+          )}
+        </Stack>
         {!isArchive && (
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>{trip("name")}</TableCell>
-                <TableCell>{trip("spend")}</TableCell>
-                <TableCell>{trip("pay")}</TableCell>
+                <TableCell>{trip("activity.name")}</TableCell>
+                <TableCell>{trip("activity.spend")}</TableCell>
+                <TableCell>{trip("activity.pay")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>{tableContent}</TableBody>

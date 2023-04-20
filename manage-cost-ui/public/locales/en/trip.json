@@ -28,5 +28,11 @@
     "add": "Add",
     "name": "Name *",
     "place": "Place *"
+  },
+  "tag": {
+    "TRANSPORT": "Transport",
+    "FOOD": "Food",
+    "ENTERTAINMENT": "Entertainment",
+    "ACCOMMODATION": "Accommodation"
   }
 }

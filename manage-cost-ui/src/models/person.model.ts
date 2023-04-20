@@ -1,7 +1,6 @@
-import { Id } from "./model";
-
-interface Person extends Id {
+interface Person {
   name: string;
+  id?: string;
 }
 
 export default Person;

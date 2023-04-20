@@ -4,12 +4,8 @@ import Activity from "./activity.model";
 import RecordItem from "./record.model";
 import { User } from "./user.model";
 
-export type Input<T extends { id: string }> = {
-  [K in keyof Omit<T, "id">]: T[K];
-} & { id?: T["id"] };
-
 export type TripForm = Pick<Trip, "place" | "name"> & {
-  persons: (string | Person)[];
+  persons: Person[];
   id?: string;
   version?: number;
 };
@@ -23,7 +19,7 @@ export type RecordItemForm = RecordItemFormRq & {
   isActive: boolean;
 };
 
-export type ActivityForm = Pick<Activity, "name"> & {
+export type ActivityForm = Pick<Activity, "name" | "tag"> & {
   date: Date | null;
   sum: string;
   records: RecordItemForm[];
@@ -36,7 +32,7 @@ export type ActivityFormRq = Omit<ActivityForm, "records"> & {
 };
 
 export type UserRq = Omit<User, "persons"> & {
-  persons: (string | Person)[];
+  persons: Person[];
 };
 
-export type PersonAutocomplete = Pick<Person, "name"> & { title: string };
+export type PersonAutocomplete = { name: string; inputValue: string };

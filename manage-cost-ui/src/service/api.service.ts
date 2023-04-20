@@ -10,9 +10,7 @@ import { TokenHeader } from "../models/auth.model";
 import AuthApiHelper from "./AuthApiHelper";
 import i18n from "../i18n";
 import { formatISO, parseISO } from "date-fns";
-import { Input } from "../models/form.model";
-import Person from "../models/person.model";
-import { isPersons, isTripRs } from "../functions/apiTransform";
+import { isTripRs } from "../functions/apiTransform";
 import Activity from "../models/activity.model";
 
 class ApiService {
@@ -39,12 +37,6 @@ class ApiService {
           // send only data without timezone
           if (data[key] instanceof Date) {
             data[key] = formatISO(data[key], { representation: "date" });
-          }
-          //transform persons
-          if (key === "persons" && isPersons(data[key])) {
-            data[key] = (data[key] as (string | Person)[]).map<Input<Person>>(
-              (item) => (typeof item === "string" ? { name: item } : item)
-            );
           }
         }
       }
