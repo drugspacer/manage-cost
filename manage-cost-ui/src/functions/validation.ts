@@ -21,12 +21,8 @@ export const required: ValidateFunc<{ length: number }> = ({ length }) => {
   }
 };
 
-export const requiredPersonNonBlank: ValidateFunc<(Person | string)[]> = (
-  array
-) => {
-  if (
-    !array.every((item) => (typeof item === "string" ? !!item : !!item.name))
-  ) {
+export const requiredPersonNonBlank: ValidateFunc<Person[]> = (array) => {
+  if (!array.every(({ name }) => !!name)) {
     return "REQUIRED_MANY";
   }
 };

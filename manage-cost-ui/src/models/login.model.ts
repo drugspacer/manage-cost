@@ -7,7 +7,7 @@ type Login = {
 
 export type Register = Login & {
   confirmPassword: string;
-  persons: (string | Person)[];
+  persons: Person[];
 };
 
 export default Login;

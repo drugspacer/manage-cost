@@ -5,6 +5,7 @@ import React, {
   useCallback,
   ChangeEventHandler,
   useEffect,
+  useContext,
 } from "react";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -37,7 +38,9 @@ import {
 import ErrorState from "../../models/error.model";
 import { TextFieldProps as MuiTextFieldPropsType } from "@mui/material/TextField/TextField";
 import { InputBaseProps } from "@mui/material/InputBase/InputBase";
-import { Checkbox, Tooltip } from "@mui/material";
+import Checkbox from "@mui/material/Checkbox";
+import Chip from "@mui/material/Chip";
+import Tooltip from "@mui/material/Tooltip";
 import Activity from "../../models/activity.model";
 import Typography from "@mui/material/Typography";
 import StyledTableCell from "../UI/styled/StyledTableCell";
@@ -54,6 +57,10 @@ import en from "date-fns/locale/en-US";
 import localizedErrors from "../../../public/locales/ru/common.json";
 import { TFuncKey } from "i18next";
 import { isErrorRs } from "../../functions/apiTransform";
+import { DictionaryContext } from "../../context/Dictionary";
+import DictionaryApi from "../../service/api/dictionary";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dictionary from "../../models/dictionary.model";
 
 type SaveActionProps = {
   persons: Person[];
@@ -109,6 +116,7 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
     id: activity?.id,
     version: activity?.version,
     records: buildRecordsFormData(persons, activity),
+    tag: undefined,
   });
   const [errorState, setErrorState] = useState<
     ErrorState<RecordItemForm & ActivityForm>
@@ -116,6 +124,13 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const { t: common } = useTranslation();
   const { t: trip } = useTranslation("trip");
+  const { dictionary, loading, setDictionary } = useContext(DictionaryContext);
+
+  useEffect(() => {
+    if (!dictionary.tag) {
+      setDictionary("tag", DictionaryApi.tags);
+    }
+  }, []);
 
   useEffect(() => {
     const getSum = (
@@ -256,6 +271,18 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
     []
   );
 
+  const tagHandler = (tag: Dictionary) => () =>
+    setState((prevState) => ({
+      ...prevState,
+      tag: prevState.tag?.id === tag.id ? undefined : tag,
+    }));
+
+  if (loading) {
+    return <CircularProgress />;
+  } else if (!dictionary.tag) {
+    return null;
+  }
+
   return (
     <FormWrapper
       onSubmit={submitHandler}
@@ -270,6 +297,23 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
         state={state}
         onChange={onNameChange}
       />
+      <Stack
+        spacing={1}
+        direction="row"
+        flexWrap="wrap"
+        justifyContent="center"
+        sx={{ mt: 2, mb: 1 }}
+      >
+        {dictionary.tag.map((tag) => (
+          <Chip
+            key={tag.id}
+            variant="outlined"
+            label={trip(`tag.${tag.name}` as TFuncKey<"trip">) as string}
+            color={state.tag?.id === tag.id ? "primary" : undefined}
+            onClick={tagHandler(tag)}
+          />
+        ))}
+      </Stack>
       <Stack
         direction="row"
         spacing={2}

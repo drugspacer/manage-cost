@@ -40,7 +40,7 @@ type AddAction = {
 };
 
 type State = {
-  form: (string | Person)[];
+  form: Person[];
   error?: string;
 };
 
@@ -56,10 +56,7 @@ const reducer = (
     case "change": {
       const index = Object.keys(action.payload)[0];
       const person = state.form[+index];
-      state.form[+index] =
-        typeof person === "string"
-          ? action.payload[index]!
-          : { ...person, name: action.payload[index]! };
+      state.form[+index] = { ...person, name: action.payload[index]! };
       state.form = [...state.form];
       if (!!state.error) {
         state.error = validateField(state.form, [requiredPersonNonBlank]);
@@ -76,16 +73,12 @@ const reducer = (
       };
     }
     case "add": {
-      return { ...state, form: [...state.form, ""] };
+      return { ...state, form: [...state.form, { name: "" }] };
     }
   }
 };
 
-const Persons = ({
-  onSubmit,
-}: {
-  onSubmit: (persons: (string | Person)[]) => void;
-}) => {
+const Persons = ({ onSubmit }: { onSubmit: (persons: Person[]) => void }) => {
   const { user } = useContext(AuthContext);
   const [state, dispatch] = useReducer<
     Reducer<

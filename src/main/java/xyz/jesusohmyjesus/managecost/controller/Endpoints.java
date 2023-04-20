@@ -13,4 +13,6 @@ public class Endpoints {
     public static final String RETURN = "/{id}/return";
     public static final String ID = "/{id}";
     public static final String DELETE_ACTIVITY = "/{tripId}/activity/{activityId}";
+    public static final String TAGS = "/tags";
+    public static final String API = "/api";
 }

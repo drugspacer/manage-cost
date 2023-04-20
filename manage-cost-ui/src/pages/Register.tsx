@@ -22,9 +22,7 @@ import { Register as RegisterModel } from "../models/login.model";
 import TextInput from "../components/input/TextInput";
 import Password from "../components/input/Password";
 import PersonsInput from "../components/input/PersonsInput";
-import { AutocompleteValue } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
 import Person from "../models/person.model";
-import { PersonAutocomplete } from "../models/form.model";
 import { useNavigate } from "react-router";
 import { AuthContext } from "../context/Auth";
 import StyledPaper from "../components/UI/styled/StyledPaper";
@@ -91,25 +89,10 @@ const Register: FC = () => {
   );
 
   const onPersonChange = useCallback(
-    (
-      _e: React.SyntheticEvent,
-      newValue: AutocompleteValue<
-        Person | PersonAutocomplete,
-        true,
-        false,
-        true
-      >
-    ) =>
+    (persons: Person[]) =>
       dispatch({
         type: "personChange",
-        payload: newValue.map((item) => {
-          if (typeof item === "string") {
-            return item;
-          } else if ("title" in item) {
-            return item.name;
-          }
-          return item;
-        }),
+        payload: persons,
       }),
     []
   );

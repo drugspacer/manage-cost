@@ -5,8 +5,7 @@ import React, {
   useState,
 } from "react";
 import Person from "../../models/person.model";
-import { AutocompleteValue } from "@mui/base/AutocompleteUnstyled/useAutocomplete";
-import { PersonAutocomplete, TripForm } from "../../models/form.model";
+import { TripForm } from "../../models/form.model";
 import ErrorState from "../../models/error.model";
 import {
   required,
@@ -61,34 +60,15 @@ const SaveTrip = ({
     }
   };
 
-  const onPersonChange = useCallback(
-    (
-      _e: React.SyntheticEvent,
-      newValue: AutocompleteValue<
-        Person | PersonAutocomplete,
-        true,
-        false,
-        true
-      >
-    ) => {
-      const persons = newValue.map((item) => {
-        if (typeof item === "string") {
-          return item;
-        } else if ("title" in item) {
-          return item.name;
-        }
-        return item;
-      });
-      setState((prevState) => ({ ...prevState, persons }));
-      if (!!errorState?.persons) {
-        setErrorState((prevState) => ({
-          ...prevState,
-          persons: validateField(persons, formConfig.persons!),
-        }));
-      }
-    },
-    []
-  );
+  const onPersonChange = useCallback((persons: Person[]) => {
+    setState((prevState) => ({ ...prevState, persons }));
+    if (!!errorState?.persons) {
+      setErrorState((prevState) => ({
+        ...prevState,
+        persons: validateField(persons, formConfig.persons!),
+      }));
+    }
+  }, []);
 
   const onTextChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
     const name = target.name as keyof Omit<

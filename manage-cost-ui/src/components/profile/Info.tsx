@@ -23,7 +23,7 @@ const Info = () => {
   const { t: common } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
 
-  const submitHandler = async (persons: (string | Person)[]) => {
+  const submitHandler = async (persons: Person[]) => {
     try {
       const userRs = await UserApi.updateCurrentUser({
         ...user!,

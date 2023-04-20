@@ -2,6 +2,7 @@ import Trip from "../models/trip.model";
 import ErrorRs from "../models/api.model";
 import { User } from "../models/user.model";
 import Person from "../models/person.model";
+import Dictionary from "../models/dictionary.model";
 
 type AssertIsTrip = (trip?: Trip) => asserts trip is Trip;
 
@@ -48,6 +49,16 @@ type AssertIsTripArr = (trips?: Trip[]) => asserts trips is Trip[];
 export const isTrips: AssertIsTripArr = (trips) => {
   if (trips === undefined) {
     throw new Error("trips is undefined");
+  }
+};
+
+type AssertIsDictionaryArr = (
+  trips?: Dictionary[]
+) => asserts trips is Dictionary[];
+
+export const isDictionaryArr: AssertIsDictionaryArr = (dictionaries) => {
+  if (dictionaries === undefined) {
+    throw new Error("dictionary is undefined");
   }
 };
 

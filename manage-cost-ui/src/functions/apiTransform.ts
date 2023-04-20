@@ -11,9 +11,8 @@ type ActivityRs = Omit<Activity, "date"> & {
   date: string;
 };
 
-export const isPersons = (data: any): data is (string | Person)[] =>
-  Array.isArray(data) &&
-  (data.length === 0 || typeof data[0] === "string" || "name" in data[0]);
+export const isPersons = (data: any): data is Person[] =>
+  Array.isArray(data) && (data.length === 0 || "name" in data[0]);
 
 export const isTripRs = (data: any): data is MessageRs<TripRs> =>
   !!data &&
