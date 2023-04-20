@@ -7,9 +7,11 @@
     "title": "Event name *",
     "date": "Date *",
     "name": "Name",
-    "spend": "Spent",
+    "spend": "Total",
     "pay": "Paid",
-    "amount": "Total amount: {{amount}}"
+    "amount": "Total amount: {{amount}}",
+    "spendTooltip": "How much money did you actually spend on yourself (You can leave it blank - then the amount is divided equally)",
+    "payTooltip": "How much did you pay"
   },
   "result": {
     "who": "Who",

@@ -75,8 +75,7 @@ public class TripService {
         );
         data.getRecords()
                 .forEach(record -> record.setActivity(data));
-        trip.getActivities()
-                .add(data);
+        trip.addActivity(data);
         activityRepository.save(data);
         return trip;
     }
@@ -113,7 +112,7 @@ public class TripService {
         oldPersons.stream()
                 .filter(person -> !data.getPersons()
                         .contains(person)
-                ).forEach(trip::removePerson);
+                ).forEach(person -> trip.removePerson(person, messageSource));
         return tripRepository.save(trip);
     }
 
@@ -157,6 +156,9 @@ public class TripService {
                     records.forEach(record -> {
                         PersonTrip person = personsMap.get(record.getPerson());
                         BigDecimal personSum = person.getSum();
+                        if (personSum == null) {
+                            personSum = new BigDecimal(0);
+                        }
                         if (record.getBorrowMoney() != null) {
                             personSum = personSum.subtract(record.getBorrowMoney());
                         } else {

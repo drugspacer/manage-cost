@@ -16,6 +16,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
@@ -87,14 +88,22 @@ public class ApiErrorResponse {
     private static Map<String, String> getValidationMessages(Exception e) {
         Map<String, String> validateMessages = new HashMap<>();
         List<FieldError> fieldErrors;
+        ObjectError objectError;
         if (e instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
             fieldErrors = methodArgumentNotValidException.getBindingResult()
                     .getFieldErrors();
+            objectError = methodArgumentNotValidException.getBindingResult()
+                    .getGlobalError();
         } else {
             fieldErrors = ((BindException) e).getBindingResult()
                     .getFieldErrors();
+            objectError = ((BindException) e).getBindingResult()
+                    .getGlobalError();
         }
         fieldErrors.forEach(fieldError -> validateMessages.put(fieldError.getField(), fieldError.getDefaultMessage()));
+        if (objectError != null) {
+            validateMessages.put(objectError.getObjectName(), objectError.getDefaultMessage());
+        }
         return validateMessages;
     }
 }

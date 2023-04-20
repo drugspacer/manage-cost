@@ -38,7 +38,7 @@
     "CONFIRM_PASSWORD": "Password mismatch",
     "IS_ACTIVE_REQUIRED": "At least one member required",
     "RECORD_LAND": "The total amount does not match in the Paid column",
-    "RECORD_BORROW": "The total amount does not match in the Spent column"
+    "RECORD_BORROW": "The total amount does not match in the Total column"
   },
   "changeLanguage": "Language changed to English"
 }

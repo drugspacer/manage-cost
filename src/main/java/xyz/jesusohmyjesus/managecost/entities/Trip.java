@@ -19,10 +19,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.collection.spi.PersistentSortedSet;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -60,12 +63,17 @@ public class Trip {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "trip_id", referencedColumnName = "id", nullable = false)
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     private PersistentSortedSet<Activity> activities;
 
     @OneToMany(mappedBy = "primaryKey.trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PersonTrip> persons = new HashSet<>();
+
+    public void addActivity(Activity activity) {
+        this.getActivities()
+                .add(activity);
+        activity.setTrip(this);
+    }
     
     public void addPerson(Person person) {
         PersonTrip personTrip = new PersonTrip(this, person);
@@ -75,16 +83,19 @@ public class Trip {
                 .add(personTrip);
     }
 
-    public void removePerson(Person person) {
+    public void removePerson(Person person, MessageSource messageSource) {
         if (this.getActivities()
                 .stream()
                 .anyMatch(activity -> activity.getRecords()
                         .stream()
                         .anyMatch(record -> record.getPerson()
                                 .equals(person)))) {
-            throw new DataIntegrityViolationException(
-                    String.format("Cannot delete person (%s) from trip because related records exist", person.getName())
-            );
+            throw new DataIntegrityViolationException(Objects.requireNonNull(messageSource.getMessage(
+                    "error.delete.person",
+                    new Object[]{person.getName()},
+                    null,
+                    LocaleContextHolder.getLocale()
+            )));
         }
         for (Iterator<PersonTrip> iterator = this.getPersons().iterator(); iterator.hasNext(); ) {
             PersonTrip personTrip = iterator.next();
