@@ -22,6 +22,7 @@ type PersonInputProps = {
   required?: boolean;
   button?: ReactNode;
   margin?: TextFieldProps["margin"];
+  helperText?: string;
 };
 
 const filter = createFilterOptions<Person | PersonAutocomplete>();
@@ -34,6 +35,7 @@ const PersonsInput = ({
   required = true,
   button,
   margin = "normal",
+  helperText,
 }: PersonInputProps) => {
   const { user } = useContext(AuthContext);
   const { t } = useTranslation();
@@ -97,7 +99,7 @@ const PersonsInput = ({
             {...params}
             label={required ? `${labelText} *` : labelText}
             placeholder={readonly ? "" : t("input.addMore")}
-            helperText={error}
+            helperText={error ?? helperText}
             error={!!error}
             margin={margin}
           />

@@ -37,7 +37,7 @@ import {
 import ErrorState from "../../models/error.model";
 import { TextFieldProps as MuiTextFieldPropsType } from "@mui/material/TextField/TextField";
 import { InputBaseProps } from "@mui/material/InputBase/InputBase";
-import { Checkbox } from "@mui/material";
+import { Checkbox, Tooltip } from "@mui/material";
 import Activity from "../../models/activity.model";
 import Typography from "@mui/material/Typography";
 import StyledTableCell from "../UI/styled/StyledTableCell";
@@ -305,8 +305,12 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
               />
             </StyledTableCell>
             <StyledTableCell>{trip("activity.name")}</StyledTableCell>
-            <StyledTableCell>{trip("activity.spend")}</StyledTableCell>
-            <StyledTableCell>{trip("activity.pay")}</StyledTableCell>
+            <Tooltip title={trip("activity.spendTooltip")}>
+              <StyledTableCell>{trip("activity.spend")}</StyledTableCell>
+            </Tooltip>
+            <Tooltip title={trip("activity.payTooltip")}>
+              <StyledTableCell>{trip("activity.pay")}</StyledTableCell>
+            </Tooltip>
           </TableRow>
         </TableHead>
         <TableBody>

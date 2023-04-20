@@ -50,7 +50,7 @@ const Password = ({
     }, []);
 
   return (
-    <FormControl sx={{ width: "25ch" }} variant="outlined" margin="normal">
+    <FormControl variant="outlined" margin="normal">
       <InputLabel htmlFor={name} error={!!helperText}>
         {label}
       </InputLabel>

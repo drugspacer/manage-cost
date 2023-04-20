@@ -47,6 +47,7 @@ const Trips: FC = () => {
     setIsLoading(true);
     try {
       const data = await TripApi.saveTrip(request);
+      console.log(data);
       isTrip(data);
       setTrips((prevState) => [...prevState, data]);
       if (

@@ -53,7 +53,8 @@ class ApiService {
     ApiService.axiosInstance.interceptors.response.use(
       (response) => {
         // Check if the response data contains a 'date' property
-        if (isTripRs(response.data)) {
+        console.log(response);
+        if (isTripRs(response.data) && response.data.data.activities) {
           response.data = {
             ...response.data,
             data: {
@@ -67,6 +68,7 @@ class ApiService {
             },
           };
         }
+        console.log(response);
         return response;
       },
       (error) => Promise.reject(error)
@@ -134,7 +136,11 @@ class ApiService {
     ) {
       await AuthApiHelper.logoutAuth(i18n.t("error.authorization"));
     } else {
-      if (data?.message && "/auth/refresh-token" !== error.config?.url) {
+      if (
+        data?.message &&
+        "/auth/refresh-token" !== error.config?.url &&
+        error.response?.status !== HttpStatusCode.UnprocessableEntity
+      ) {
         AuthApiHelper.messageListener.forEach((listener) =>
           listener(data.message, { variant: "error" })
         );

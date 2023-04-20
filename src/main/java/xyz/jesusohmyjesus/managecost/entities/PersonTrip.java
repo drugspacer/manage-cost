@@ -13,7 +13,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import xyz.jesusohmyjesus.managecost.validation.NullPositiveOrZero;
 
 import java.math.BigDecimal;
 
@@ -57,6 +56,5 @@ public class PersonTrip {
     @Setter
     @Getter
     @Column(insertable = false, columnDefinition = "numeric", precision = 9, scale = 2)
-    @NullPositiveOrZero
     private BigDecimal sum;
 }

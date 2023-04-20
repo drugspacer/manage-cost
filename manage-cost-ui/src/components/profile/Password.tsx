@@ -21,6 +21,8 @@ import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import reducer from "../../functions/reducer";
 import { TFuncKey } from "i18next";
+import { isErrorRs } from "../../functions/apiTransform";
+import { useSnackbar } from "notistack";
 
 type PasswordForm = {
   oldPassword: string;
@@ -52,6 +54,7 @@ const Password = () => {
   );
   const { t: profile } = useTranslation("profile", { keyPrefix: "password" });
   const { t: common } = useTranslation();
+  const { enqueueSnackbar } = useSnackbar();
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
     ({ target }) =>
@@ -70,10 +73,21 @@ const Password = () => {
       dispatch({ type: "setError", payload: { ...errors, ...complexErrors } });
       return;
     }
-    await UserApi.changePassword({
-      oldPassword: state.form.oldPassword,
-      password: state.form.password,
-    });
+    try {
+      await UserApi.changePassword({
+        oldPassword: state.form.oldPassword,
+        password: state.form.password,
+      });
+    } catch (error) {
+      if (isErrorRs(error) && error.validationMessages) {
+        const complexError: string | undefined =
+          error.validationMessages.passwordRq;
+        dispatch({ type: "setError", payload: error.validationMessages });
+        if (complexError) {
+          enqueueSnackbar(complexError, { variant: "error" });
+        }
+      }
+    }
   };
 
   return (

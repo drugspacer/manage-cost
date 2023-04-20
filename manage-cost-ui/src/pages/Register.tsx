@@ -122,7 +122,7 @@ const Register: FC = () => {
 
   return (
     <Page header={auth("register.header")}>
-      <StyledPaper elevation={6}>
+      <StyledPaper elevation={6} sx={{ maxWidth: "400px" }}>
         <FormWrapper
           onSubmit={submitHandler}
           submitText={auth("register.submit")}
@@ -168,6 +168,7 @@ const Register: FC = () => {
             value={state.form.persons}
             onChange={onPersonChange}
             required={false}
+            helperText={auth("register.personsInfo")}
           />
         </FormWrapper>
       </StyledPaper>
