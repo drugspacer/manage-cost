@@ -227,14 +227,15 @@ const Page: FC<
 
   return (
     <>
-      <AppBar position="static" sx={{ marginBottom: 1 }}>
+      <AppBar position="fixed" sx={{ marginBottom: 1 }}>
         <Toolbar>{toolbarContent}</Toolbar>
       </AppBar>
-      <Container sx={{ flexGrow: 1 }}>
+      <Container sx={{ flexGrow: 1, mt: "76px" }}>
         <Stack spacing={1} alignItems="center">
           <Breadcrumbs
             aria-label={t("ariaLabel.breadcrumb")}
             separator={<NavigateNextIcon fontSize="small" />}
+            sx={{ zIndex: 10 }}
           >
             {breadcrumbsContent}
           </Breadcrumbs>

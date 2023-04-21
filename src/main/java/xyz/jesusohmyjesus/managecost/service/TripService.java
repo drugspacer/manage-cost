@@ -65,6 +65,7 @@ public class TripService {
         return tripRepository.save(newTrip);
     }
 
+    @Transactional
     public Trip createNewActivity(String username, UUID id, Activity data) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(throwNoTripFound(id));
@@ -77,7 +78,7 @@ public class TripService {
                 .forEach(record -> record.setActivity(data));
         trip.addActivity(data);
         activityRepository.save(data);
-        return trip;
+        return tripRepository.save(trip);
     }
 
     @Transactional
@@ -126,6 +127,7 @@ public class TripService {
         );
         data.getRecords()
                 .forEach(record -> record.setActivity(data));
+        data.setTrip(trip);
         activityRepository.save(data);
         return trip;
     }

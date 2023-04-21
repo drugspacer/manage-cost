@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Trip from "../models/trip.model";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import PersonTrip from "../models/personTrip.model";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import Table from "@mui/material/Table";
 import { useTranslation } from "react-i18next";
+import Chart from "./data/Chart";
 
 type PersonTable = {
   name: string;
@@ -16,61 +16,72 @@ type PersonTable = {
   amount: string;
 };
 
-const generateTableData = (persons: PersonTrip[]): PersonTable[] => {
-  const result: PersonTable[] = [];
-  const landed = persons
-    .filter(({ sum }) => sum > 0)
-    .sort((a, b) => a.sum - b.sum)
-    .map((item) => ({ ...item }));
-  let landIndex = 0;
-  persons
-    .filter(({ sum }) => sum < 0)
-    .sort((a, b) => b.sum - a.sum)
-    .forEach(({ person, sum }) => {
-      while (landIndex < landed.length) {
-        if (landed[landIndex].sum + sum >= 0) {
-          result.push({
-            name: person.name,
-            amount: Math.abs(sum).toFixed(2),
-            toName: landed[landIndex].person.name,
-          });
-          landed[landIndex].sum += sum;
-          return;
-        }
-        landIndex++;
-      }
-      landIndex = 0;
-      while (landIndex < landed.length) {
-        if (landed[landIndex].sum + sum < 0) {
-          result.push({
-            name: person.name,
-            amount: landed[landIndex].sum.toFixed(2),
-            toName: landed[landIndex].person.name,
-          });
-          sum += landed[landIndex].sum;
-          landIndex++;
-        } else {
-          result.push({
-            name: person.name,
-            amount: Math.abs(sum).toFixed(2),
-            toName: landed[landIndex].person.name,
-          });
-          landed[landIndex].sum += sum;
-          return;
-        }
-      }
-    });
-  return result;
-};
-
-const Result = ({ persons }: Pick<Trip, "persons">) => {
+const Result = ({
+  persons,
+  activities,
+}: Pick<Trip, "persons" | "activities">) => {
   const { t } = useTranslation("trip", { keyPrefix: "result" });
 
-  const tableData = generateTableData(persons);
+  const tableData = useMemo(() => {
+    const result: PersonTable[] = [];
+    const landed = persons
+      .filter(({ sum }) => sum > 0)
+      .sort((a, b) => a.sum - b.sum)
+      .map((item) => ({ ...item }));
+    let landIndex = 0;
+    persons
+      .filter(({ sum }) => sum < 0)
+      .sort((a, b) => b.sum - a.sum)
+      .forEach(({ person, sum }) => {
+        while (landIndex < landed.length) {
+          if (landed[landIndex].sum + sum >= 0) {
+            result.push({
+              name: person.name,
+              amount: Math.abs(sum).toFixed(2),
+              toName: landed[landIndex].person.name,
+            });
+            landed[landIndex].sum += sum;
+            return;
+          }
+          landIndex++;
+        }
+        landIndex = 0;
+        while (landIndex < landed.length) {
+          if (landed[landIndex].sum + sum < 0) {
+            result.push({
+              name: person.name,
+              amount: landed[landIndex].sum.toFixed(2),
+              toName: landed[landIndex].person.name,
+            });
+            sum += landed[landIndex].sum;
+            landIndex++;
+          } else {
+            result.push({
+              name: person.name,
+              amount: Math.abs(sum).toFixed(2),
+              toName: landed[landIndex].person.name,
+            });
+            landed[landIndex].sum += sum;
+            return;
+          }
+        }
+      });
+    return result;
+  }, [persons]);
+
+  const chartData = useMemo(() => {
+    return activities.reduce<Map<string, number>>((acc, item) => {
+      const key = item.tag?.name ?? "OTHER";
+      return acc.has(key)
+        ? acc.set(key, acc.get(key)! + item.sum)
+        : acc.set(key, item.sum);
+    }, new Map<string, number>());
+  }, [activities]);
 
   return (
     <Card>
       <CardContent>
+        {chartData.size > 1 && <Chart data={chartData} />}
         <Table>
           <TableHead>
             <TableRow>

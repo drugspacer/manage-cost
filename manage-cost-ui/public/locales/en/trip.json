@@ -33,6 +33,7 @@
     "TRANSPORT": "Transport",
     "FOOD": "Food",
     "ENTERTAINMENT": "Entertainment",
-    "ACCOMMODATION": "Accommodation"
+    "ACCOMMODATION": "Accommodation",
+    "OTHER": "Other"
   }
 }
