@@ -33,6 +33,7 @@
     "TRANSPORT": "Транспорт",
     "FOOD": "Еда",
     "ENTERTAINMENT": "Развлечение",
-    "ACCOMMODATION": "Проживание"
+    "ACCOMMODATION": "Проживание",
+    "OTHER": "Другое"
   }
 }
