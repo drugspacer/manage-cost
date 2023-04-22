@@ -76,8 +76,8 @@ public class TripService {
         );
         data.getRecords()
                 .forEach(record -> record.setActivity(data));
-        trip.addActivity(data);
         activityRepository.save(data);
+        trip.addActivity(data);
         return tripRepository.save(trip);
     }
 

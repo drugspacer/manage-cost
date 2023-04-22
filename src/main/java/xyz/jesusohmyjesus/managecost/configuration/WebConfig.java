@@ -57,7 +57,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addRedirectViewController(
                 "/{path:^(?!api|index\\.html|swagger-ui\\.html|.*\\.js$).*}",
-                "index.html"
+                "/index.html"
         );
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }

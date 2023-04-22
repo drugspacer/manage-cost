@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS public.person_trip
 
 CREATE TABLE IF NOT EXISTS public.tag
 (
-    name character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    name character varying(13) COLLATE pg_catalog."default" NOT NULL,
     id uuid NOT NULL,
     CONSTRAINT tag_pk PRIMARY KEY (id),
     CONSTRAINT tag_pk_name UNIQUE (name)

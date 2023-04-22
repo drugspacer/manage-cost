@@ -1,6 +1,11 @@
 Instructions to run project
 ===========================
 
+First af all you have to specify your token to currency exchange service
+[https://openexchangerates.org/](https://openexchangerates.org/)
+
+Replace **YOUR_TOKEN** in `./manage-cost-ui/src/constants/token.ts` with your token.
+
 Run on local machine in standalone mode
 ---------------------------------------
 

@@ -123,7 +123,7 @@ const SaveAction = ({
     id: activity?.id,
     version: activity?.version,
     records: buildRecordsFormData(persons, activity),
-    tag: undefined,
+    tag: activity?.tag,
   });
   const [errorState, setErrorState] = useState<
     ErrorState<RecordItemForm & ActivityForm>
