@@ -27,7 +27,8 @@
     "create": "Create trip",
     "add": "Add",
     "name": "Name *",
-    "place": "Place *"
+    "place": "Place *",
+    "currency": "Currency"
   },
   "tag": {
     "TRANSPORT": "Transport",

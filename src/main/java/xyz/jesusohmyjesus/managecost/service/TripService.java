@@ -47,7 +47,7 @@ public class TripService {
 
     @Transactional
     public Trip createNewTrip(NewTrip data, String username) {
-        Trip newTrip = new Trip(data.getName(), data.getPlace());
+        Trip newTrip = new Trip(data.getName(), data.getPlace(), data.getCurrency());
         User user = userService.findByUsername(username);
         data.getPersons()
                 .stream()
@@ -92,6 +92,7 @@ public class TripService {
         );
         trip.setName(data.getName());
         trip.setPlace(data.getPlace());
+        trip.setCurrency(data.getCurrency());
         User user = trip.getUser();
         data.getPersons()
                 .stream()

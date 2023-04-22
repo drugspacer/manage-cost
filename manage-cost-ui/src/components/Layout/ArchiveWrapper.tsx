@@ -8,7 +8,7 @@ const ArchiveWrapper = ({
   trip,
   children,
 }: PropsWithChildren<{
-  trip: Pick<Trip, "persons" | "archive" | "activities">;
+  trip: Pick<Trip, "persons" | "archive" | "activities" | "currency">;
 }>) =>
   trip.archive ? (
     <ContentGrid
@@ -19,7 +19,11 @@ const ArchiveWrapper = ({
       direction="row-reverse"
     >
       <Grid item xs={12} sm={7} md={8} lg={9} xl={10}>
-        <Result persons={trip.persons} activities={trip.activities} />
+        <Result
+          persons={trip.persons}
+          activities={trip.activities}
+          currency={trip.currency}
+        />
       </Grid>
       <Grid item xs={12} sm={5} md={4} lg={3} xl={2}>
         <Grid spacing={2} container direction="column">

@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS public.trip
     name character varying(32) COLLATE pg_catalog."default" NOT NULL,
     place character varying(32) COLLATE pg_catalog."default" NOT NULL,
     archive boolean DEFAULT false,
+    currency character varying(3) NOT NULL,
     user_id uuid NOT NULL,
     CONSTRAINT trip_pk PRIMARY KEY (id),
     CONSTRAINT user_fk FOREIGN KEY (user_id)

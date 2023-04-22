@@ -49,7 +49,7 @@ const Page: FC<
     mainButton?: ButtonProp;
     header?: string;
   }>
-> = ({ children, buttons = [], mainButton, breadcrumbs = [], header }) => {
+> = ({ children, buttons = [], mainButton, breadcrumbs, header }) => {
   const [anchorEl, setAnchorEl] = useState<MenuElement>({});
   const isMobile = useMediaQuery((theme: typeof Theme) =>
     theme.breakpoints.down("sm")
@@ -88,7 +88,7 @@ const Page: FC<
 
   const breadcrumbsContent = useMemo(
     () =>
-      breadcrumbs.map((item, index, self) => {
+      breadcrumbs?.map((item, index, self) => {
         if (self.length === index + 1) {
           return (
             <Typography key={item.href} color="text.primary">
@@ -129,7 +129,7 @@ const Page: FC<
   const toolbarContent: ReactElement[] = useMemo(() => {
     const toolbarContent = [
       <Typography sx={{ flexGrow: 1 }} key="header">
-        {breadcrumbs.length
+        {breadcrumbs?.length
           ? breadcrumbs[breadcrumbs.length - 1].label
           : header}
       </Typography>,
@@ -212,6 +212,8 @@ const Page: FC<
           {menuItems}
         </Menu>
       );
+    } else {
+      toolbarContent.push(<LanguageSwitcher key="language" />);
     }
     return toolbarContent;
   }, [
@@ -232,13 +234,15 @@ const Page: FC<
       </AppBar>
       <Container sx={{ flexGrow: 1, mt: "76px" }}>
         <Stack spacing={1} alignItems="center">
-          <Breadcrumbs
-            aria-label={t("ariaLabel.breadcrumb")}
-            separator={<NavigateNextIcon fontSize="small" />}
-            sx={{ zIndex: 10 }}
-          >
-            {breadcrumbsContent}
-          </Breadcrumbs>
+          {breadcrumbsContent && (
+            <Breadcrumbs
+              aria-label={t("ariaLabel.breadcrumb")}
+              separator={<NavigateNextIcon fontSize="small" />}
+              sx={{ zIndex: 10 }}
+            >
+              {breadcrumbsContent}
+            </Breadcrumbs>
+          )}
           {children}
         </Stack>
       </Container>

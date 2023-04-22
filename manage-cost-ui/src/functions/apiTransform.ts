@@ -22,3 +22,9 @@ export const isTripRs = (data: any): data is MessageRs<TripRs> =>
 
 export const isErrorRs = (data: any): data is ErrorRs =>
   !!data && typeof data === "object" && "exception" in data;
+
+export function isMessageRs<T>(data: unknown): data is MessageRs<T> {
+  return (
+    !!data && typeof data === "object" && "message" in data && "data" in data
+  );
+}

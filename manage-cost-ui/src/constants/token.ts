@@ -1,0 +1,1 @@
+export const OPENEXCHANGE_TOKEN = "14d19e4d88574b3dab2e16558bfb0ed0";

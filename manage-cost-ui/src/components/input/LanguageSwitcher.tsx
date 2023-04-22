@@ -11,7 +11,7 @@ const flagMap = {
   ru: RuIcon,
 } as const;
 
-const LanguageSwitcher = ({ onClose }: { onClose: () => void }) => {
+const LanguageSwitcher = ({ onClose }: { onClose?: () => void }) => {
   const { i18n } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
   const { t } = useTranslation();
@@ -27,7 +27,7 @@ const LanguageSwitcher = ({ onClose }: { onClose: () => void }) => {
     } catch (e) {
       enqueueSnackbar(t("error.changeLanguage"));
     } finally {
-      onClose();
+      onClose && onClose();
     }
   };
 

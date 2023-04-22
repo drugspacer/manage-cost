@@ -18,12 +18,14 @@ import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import { TFuncKey } from "i18next";
+import currency from "../constants/currency";
 
 type ActivityCardProp = {
   activity: Activity;
   isArchive: boolean;
   onEditAction: MouseEventHandler<HTMLButtonElement>;
   onDelete?: MouseEventHandler<HTMLButtonElement>;
+  curCode: keyof typeof currency;
 };
 
 const ActivityCard = ({
@@ -31,6 +33,7 @@ const ActivityCard = ({
   isArchive,
   onEditAction,
   onDelete,
+  curCode,
 }: ActivityCardProp) => {
   const { t: common, i18n } = useTranslation();
   const { t: trip } = useTranslation("trip");
@@ -43,8 +46,12 @@ const ActivityCard = ({
       <TableCell component="th" scope="row">
         {row.person.name}
       </TableCell>
-      <TableCell>{row.borrowMoney}</TableCell>
-      <TableCell>{row.landMoney}</TableCell>
+      <TableCell>
+        {row.borrowMoney ? `${row.borrowMoney}${currency[curCode]}` : undefined}
+      </TableCell>
+      <TableCell>
+        {row.landMoney ? `${row.landMoney}${currency[curCode]}` : undefined}
+      </TableCell>
     </TableRow>
   ));
 
@@ -79,7 +86,7 @@ const ActivityCard = ({
           <List>
             <ListItemText
               primary={activity.date.toLocaleDateString(i18n.language)}
-              secondary={activity.sum}
+              secondary={`${activity.sum}${currency[curCode]}`}
             />
           </List>
           {activity.tag && (

@@ -32,6 +32,7 @@ import { useTranslation } from "react-i18next";
 import reducer from "../functions/reducer";
 import { TFuncKey } from "i18next";
 import { isErrorRs } from "../functions/apiTransform";
+import Welcome from "../components/UI/Welcome";
 
 const simpleValidationConfig: SimpleValidateConfig<RegisterModel> = {
   username: [required],
@@ -105,6 +106,7 @@ const Register: FC = () => {
 
   return (
     <Page header={auth("register.header")}>
+      <Welcome />
       <StyledPaper elevation={6} sx={{ maxWidth: "400px" }}>
         <FormWrapper
           onSubmit={submitHandler}

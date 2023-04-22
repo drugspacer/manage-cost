@@ -10,7 +10,7 @@ import { TokenHeader } from "../models/auth.model";
 import AuthApiHelper from "./AuthApiHelper";
 import i18n from "../i18n";
 import { formatISO, parseISO } from "date-fns";
-import { isTripRs } from "../functions/apiTransform";
+import { isMessageRs, isTripRs } from "../functions/apiTransform";
 import Activity from "../models/activity.model";
 
 class ApiService {
@@ -71,17 +71,19 @@ class ApiService {
     });
   }
 
-  static async request<Rs = undefined, Rq = undefined>({
+  static async request<Rs = undefined, Rq = undefined, Outer = false>({
     url,
     method = "GET",
     headers,
     jwtAuth = true,
     ...rest
   }: AxiosRequest<Rq>) {
+    type Response = Outer extends true ? Rs : MessageRs<Rs>;
+    type Error = Outer extends true ? any : ErrorRs;
     try {
       const response = await ApiService.axiosInstance.request<
-        MessageRs<Rs>,
-        AxiosResponse<MessageRs<Rs>, Rq>,
+        Response,
+        AxiosResponse<Response, Rq>,
         Rq
       >({
         url: url,
@@ -93,29 +95,32 @@ class ApiService {
         },
         ...rest,
       });
-      return ApiService.handleResponse(response);
+      return ApiService.handleResponse<Response, Rq>(response);
     } catch (error) {
-      if (isAxiosError<ErrorRs, Rq>(error)) {
-        throw await ApiService.handleError(error);
+      if (isAxiosError<Error, Rq>(error)) {
+        throw await ApiService.handleError<Rq>(error);
       }
     }
   }
 
   private static handleResponse<Rs, Rq>(
-    response: AxiosResponse<MessageRs<Rs>, Rq>
-  ): Rs {
+    response: AxiosResponse<Rs, Rq>
+  ): Rs extends MessageRs<infer Data> ? Data : Rs {
     const data = response.data;
     if (!(response.config.url || "").includes("/refresh-token")) {
       // Update last activity on successful server responses, unless it was a refresh token request.
       // This request is considered a background request and not a user initiated one.
       ApiService.updateLastActivity();
     }
-    if (data.message) {
-      AuthApiHelper.messageListener.forEach((listener) =>
-        listener(data.message!, { variant: "success" })
-      );
+    if (isMessageRs<Rs extends MessageRs<infer Data> ? Data : Rs>(data)) {
+      if (data.message) {
+        AuthApiHelper.messageListener.forEach((listener) =>
+          listener(data.message!, { variant: "success" })
+        );
+      }
+      return data.data;
     }
-    return data.data;
+    return data as Rs extends MessageRs<infer Data> ? Data : Rs;
   }
 
   private static async handleError<Rq>(error: AxiosError<ErrorRs, Rq>) {
@@ -129,7 +134,7 @@ class ApiService {
       await AuthApiHelper.logoutAuth(i18n.t("error.authorization"));
     } else {
       if (
-        data?.message &&
+        !!data?.message &&
         "/auth/refresh-token" !== error.config?.url &&
         error.response?.status !== HttpStatusCode.UnprocessableEntity
       ) {
