@@ -26,7 +26,7 @@ import Link from "@mui/material/Link";
 import { useTranslation } from "react-i18next";
 import { TFuncKey } from "i18next";
 import { isErrorRs } from "../functions/apiTransform";
-import Divider from "@mui/material/Divider";
+import Welcome from "../components/UI/Welcome";
 
 const simpleValidationConfig: SimpleValidateConfig<LoginModel> = {
   username: [required],
@@ -86,10 +86,7 @@ const Login: FC = () => {
 
   return (
     <Page header={auth("login.header")}>
-      <Typography variant="h4">{auth("login.textHeader")}</Typography>
-      <Typography>{auth("login.textBody")}</Typography>
-      <Typography variant="body2">{auth("login.textFooter")}</Typography>
-      <Divider />
+      <Welcome />
       <StyledPaper elevation={6}>
         <FormWrapper
           onSubmit={submitHandler}

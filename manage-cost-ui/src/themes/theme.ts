@@ -86,6 +86,13 @@ let theme = createTheme({
         useFlexGap: true,
       },
     },
+    MuiCardContent: {
+      styleOverrides: {
+        root: {
+          width: "100%",
+        },
+      },
+    },
   },
 });
 

@@ -4,7 +4,7 @@ import Activity from "./activity.model";
 import RecordItem from "./record.model";
 import { User } from "./user.model";
 
-export type TripForm = Pick<Trip, "place" | "name"> & {
+export type TripForm = Pick<Trip, "place" | "name" | "currency"> & {
   persons: Person[];
   id?: string;
   version?: number;

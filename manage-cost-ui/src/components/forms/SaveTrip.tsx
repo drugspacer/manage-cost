@@ -19,6 +19,8 @@ import TextInput from "../input/TextInput";
 import PersonsInput from "../input/PersonsInput";
 import { useTranslation } from "react-i18next";
 import { isErrorRs } from "../../functions/apiTransform";
+import currency from "../../constants/currency";
+import CurrencyAutocomplete from "../input/CurrencyAutocomplete";
 
 const formConfig: SimpleValidateConfig<TripForm> = {
   place: [required],
@@ -32,10 +34,13 @@ const SaveTrip = ({
     place: "",
     name: "",
     persons: [],
+    currency: "RUB",
   },
+  disableCurrency = false,
 }: {
   onSubmit: (data: TripForm) => void;
   trip?: TripForm;
+  disableCurrency?: boolean;
 }) => {
   const [state, setState] = useState<TripForm>(trip);
   const [errorState, setErrorState] = useState<ErrorState<TripForm>>({});
@@ -73,7 +78,7 @@ const SaveTrip = ({
   const onTextChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
     const name = target.name as keyof Omit<
       TripForm,
-      "persons" | keyof Id | keyof Version
+      "persons" | "currency" | keyof Id | keyof Version
     >;
     setState((prevVal) => ({ ...prevVal, [name]: target.value }));
     if (errorState[name]) {
@@ -83,6 +88,12 @@ const SaveTrip = ({
       }));
     }
   };
+
+  const handleCurrencyChange = useCallback(
+    (_e: React.SyntheticEvent, value: keyof typeof currency) =>
+      setState((prevVal) => ({ ...prevVal, currency: value })),
+    []
+  );
 
   return (
     <FormWrapper
@@ -107,6 +118,11 @@ const SaveTrip = ({
         errorState={errorState}
         state={state}
         onChange={onTextChange}
+      />
+      <CurrencyAutocomplete
+        disabled={disableCurrency}
+        onChange={handleCurrencyChange}
+        value={state.currency}
       />
     </FormWrapper>
   );

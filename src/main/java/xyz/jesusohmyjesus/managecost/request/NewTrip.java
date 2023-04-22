@@ -21,6 +21,9 @@ public class NewTrip {
     @Size(max = 32)
     private String place;
 
+    @NotBlank
+    private String currency;
+
     @Valid
     private Set<Person> persons;
 }

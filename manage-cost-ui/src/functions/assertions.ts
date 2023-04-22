@@ -3,6 +3,8 @@ import ErrorRs from "../models/api.model";
 import { User } from "../models/user.model";
 import Person from "../models/person.model";
 import Dictionary from "../models/dictionary.model";
+import CurrencyRs from "../models/currency.model";
+import currency from "../constants/currency";
 
 type AssertIsTrip = (trip?: Trip) => asserts trip is Trip;
 
@@ -69,3 +71,11 @@ export const isPerson: AssertIsPerson = (person) => {
     throw new Error("trips is undefined");
   }
 };
+
+export function isCurrencyResponse<T extends keyof typeof currency>(
+  response?: CurrencyRs<T>
+): asserts response is CurrencyRs<T> {
+  if (typeof response === undefined) {
+    throw new Error("currencyRs is undefined");
+  }
+}

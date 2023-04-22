@@ -61,11 +61,13 @@ import { DictionaryContext } from "../../context/Dictionary";
 import DictionaryApi from "../../service/api/dictionary";
 import CircularProgress from "@mui/material/CircularProgress";
 import Dictionary from "../../models/dictionary.model";
+import currency from "../../constants/currency";
 
 type SaveActionProps = {
   persons: Person[];
   activity?: Activity;
   onSubmit: (data: ActivityFormRq) => void;
+  curCode: keyof typeof currency;
 };
 
 const simpleValidationConfig: SimpleValidateConfig<ActivityForm> = {
@@ -108,7 +110,12 @@ const buildRecordsFormData = (
       })
     : persons.map((person) => ({ person, isActive: true }));
 
-const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
+const SaveAction = ({
+  persons,
+  onSubmit,
+  activity,
+  curCode,
+}: SaveActionProps) => {
   const [state, setState] = useState<ActivityForm>({
     sum: activity ? "" + activity.sum : "",
     date: activity?.date ?? new Date(),
@@ -378,7 +385,9 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
                 <OutlinedInput
                   id={`${index}-borrow`}
                   endAdornment={
-                    <InputAdornment position="end">Р</InputAdornment>
+                    <InputAdornment position="end">
+                      {currency[curCode]}
+                    </InputAdornment>
                   }
                   aria-describedby="outlined-weight-helper-text"
                   inputProps={{ inputMode: "numeric", pattern: "\\d*" }}
@@ -392,7 +401,9 @@ const SaveAction = ({ persons, onSubmit, activity }: SaveActionProps) => {
                 <OutlinedInput
                   id={`${index}-lend`}
                   endAdornment={
-                    <InputAdornment position="end">Р</InputAdornment>
+                    <InputAdornment position="end">
+                      {currency[curCode]}
+                    </InputAdornment>
                   }
                   aria-describedby="outlined-weight-helper-text"
                   name="landMoney"

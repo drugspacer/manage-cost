@@ -59,6 +59,11 @@ public class Trip {
     @Column(name = "archive")
     private boolean isArchive = false;
 
+    @Column(nullable = false, length = 3)
+    @NotBlank
+    @NonNull
+    private String currency;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

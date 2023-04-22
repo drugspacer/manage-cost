@@ -52,7 +52,16 @@ const TripCard = ({
         />
         <CardContent>
           <Stack spacing={2}>
-            <Typography>{trip.place}</Typography>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Typography>{trip.place}</Typography>
+              <Typography variant="body2">{`${tripTranslation("currency")}: ${
+                trip.currency
+              }`}</Typography>
+            </Stack>
             <Typography>
               {trip.persons.map(({ person }) => person.name).join(", ")}
             </Typography>

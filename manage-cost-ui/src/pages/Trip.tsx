@@ -145,6 +145,7 @@ const Trip: React.FC = () => {
           <SaveAction
             onSubmit={submitHandler(TripApi.saveActivity)}
             persons={persons}
+            curCode={trip?.currency!}
           />
         );
       }
@@ -152,6 +153,7 @@ const Trip: React.FC = () => {
         const { persons, ...rest } = trip!;
         return (
           <SaveTrip
+            disableCurrency={!!trip?.activities.length}
             onSubmit={submitHandler(TripApi.updateTrip)}
             trip={{ persons: persons.map(({ person }) => person), ...rest }}
           />
@@ -163,6 +165,7 @@ const Trip: React.FC = () => {
             onSubmit={submitHandler(TripApi.updateActivity)}
             persons={persons}
             activity={selectedActivity}
+            curCode={trip?.currency!}
           />
         );
       }
@@ -182,6 +185,7 @@ const Trip: React.FC = () => {
                   activity={item}
                   isArchive={trip.archive}
                   onEditAction={editActionHandler(item)}
+                  curCode={trip.currency}
                 />
               </DeleteDialogWrapper>
             </Grid>
