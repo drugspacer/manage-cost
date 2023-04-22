@@ -78,7 +78,12 @@ public class Activity implements Comparable<Activity> {
 
     @Override
     public int compareTo(Activity o) {
-        return this.getDate()
+        int dateResult = this.getDate()
                 .compareTo(o.getDate());
+        if (dateResult == 0) {
+            return this.getId()
+                    .compareTo(o.getId());
+        }
+        return dateResult;
     }
 }
