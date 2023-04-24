@@ -31,6 +31,16 @@ const Trips = lazy(() =>
   })
 );
 
+const About = lazy(() =>
+  import("./pages/About").then((module) => {
+    // Load the 'trip' namespace when the module is loaded
+    return Promise.all([
+      i18n.loadNamespaces("about"),
+      i18n.loadNamespaces("trip"),
+    ]).then(() => module);
+  })
+);
+
 const Trip = lazy(() => import("./pages/Trip"));
 
 const PageNotFound = () => {
@@ -41,24 +51,47 @@ const PageNotFound = () => {
 function App() {
   const { user } = useContext(AuthContext);
 
-  return user ? (
-    <Routes>
-      <Route path="/" element={<Navigate replace to="/trips" />} />
-      <Route path="/index.html" element={<Navigate replace to="/trips" />} />
-      <Route path="/login" element={<Navigate replace to="/trips" />} />
-      <Route path="/register" element={<Navigate replace to="/trips" />} />
-      <Route path="/trips" element={withLazyLoading(Trips)} />
-      <Route path="/trip/:id" element={withLazyLoading(Trip)} />
-      <Route path="/profile" element={withLazyLoading(Profile)} />
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
-  ) : (
-    <Routes>
-      <Route path="/login" element={withLazyLoading(Login)} />
-      <Route path="/register" element={withLazyLoading(Register)} />
-      <Route path="*" element={<Navigate replace to="/login" />} />
-    </Routes>
+  const content = user
+    ? [
+        <Route key="/" path="/" element={<Navigate replace to="/trips" />} />,
+        <Route
+          key="index"
+          path="/index.html"
+          element={<Navigate replace to="/trips" />}
+        />,
+        <Route
+          key="login"
+          path="/login"
+          element={<Navigate replace to="/trips" />}
+        />,
+        <Route
+          key="register"
+          path="/register"
+          element={<Navigate replace to="/trips" />}
+        />,
+        <Route key="trips" path="/trips" element={withLazyLoading(Trips)} />,
+        <Route key="trip" path="/trip/:id" element={withLazyLoading(Trip)} />,
+        <Route
+          key="profile"
+          path="/profile"
+          element={withLazyLoading(Profile)}
+        />,
+        <Route key="*" path="*" element={<PageNotFound />} />,
+      ]
+    : [
+        <Route key="login" path="/login" element={withLazyLoading(Login)} />,
+        <Route
+          key="register"
+          path="/register"
+          element={withLazyLoading(Register)}
+        />,
+        <Route key="*" path="*" element={<Navigate replace to="/login" />} />,
+      ];
+  content.unshift(
+    <Route key="about" path="/about" element={withLazyLoading(About)} />
   );
+
+  return <Routes>{content}</Routes>;
 }
 
 export default App;

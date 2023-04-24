@@ -53,7 +53,7 @@ const Login: FC = () => {
     }
     try {
       await login(state);
-      navigate("/");
+      navigate("/trips");
     } catch (error) {
       if (isErrorRs(error) && error.validationMessages) {
         setErrorState(error.validationMessages);

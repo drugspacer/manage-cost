@@ -75,7 +75,7 @@ const Register: FC = () => {
     }
     try {
       await register(state.form);
-      navigate("/");
+      navigate("/trips");
     } catch (error) {
       if (isErrorRs(error) && error.validationMessages) {
         dispatch({ type: "setError", payload: error.validationMessages });

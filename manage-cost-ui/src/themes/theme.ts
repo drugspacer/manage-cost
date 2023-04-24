@@ -93,6 +93,20 @@ let theme = createTheme({
         },
       },
     },
+    MuiMobileStepper: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          margin: "auto",
+          background: theme.palette.background.paper,
+          [theme.breakpoints.up("sm")]: {
+            width: "fit-content",
+          },
+          [theme.breakpoints.down("sm")]: {
+            paddingBottom: "0px",
+          },
+        }),
+      },
+    },
   },
 });
 
