@@ -1,0 +1,62 @@
+{
+  "header": "About app",
+  "button": {
+    "next": "Next",
+    "back": "Back"
+  },
+  "tab1": {
+    "header": "How it works?",
+    "listItem1": "Traveling with friends",
+    "listItem2": "Create a trip and enter expenses",
+    "listItem3": "Distribute expenses among all participants"
+  },
+  "tab2": {
+    "header": "For example:",
+    "listItem1": "You and your friends went to a restaurant",
+    "listItem2": "Count how much each ate",
+    "listItem3": "Enter in the column «$t(trip:activity.spend)» how much you ate on the bill",
+    "listItem4": "And in the column «$t(trip:activity.pay)» how much money did you give",
+    "listItem5": "READY! You are beautiful!",
+    "text": "At the end of the trip, the application will calculate how much someone owes to whom."
+  },
+  "tab3": {
+    "header": "Spending types",
+    "text": "Put tags by type of spending #### - you can see what spent more money",
+    "listItem1": "$t(trip:tag.TRANSPORT)",
+    "listItem2": "$t(trip:tag.FOOD)",
+    "listItem3": "$t(trip:tag.ENTERTAINMENT)",
+    "listItem4": "$t(trip:tag.ACCOMMODATION)"
+  },
+  "tab4": {
+    "header": "Share your spending",
+    "text": "Distribute as you like!",
+    "listItem1": "Equally",
+    "listItem2": "Everyone paid for themselves",
+    "listItem3": "Your distribution"
+  },
+  "tab5": {
+    "header": "Debt control",
+    "text": "You won't forget anything!",
+    "listItem1": "Easily calculate who owes how much to whom"
+  },
+  "tab6": {
+    "header": "Currency Converter",
+    "text": "Wow!",
+    "listItem1": "Convenient currency conversion at the end of the trip",
+    "listItem2": "Support for all current world currencies",
+    "listItem3": "Current courses"
+  },
+  "tab7": {
+    "header": "Protection",
+    "listItem1": "Advanced security standards",
+    "listItem2": "The password is stored in encrypted form",
+    "listItem3": "API access by unique JWT token"
+  },
+  "tab8": {
+    "header": "Conclusion",
+    "listItem1": "An easy and fair way to share expenses when traveling with friends",
+    "listItem2": "Beautiful design",
+    "listItem3": "Helps control debt and spending in real time",
+    "listItem4": "Supports multiple currencies and budgeting"
+  }
+}

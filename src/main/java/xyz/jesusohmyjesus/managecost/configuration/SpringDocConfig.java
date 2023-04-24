@@ -17,7 +17,7 @@ public class SpringDocConfig {
                 .description("Endpoints available in the Manage Cost API")
                 .version(properties.getVersion())
                 .contact(new Contact().name("drugspacer")
-                        .url("https://github.com/drugspacer/cost-count")
+                        .url("https://github.com/drugspacer/manage-cost")
                         .email("icq584549567@gmail.com")
                 )
         );

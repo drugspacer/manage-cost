@@ -8,7 +8,7 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <Box sx={{ backgroundColor: "grey.600", marginTop: 2, padding: 1 }}>
+    <Box sx={{ backgroundColor: "grey.600", padding: 1 }}>
       <Link
         component="a"
         href="https://github.com/drugspacer"

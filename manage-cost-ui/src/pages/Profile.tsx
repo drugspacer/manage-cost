@@ -25,7 +25,7 @@ const Profile: FC = () => {
   const { t: common } = useTranslation();
   const { t: profile } = useTranslation("profile");
 
-  const backHandler = useCallback(() => navigate("/"), []);
+  const backHandler = useCallback(() => navigate(-1), []);
 
   const tabsChangeHandler = useCallback(
     (_e: React.SyntheticEvent, newValue: string) => setValue(newValue),

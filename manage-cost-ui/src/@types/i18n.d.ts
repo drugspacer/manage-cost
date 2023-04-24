@@ -5,9 +5,7 @@ import common from "../../public/locales/ru/common.json";
 import trip from "../../public/locales/ru/trip.json";
 import profile from "../../public/locales/ru/profile.json";
 import auth from "../../public/locales/ru/auth.json";
-import ru from "date-fns/locale/ru";
-
-const translation = { datePickerLocale: ru };
+import about from "../../public/locales/ru/about.json";
 
 declare module "i18next" {
   // Extend CustomTypeOptions
@@ -20,7 +18,7 @@ declare module "i18next" {
       trip: typeof trip;
       profile: typeof profile;
       auth: typeof auth;
-      translation: typeof translation;
+      about: typeof about;
     };
     // other
   }

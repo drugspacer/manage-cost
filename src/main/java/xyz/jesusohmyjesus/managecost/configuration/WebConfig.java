@@ -56,7 +56,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addRedirectViewController(
-                "/{path:^(?!api|index\\.html|swagger-ui\\.html|.*\\.js$).*}",
+                "/{path:^(?!api|index\\.html|swagger-ui\\.html$).*}",
                 "/index.html"
         );
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
@@ -65,7 +65,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loggerInterceptor);
-        //registry.addInterceptor(new AcceptLanguageInterceptor());
     }
 
     @Override

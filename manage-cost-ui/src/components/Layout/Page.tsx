@@ -105,27 +105,6 @@ const Page: FC<
     [breadcrumbs]
   );
 
-  const menuItems = useMemo(
-    () =>
-      user
-        ? [
-            <MenuItem
-              key="profile"
-              onClick={menuItemHandler(() => navigate(`/profile`), "profile")}
-            >
-              {t("button.profile")}
-            </MenuItem>,
-            <MenuItem onClick={menuItemHandler(logout, "profile")} key="logout">
-              {t("button.logout")}
-            </MenuItem>,
-            <MenuItem sx={{ justifyContent: "center" }} key="language">
-              <LanguageSwitcher onClose={() => onCloseHandler("profile")} />
-            </MenuItem>,
-          ]
-        : null,
-    [!!user, menuItemHandler, onCloseHandler, t]
-  );
-
   const toolbarContent: ReactElement[] = useMemo(() => {
     const toolbarContent = [
       <Typography sx={{ flexGrow: 1 }} key="header">
@@ -134,7 +113,7 @@ const Page: FC<
           : header}
       </Typography>,
     ];
-    if (isMobile && mainButton && buttons) {
+    if (isMobile) {
       toolbarContent.unshift(
         <IconButton
           size="large"
@@ -187,34 +166,49 @@ const Page: FC<
           </Button>
         );
     }
-    if (!!user) {
-      toolbarContent.push(
-        <IconButton
-          size="large"
-          aria-label={t("ariaLabel.profile")}
-          aria-controls="menu-appbar"
-          aria-haspopup="true"
-          onClick={handleOpenClick}
-          color="inherit"
-          key="profile-icon"
-          name="profile"
+    toolbarContent.push(
+      <IconButton
+        size="large"
+        aria-label={t("ariaLabel.profile")}
+        aria-controls="menu-appbar"
+        aria-haspopup="true"
+        onClick={handleOpenClick}
+        color="inherit"
+        key="profile-icon"
+        name="profile"
+      >
+        {!!user ? <AccountCircle /> : <MenuIcon />}
+      </IconButton>,
+      <Menu
+        id="profile"
+        anchorEl={anchorEl.profile}
+        keepMounted
+        open={!!anchorEl.profile}
+        onClose={() => onCloseHandler("profile")}
+        key="profile-menu"
+      >
+        {!!user && (
+          <MenuItem
+            onClick={menuItemHandler(() => navigate(`/profile`), "profile")}
+          >
+            {t("button.profile")}
+          </MenuItem>
+        )}
+        {!!user && (
+          <MenuItem onClick={menuItemHandler(logout, "profile")}>
+            {t("button.logout")}
+          </MenuItem>
+        )}
+        <MenuItem
+          onClick={menuItemHandler(() => navigate("/about"), "profile")}
         >
-          <AccountCircle />
-        </IconButton>,
-        <Menu
-          id="profile"
-          anchorEl={anchorEl.profile}
-          keepMounted
-          open={!!anchorEl.profile}
-          onClose={() => onCloseHandler("profile")}
-          key="profile-menu"
-        >
-          {menuItems}
-        </Menu>
-      );
-    } else {
-      toolbarContent.push(<LanguageSwitcher key="language" />);
-    }
+          {t("button.about")}
+        </MenuItem>
+        <MenuItem sx={{ justifyContent: "center" }}>
+          <LanguageSwitcher onClose={() => onCloseHandler("profile")} />
+        </MenuItem>
+      </Menu>
+    );
     return toolbarContent;
   }, [
     isMobile,
@@ -222,9 +216,11 @@ const Page: FC<
     buttons,
     handleOpenClick,
     anchorEl,
-    menuItems,
     breadcrumbs,
     header,
+    onCloseHandler,
+    menuItemHandler,
+    t,
   ]);
 
   return (
@@ -232,7 +228,7 @@ const Page: FC<
       <AppBar position="fixed" sx={{ marginBottom: 1 }}>
         <Toolbar>{toolbarContent}</Toolbar>
       </AppBar>
-      <Container sx={{ flexGrow: 1, mt: "76px" }}>
+      <Container sx={{ flexGrow: 1, mt: "76px", mb: 2 }}>
         <Stack spacing={1} alignItems="center">
           {breadcrumbsContent && (
             <Breadcrumbs
