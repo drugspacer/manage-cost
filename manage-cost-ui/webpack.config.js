@@ -13,6 +13,7 @@ module.exports = {
     filename: "[name].[contenthash].js",
     chunkFilename: "[name].[contenthash].js",
     path: path.resolve(__dirname, "dist"),
+    assetModuleFilename: "public/images/[hash][ext][query]",
   },
   module: {
     rules: [
@@ -50,16 +51,6 @@ module.exports = {
         logLevel: "debug", //optional//,
       },
     },
-    /*    before: (app) => {
-      app.get("/static/locales/:lng/:ns.json", (req, res) => {
-        const { lng, ns } = req.params;
-        const localeFilePath = path.join(
-          __dirname,
-          `/static/locales/${lng}/${ns}.json`
-        );
-        res.sendFile(localeFilePath);
-      });
-    },*/
   },
   plugins: [
     new HtmlWebpackPlugin({

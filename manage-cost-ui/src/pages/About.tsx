@@ -14,18 +14,7 @@ import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Theme from "../themes/theme";
-import generateContentItem from "../components/HOC/generateContentItem";
-
-const contentArr = [
-  ...generateContentItem("tab1", 3),
-  ...generateContentItem("tab2", 3, false, false),
-  ...generateContentItem("tab3", 4, true),
-  ...generateContentItem("tab4", 3, true),
-  ...generateContentItem("tab5", 1, true),
-  ...generateContentItem("tab6", 3, true),
-  ...generateContentItem("tab7", 3),
-  ...generateContentItem("tab8", 4),
-];
+import ContentItemWrapper from "../components/HOC/ContentItemWrapper";
 
 const About = () => {
   const navigate = useNavigate();
@@ -106,9 +95,14 @@ const About = () => {
       onChangeIndex={handleStepChange}
       enableMouseEvents
     >
-      {contentArr.map((Item, index) =>
-        Math.abs(activeStep - index) === 0 ? Item : null
-      )}
+      <ContentItemWrapper keyPrefix="tab1" size={3} />
+      <ContentItemWrapper keyPrefix="tab2" size={3} simple={false} />
+      <ContentItemWrapper keyPrefix="tab3" size={4} hasText />
+      <ContentItemWrapper keyPrefix="tab4" size={3} hasText />
+      <ContentItemWrapper keyPrefix="tab5" size={1} hasText />
+      <ContentItemWrapper keyPrefix="tab6" size={3} hasText />
+      <ContentItemWrapper keyPrefix="tab7" size={3} />
+      <ContentItemWrapper keyPrefix="tab8" size={4} />
     </SwipeableViews>,
     <MobileStepper
       key="stepper"

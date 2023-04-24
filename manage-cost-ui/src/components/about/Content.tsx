@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Stack from "@mui/material/Stack";
 import { useTranslation } from "react-i18next";
 import Typography from "@mui/material/Typography";
@@ -26,7 +26,7 @@ const Content = ({
     theme.breakpoints.down("sm")
   );
 
-  const generateList = () => {
+  const generateList = useMemo(() => {
     const result = [];
     for (let i = 1; i <= listCount; i++) {
       result.push(
@@ -44,7 +44,7 @@ const Content = ({
       );
     }
     return result;
-  };
+  }, [listCount, keyPrefix, t]);
 
   return (
     <>
@@ -60,7 +60,7 @@ const Content = ({
                   {t(`${keyPrefix}.text` as TFuncKey<"about">) as string}
                 </Typography>
               )}
-              <List dense={isMobile}>{generateList()}</List>
+              <List dense={isMobile}>{generateList}</List>
             </div>
           </Stack>
         </Grid>

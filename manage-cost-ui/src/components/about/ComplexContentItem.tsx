@@ -28,6 +28,7 @@ const ComplexContentItem = ({
       const odd = i % 2 === 1;
       content.push(
         <Box
+          key={`image_${i}`}
           sx={
             odd
               ? {
@@ -43,7 +44,6 @@ const ComplexContentItem = ({
           }
         >
           <img
-            key={`image_${i}`}
             src={require(`../../../public/images/${keyPrefix}_${
               index * 2 + i
             }.png`)}
@@ -74,6 +74,7 @@ const ComplexContentItem = ({
       const odd = i % 2 === 1;
       content.push(
         <Grid
+          key={`item_${i}`}
           container
           spacing={2}
           alignItems="center"
