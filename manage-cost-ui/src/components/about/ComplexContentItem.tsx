@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { useTranslation } from "react-i18next";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Theme from "../../themes/theme";
@@ -145,4 +145,4 @@ const ComplexContentItem = ({
   );
 };
 
-export default ComplexContentItem;
+export default memo(ComplexContentItem);

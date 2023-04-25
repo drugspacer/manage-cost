@@ -1,76 +1,66 @@
-import React, { memo } from "react";
+import React, { FC, PropsWithChildren, ReactNode } from "react";
 import ComplexContentItem from "../about/ComplexContentItem";
 import Stack from "@mui/material/Stack";
 import Content from "../about/Content";
 import { KeyPrefix } from "i18next";
 
-const ContentItemWrapper = ({
-  keyPrefix,
-  size,
-  hasText = false,
-  simple = true,
-}: {
-  keyPrefix: KeyPrefix<"about">;
-  size: number;
-  hasText?: boolean;
-  simple?: boolean;
-}) => {
-  const renderContent = () => {
+const ContentItemWrapper = ({ children }: { children?: ReactNode }) => {
+  return (
+    <Stack
+      spacing={2}
+      sx={(theme) => ({
+        [theme.breakpoints.up("sm")]: {
+          mt: 2,
+          mb: 2,
+          ml: 4,
+          mr: 4,
+          height: "610px",
+        },
+        [theme.breakpoints.down("sm")]: {
+          height: "calc(100vh - 76px - 40px - 16px - 56px)",
+        },
+      })}
+    >
+      {children}
+    </Stack>
+  );
+};
+
+const renderContent =
+  (Wrapper: FC<PropsWithChildren>) =>
+  ({
+    simple = true,
+    keyPrefix,
+    hasText = false,
+    size,
+  }: {
+    simple?: boolean;
+    keyPrefix: KeyPrefix<"about">;
+    hasText?: boolean;
+    size: number;
+  }) => {
     const result = [];
     if (simple) {
       return [
-        <Stack
-          key={keyPrefix}
-          spacing={2}
-          sx={(theme) => ({
-            [theme.breakpoints.up("sm")]: {
-              mt: 2,
-              mb: 2,
-              ml: 4,
-              mr: 4,
-              height: "610px",
-            },
-            [theme.breakpoints.down("sm")]: {
-              height: "calc(100vh - 76px - 40px - 16px - 56px)",
-            },
-          })}
-        >
+        <Wrapper key={keyPrefix}>
           <Content keyPrefix={keyPrefix} hasText={hasText} listCount={size} />
-        </Stack>,
+        </Wrapper>,
       ];
     }
     for (let i = 0; i < size; i++) {
       result.push(
-        <Stack
-          key={`${keyPrefix}_${i}`}
-          spacing={2}
-          sx={(theme) => ({
-            [theme.breakpoints.up("sm")]: {
-              mt: 2,
-              mb: 2,
-              ml: 4,
-              mr: 4,
-              height: "610px",
-            },
-            [theme.breakpoints.down("sm")]: {
-              height: "calc(100vh - 76px - 40px - 16px - 56px)",
-            },
-          })}
-        >
+        <Wrapper key={`${keyPrefix}_${i}`}>
           <ComplexContentItem
             index={i}
             final={i == size - 1}
             keyPrefix={keyPrefix}
           />
-        </Stack>
+        </Wrapper>
       );
     }
     return result;
   };
 
-  return <>{renderContent()}</>;
-};
-
 ContentItemWrapper.muiName = "Stack";
 
-export default memo(ContentItemWrapper);
+export default renderContent(ContentItemWrapper);

@@ -73,12 +73,6 @@ public class Trip {
 
     @OneToMany(mappedBy = "primaryKey.trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PersonTrip> persons = new HashSet<>();
-
-    public void addActivity(Activity activity) {
-        this.getActivities()
-                .add(activity);
-        activity.setTrip(this);
-    }
     
     public void addPerson(Person person) {
         PersonTrip personTrip = new PersonTrip(this, person);
