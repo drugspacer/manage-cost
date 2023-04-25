@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import Stack from "@mui/material/Stack";
 import { useTranslation } from "react-i18next";
 import Typography from "@mui/material/Typography";
@@ -77,4 +77,4 @@ const Content = ({
   );
 };
 
-export default Content;
+export default memo(Content);

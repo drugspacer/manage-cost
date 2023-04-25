@@ -57,34 +57,40 @@ const About = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   }, []);
 
-  const handleStepChange = useCallback((step: number) => {
+  const handleStepChange = (step: number) => {
     setActiveStep(step);
-  }, []);
+  };
 
-  const nextButton = (
-    <Button
-      size="small"
-      onClick={handleNext}
-      disabled={activeStep === maxSteps - 1}
-    >
-      {about("button.next")}
-      {theme.direction === "rtl" ? (
-        <KeyboardArrowLeft />
-      ) : (
-        <KeyboardArrowRight />
-      )}
-    </Button>
+  const nextButton = useMemo(
+    () => (
+      <Button
+        size="small"
+        onClick={handleNext}
+        disabled={activeStep === maxSteps - 1}
+      >
+        {about("button.next")}
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
+      </Button>
+    ),
+    [activeStep === maxSteps - 1, handleNext, about, theme.direction]
   );
 
-  const backButton = (
-    <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
-      {theme.direction === "rtl" ? (
-        <KeyboardArrowRight />
-      ) : (
-        <KeyboardArrowLeft />
-      )}
-      {about("button.back")}
-    </Button>
+  const backButton = useMemo(
+    () => (
+      <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
+        {about("button.back")}
+      </Button>
+    ),
+    [activeStep === 0, about, theme.direction, handleBack]
   );
 
   const content = [
@@ -95,14 +101,14 @@ const About = () => {
       onChangeIndex={handleStepChange}
       enableMouseEvents
     >
-      <ContentItemWrapper keyPrefix="tab1" size={3} />
-      <ContentItemWrapper keyPrefix="tab2" size={3} simple={false} />
-      <ContentItemWrapper keyPrefix="tab3" size={4} hasText />
-      <ContentItemWrapper keyPrefix="tab4" size={3} hasText />
-      <ContentItemWrapper keyPrefix="tab5" size={1} hasText />
-      <ContentItemWrapper keyPrefix="tab6" size={3} hasText />
-      <ContentItemWrapper keyPrefix="tab7" size={3} />
-      <ContentItemWrapper keyPrefix="tab8" size={4} />
+      {ContentItemWrapper({ keyPrefix: "tab1", size: 3 })}
+      {ContentItemWrapper({ keyPrefix: "tab2", size: 3, simple: false })}
+      {ContentItemWrapper({ keyPrefix: "tab3", size: 4, hasText: true })}
+      {ContentItemWrapper({ keyPrefix: "tab4", size: 3, hasText: true })}
+      {ContentItemWrapper({ keyPrefix: "tab5", size: 1, hasText: true })}
+      {ContentItemWrapper({ keyPrefix: "tab6", size: 3, hasText: true })}
+      {ContentItemWrapper({ keyPrefix: "tab7", size: 3 })}
+      {ContentItemWrapper({ keyPrefix: "tab8", size: 4 })}
     </SwipeableViews>,
     <MobileStepper
       key="stepper"
