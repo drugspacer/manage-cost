@@ -7,6 +7,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import ImagePreload from "../UI/ImagePreload";
 
 const ComplexContentItem = ({
   index,
@@ -115,13 +116,13 @@ const ComplexContentItem = ({
           ) as string
         }
       </Typography>
-      <img
+      <ImagePreload
         src={require(`../../../public/images/${keyPrefix}_${
           index * 2 + 1
         }.png`)}
         alt={t("image", { content: `$t(${keyPrefix}.header)` })}
-        width={isMobile ? "200px" : "400px"}
-        height={isMobile ? "200px" : "400px"}
+        width={isMobile ? 200 : 400}
+        height={isMobile ? 200 : 400}
       />
       <Typography textAlign="center">
         {t(`${keyPrefix}.text` as TFuncKey<"about">) as string}
