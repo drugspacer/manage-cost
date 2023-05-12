@@ -11,6 +11,7 @@ import RemoveOutlinedIcon from "@mui/icons-material/RemoveOutlined";
 import Grid from "@mui/material/Grid";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Theme from "../../themes/theme";
+import ImagePreload from "../UI/ImagePreload";
 
 const Content = ({
   keyPrefix,
@@ -65,11 +66,11 @@ const Content = ({
           </Stack>
         </Grid>
         <Grid item margin="auto">
-          <img
+          <ImagePreload
             src={require(`../../../public/images/${keyPrefix}.png`)}
             alt={t("image", { content: `$t(${keyPrefix}.header)` })}
-            width={isMobile ? "200px" : "400px"}
-            height={isMobile ? "200px" : "400px"}
+            width={isMobile ? 200 : 400}
+            height={isMobile ? 200 : 400}
           />
         </Grid>
       </Grid>
