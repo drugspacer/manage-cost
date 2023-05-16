@@ -1,3 +1,31 @@
+Manage Cost Application
+=======================
+
+This application is my hobby project to improve my skills in web and backend technologies. This project is divided into 
+2 parts: Frontend and Backend. Here I want to describe a technology stack which I used in this project:
+
+1. Backend
+    - Spring Boot
+    - Spring Security
+    - Maven
+    - PostgreSQL
+    - Swagger
+    - Docker Compose
+
+2. Frontend
+    - TypeScript
+    - React
+    - Material UI
+    - Axios
+    - i18next
+    - Webpack
+
+I tried to solve all possible security issues  with JWT and Spring Security on backend with properly configured CSP 
+Header. Also I store a user password in a secure way in database. I built the Frontend part with webpack and maven 
+frontend plugin then maven grabs all assets in static directory and places them in a jar archive. Then Docker gets into 
+play and creates an image with my jar file which then placed in registry. I describe whole this flow in 2 scripts for 
+easy using in a scripts folder.
+
 Instructions to run project
 ===========================
 
